@@ -48580,31 +48580,35 @@ useButton.addEventListener(
     "click",
     function () {
 
+        // FREE user → PRO payment popup
         if (!hasAccess) {
 
-            // Payment / Upgrade popup
             if (
-                typeof openUpgradeModal ===
+                typeof openPaymentModal ===
                 "function"
             ) {
-                openUpgradeModal();
-                return;
-            }
+                openPaymentModal("pro");
+            } else {
 
-            showToast(
-                "Please upgrade your plan to use this template."
-            );
+                console.error(
+                    "openPaymentModal function not found"
+                );
+
+                showToast(
+                    "Payment system is not available."
+                );
+            }
 
             return;
         }
 
 
+        // PRO / ADMIN → template directly use
         useTemplate(
             template
         );
     }
 );
-
 
     async function openTemplatesModal() {
 
