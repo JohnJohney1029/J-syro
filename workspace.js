@@ -48570,44 +48570,40 @@ badge.textContent =
 useButton.textContent =
     hasAccess
         ? "Use Template"
-        : "🔒 PRO Required";
-
+        : "🔒 Unlock Template";
 
 useButton.disabled =
-    !hasAccess;
+    false;
 
 
-            useButton.addEventListener(
-                "click",
-                function () {
+useButton.addEventListener(
+    "click",
+    function () {
 
-                    useTemplate(
-                        template
-                    );
-                }
+        if (!hasAccess) {
+
+            // Payment / Upgrade popup
+            if (
+                typeof openUpgradeModal ===
+                "function"
+            ) {
+                openUpgradeModal();
+                return;
+            }
+
+            showToast(
+                "Please upgrade your plan to use this template."
             );
 
-
-            content.append(
-                category,
-                title,
-                description,
-                useButton
-            );
-
-
-            card.append(
-                preview,
-                content
-            );
-
-
-            templatesGrid.appendChild(
-                card
-            );
+            return;
         }
-    );
-}
+
+
+        useTemplate(
+            template
+        );
+    }
+);
 
 
     async function openTemplatesModal() {
