@@ -48179,41 +48179,41 @@ function hasTemplateAccess(template) {
     const access =
         window.jSyroAccess || {};
 
-    // Admin = everything unlocked
+    // ADMIN = everything unlocked
     if (access.isAdmin) {
         return true;
     }
 
-    // All Access = everything unlocked
+    // ALL ACCESS = everything unlocked
     if (access.hasAllAccess) {
         return true;
     }
 
-    // PRO templates
-    if (
-        template &&
-        template.category === "PRO" &&
-        access.hasPro
-    ) {
+    // PRO plan = all PRO templates unlocked
+    if (access.hasPro) {
         return true;
     }
 
-    // Work Apps templates
+    // WORK APPS access
     if (
         template &&
         (
             template.category === "WORK APPS" ||
-            template.category === "WORK_APPS"
+            template.category === "WORK_APPS" ||
+            template.category === "app"
         ) &&
         access.hasWorkApps
     ) {
         return true;
     }
 
-    // Business templates
+    // BUSINESS access
     if (
         template &&
-        template.category === "BUSINESS" &&
+        (
+            template.category === "BUSINESS" ||
+            template.category === "business"
+        ) &&
         access.hasBusiness
     ) {
         return true;
@@ -48506,10 +48506,10 @@ function renderTemplates() {
             badge.className =
                 "template-premium-badge";
 
-            badge.textContent =
-                hasAccess
-                    ? "UNLOCKED"
-                    : "LOCKED 🔒";
+badge.textContent =
+    hasAccess
+        ? "🔓 UNLOCKED"
+        : "🔒 LOCKED";
 
 
             preview.appendChild(
@@ -48567,14 +48567,14 @@ function renderTemplates() {
             useButton.className =
                 "template-use-button";
 
-            useButton.textContent =
-                hasAccess
-                    ? "Use Template"
-                    : "Unlock Template";
+useButton.textContent =
+    hasAccess
+        ? "Use Template"
+        : "🔒 PRO Required";
 
 
-            useButton.disabled =
-                false;
+useButton.disabled =
+    !hasAccess;
 
 
             useButton.addEventListener(
