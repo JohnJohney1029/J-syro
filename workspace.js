@@ -48092,396 +48092,440 @@ function initializeTemplatesFeature() {
         "true";
 
 
-    function hasTemplateAccess() {
+function hasTemplateAccess(template) {
 
-        return Boolean(
-            window.jSyroAccess &&
-            (
-                window.jSyroAccess.hasPro ||
-                window.jSyroAccess.isAdmin
-            )
-        );
+    const access =
+        window.jSyroAccess || {};
+
+    // Admin = everything unlocked
+    if (access.isAdmin) {
+        return true;
     }
 
-
-    function updateTemplateAccessBadge() {
-
-        const hasAccess =
-            hasTemplateAccess();
-
-        if (!templatesLock) return;
-
-
-        templatesLock.textContent =
-            hasAccess
-                ? "OPEN"
-                : "PRO";
-
-
-        templatesLock.style.color =
-            hasAccess
-                ? "#aef2da"
-                : "";
-
-
-        templatesLock.style.borderColor =
-            hasAccess
-                ? "#32b988"
-                : "";
+    // All Access = everything unlocked
+    if (access.hasAllAccess) {
+        return true;
     }
 
-
-    function closeTemplatesModal() {
-
-        templatesModal.classList.remove(
-            "open"
-        );
-
-        templatesModal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-    }
-
-
-    async function useTemplate(
-        template
+    // PRO templates
+    if (
+        template &&
+        template.category === "PRO" &&
+        access.hasPro
     ) {
+        return true;
+    }
 
-        if (!hasTemplateAccess()) {
+    // Work Apps templates
+    if (
+        template &&
+        (
+            template.category === "WORK APPS" ||
+            template.category === "WORK_APPS"
+        ) &&
+        access.hasWorkApps
+    ) {
+        return true;
+    }
 
-            showToast(
-                "PRO plan is required to use templates"
-            );
+    // Business templates
+    if (
+        template &&
+        template.category === "BUSINESS" &&
+        access.hasBusiness
+    ) {
+        return true;
+    }
 
-            return;
-        }
-
-
-        const enteredName =
-            window.prompt(
-                "Enter project name:",
-                template.name
-                    .toLowerCase()
-                    .replace(
-                        /\s+/g,
-                        "-"
-                    )
-            );
-
-
-        if (enteredName === null) {
-            return;
-        }
+    return false;
+}
 
 
-        const cleanName =
-            enteredName
-                .trim()
-                .replace(
-                    /[\\/:*?"<>|]/g,
-                    "-"
-                )
+function updateTemplateAccessBadge() {
+
+    if (!templatesLock) return;
+
+    const access =
+        window.jSyroAccess || {};
+
+    const hasAnyAccess =
+        access.isAdmin ||
+        access.hasAllAccess ||
+        access.hasPro ||
+        access.hasWorkApps ||
+        access.hasBusiness;
+
+    templatesLock.textContent =
+        hasAnyAccess
+            ? "OPEN"
+            : "LOCKED";
+
+    templatesLock.style.color =
+        hasAnyAccess
+            ? "#aef2da"
+            : "";
+
+    templatesLock.style.borderColor =
+        hasAnyAccess
+            ? "#32b988"
+            : "";
+}
+
+
+function closeTemplatesModal() {
+
+    templatesModal.classList.remove(
+        "open"
+    );
+
+    templatesModal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+}
+
+
+async function useTemplate(
+    template
+) {
+
+    if (!hasTemplateAccess(template)) {
+
+        showToast(
+            `${template.category} plan is required to use this template`
+        );
+
+        return;
+    }
+
+
+    const enteredName =
+        window.prompt(
+            "Enter project name:",
+            template.name
+                .toLowerCase()
                 .replace(
                     /\s+/g,
                     "-"
-                );
-
-
-        if (!cleanName) {
-
-            showToast(
-                "Enter a valid project name"
-            );
-
-            return;
-        }
-
-
-        await saveProjectToCloud();
-
-
-        currentProjectKey =
-            window.crypto &&
-            typeof window.crypto.randomUUID ===
-                "function"
-                ? window.crypto.randomUUID()
-                : `project-${Date.now()}`;
-
-
-        localStorage.setItem(
-            "j-syro-current-project-key",
-            currentProjectKey
-        );
-
-
-        state.files =
-            JSON.parse(
-                JSON.stringify(
-                    template.files
                 )
-            );
-
-
-        state.folders = [];
-
-        state.activeFile =
-            "index.html";
-
-        state.openFiles = [
-            "index.html"
-        ];
-
-        state.dirty.clear();
-        state.selectedFolder = "";
-        state.expandedFolders =
-            new Set();
-
-        state.inlineAction = null;
-        state.contextTarget = null;
-        state.pendingDelete = null;
-
-
-        const projectNameText =
-            document.getElementById(
-                "projectNameText"
-            );
-
-
-        if (projectNameText) {
-
-            projectNameText.textContent =
-                cleanName;
-        }
-
-
-        persistFiles();
-        renderFiles();
-        renderTabs();
-
-        openFile(
-            "index.html"
         );
 
 
-        await saveProjectToCloud();
-
-
-        closeTemplatesModal();
-
-
-        showToast(
-            `${template.name} template created`
-        );
+    if (enteredName === null) {
+        return;
     }
 
 
-    function renderTemplates() {
-
-        const searchValue =
-            searchInput
-                ?.value
-                .trim()
-                .toLowerCase() ||
-            "";
-
-
-        const categoryValue =
-            categoryFilter?.value ||
-            "all";
+    const cleanName =
+        enteredName
+            .trim()
+            .replace(
+                /[\\/:*?"<>|]/g,
+                "-"
+            )
+            .replace(
+                /\s+/g,
+                "-"
+            );
 
 
-        const hasAccess =
-            hasTemplateAccess();
+    if (!cleanName) {
+
+        showToast(
+            "Enter a valid project name"
+        );
+
+        return;
+    }
 
 
-        const filteredTemplates =
-            jSyroTemplates.filter(
-                function (template) {
-
-                    const matchesSearch =
-                        template.name
-                            .toLowerCase()
-                            .includes(
-                                searchValue
-                            ) ||
-                        template.description
-                            .toLowerCase()
-                            .includes(
-                                searchValue
-                            );
+    await saveProjectToCloud();
 
 
-                    const matchesCategory =
-                        categoryValue ===
-                            "all" ||
-                        template.category ===
-                            categoryValue;
+    currentProjectKey =
+        window.crypto &&
+        typeof window.crypto.randomUUID ===
+            "function"
+            ? window.crypto.randomUUID()
+            : `project-${Date.now()}`;
 
 
-                    return (
-                        matchesSearch &&
-                        matchesCategory
+    localStorage.setItem(
+        "j-syro-current-project-key",
+        currentProjectKey
+    );
+
+
+    state.files =
+        JSON.parse(
+            JSON.stringify(
+                template.files
+            )
+        );
+
+
+    state.folders = [];
+
+    state.activeFile =
+        "index.html";
+
+    state.openFiles = [
+        "index.html"
+    ];
+
+    state.dirty.clear();
+    state.selectedFolder = "";
+    state.expandedFolders =
+        new Set();
+
+    state.inlineAction = null;
+    state.contextTarget = null;
+    state.pendingDelete = null;
+
+
+    const projectNameText =
+        document.getElementById(
+            "projectNameText"
+        );
+
+
+    if (projectNameText) {
+
+        projectNameText.textContent =
+            cleanName;
+    }
+
+
+    persistFiles();
+    renderFiles();
+    renderTabs();
+
+    openFile(
+        "index.html"
+    );
+
+
+    await saveProjectToCloud();
+
+
+    closeTemplatesModal();
+
+
+    showToast(
+        `${template.name} template created`
+    );
+}
+
+
+function renderTemplates() {
+
+    const searchValue =
+        searchInput
+            ?.value
+            .trim()
+            .toLowerCase() ||
+        "";
+
+
+    const categoryValue =
+        categoryFilter?.value ||
+        "all";
+
+
+    const filteredTemplates =
+        jSyroTemplates.filter(
+            function (template) {
+
+                const matchesSearch =
+                    template.name
+                        .toLowerCase()
+                        .includes(
+                            searchValue
+                        ) ||
+                    template.description
+                        .toLowerCase()
+                        .includes(
+                            searchValue
+                        );
+
+
+                const matchesCategory =
+                    categoryValue ===
+                        "all" ||
+                    template.category ===
+                        categoryValue;
+
+
+                return (
+                    matchesSearch &&
+                    matchesCategory
+                );
+            }
+        );
+
+
+    templatesGrid.innerHTML = "";
+
+
+    if (
+        filteredTemplates.length ===
+        0
+    ) {
+
+        templatesGrid.innerHTML =
+            '<p class="panel-hint">' +
+            "No templates found." +
+            "</p>";
+
+        return;
+    }
+
+
+    filteredTemplates.forEach(
+        function (template) {
+
+            const hasAccess =
+                hasTemplateAccess(
+                    template
+                );
+
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+            card.className =
+                "template-card";
+
+
+            const preview =
+                document.createElement(
+                    "div"
+                );
+
+            preview.className =
+                "template-preview";
+
+            preview.innerHTML =
+                `<strong style="
+                    font-size:42px;
+                    color:#b8b1ff;
+                ">
+                    ${template.icon}
+                </strong>`;
+
+
+            const badge =
+                document.createElement(
+                    "span"
+                );
+
+            badge.className =
+                "template-premium-badge";
+
+            badge.textContent =
+                hasAccess
+                    ? "UNLOCKED"
+                    : "LOCKED 🔒";
+
+
+            preview.appendChild(
+                badge
+            );
+
+
+            const content =
+                document.createElement(
+                    "div"
+                );
+
+            content.className =
+                "template-card-content";
+
+
+            const category =
+                document.createElement(
+                    "span"
+                );
+
+            category.className =
+                "template-category";
+
+            category.textContent =
+                template.category;
+
+
+            const title =
+                document.createElement(
+                    "h3"
+                );
+
+            title.textContent =
+                template.name;
+
+
+            const description =
+                document.createElement(
+                    "p"
+                );
+
+            description.textContent =
+                template.description;
+
+
+            const useButton =
+                document.createElement(
+                    "button"
+                );
+
+            useButton.type =
+                "button";
+
+            useButton.className =
+                "template-use-button";
+
+            useButton.textContent =
+                hasAccess
+                    ? "Use Template"
+                    : "Unlock Template";
+
+
+            useButton.disabled =
+                false;
+
+
+            useButton.addEventListener(
+                "click",
+                function () {
+
+                    useTemplate(
+                        template
                     );
                 }
             );
 
 
-        templatesGrid.innerHTML = "";
+            content.append(
+                category,
+                title,
+                description,
+                useButton
+            );
 
 
-        if (
-            filteredTemplates.length ===
-            0
-        ) {
+            card.append(
+                preview,
+                content
+            );
 
-            templatesGrid.innerHTML =
-                '<p class="panel-hint">' +
-                "No templates found." +
-                "</p>";
 
-            return;
+            templatesGrid.appendChild(
+                card
+            );
         }
-
-
-        filteredTemplates.forEach(
-            function (template) {
-
-                const card =
-                    document.createElement(
-                        "article"
-                    );
-
-                card.className =
-                    "template-card";
-
-
-                const preview =
-                    document.createElement(
-                        "div"
-                    );
-
-                preview.className =
-                    "template-preview";
-
-                preview.innerHTML =
-                    `<strong style="
-                        font-size:42px;
-                        color:#b8b1ff;
-                    ">
-                        ${template.icon}
-                    </strong>`;
-
-
-                const badge =
-                    document.createElement(
-                        "span"
-                    );
-
-                badge.className =
-                    "template-premium-badge";
-
-                badge.textContent =
-                    hasAccess
-                        ? "UNLOCKED"
-                        : "PRO";
-
-
-                preview.appendChild(
-                    badge
-                );
-
-
-                const content =
-                    document.createElement(
-                        "div"
-                    );
-
-                content.className =
-                    "template-card-content";
-
-
-                const category =
-                    document.createElement(
-                        "span"
-                    );
-
-                category.className =
-                    "template-category";
-
-                category.textContent =
-                    template.category;
-
-
-                const title =
-                    document.createElement(
-                        "h3"
-                    );
-
-                title.textContent =
-                    template.name;
-
-
-                const description =
-                    document.createElement(
-                        "p"
-                    );
-
-                description.textContent =
-                    template.description;
-
-
-                const useButton =
-                    document.createElement(
-                        "button"
-                    );
-
-                useButton.type =
-                    "button";
-
-                useButton.className =
-                    "template-use-button";
-
-                useButton.textContent =
-                    hasAccess
-                        ? "Use Template"
-                        : "PRO Required";
-
-                useButton.disabled =
-                    !hasAccess;
-
-
-                useButton.addEventListener(
-                    "click",
-                    function () {
-
-                        useTemplate(
-                            template
-                        );
-                    }
-                );
-
-
-                content.append(
-                    category,
-                    title,
-                    description,
-                    useButton
-                );
-
-
-                card.append(
-                    preview,
-                    content
-                );
-
-
-                templatesGrid.appendChild(
-                    card
-                );
-            }
-        );
-    }
+    );
+}
 
 
     async function openTemplatesModal() {
