@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="J-SYRO administration dashboard"
+    >
+
+    <title>
+        Admin Dashboard — J-SYRO
+    </title>
+
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <link
+        rel="stylesheet"
+        href="admin.css"
+    >
+
+
+    <style>
+
+        body.admin-checking {
+            visibility: hidden;
+        }
+
+    </style>
+
+</head>
+
+
+<body class="admin-checking">
+
+    <div class="admin-app">
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="admin-sidebar">
+
+            <div class="admin-brand">
+
+                <a
+                    href="index.html"
+                    aria-label="J-SYRO home"
+                >
+                    <img
+                        src="logo.png"
+                        alt="J-SYRO"
+                    >
+                </a>
+
+                <span>
+                    ADMIN
+                </span>
+
+            </div>
+
+
+            <nav class="admin-navigation">
+
+                <button
+                    class="admin-nav-button active"
+                    type="button"
+                    data-admin-section="dashboardSection"
+                >
+                    <span>⌂</span>
+                    Dashboard
+                </button>
+
+
+                <button
+                    class="admin-nav-button"
+                    type="button"
+                    data-admin-section="requestsSection"
+                >
+                    <span>◆</span>
+                    Business Requests
+
+                    <strong
+                        class="admin-nav-count"
+                        id="pendingRequestsCount"
+                    >
+                        0
+                    </strong>
+                </button>
+
+
+                <button
+                    class="admin-nav-button"
+                    type="button"
+                    data-admin-section="usersSection"
+                >
+                    <span>◎</span>
+                    Users
+                </button>
+
+
+                <button
+                    class="admin-nav-button"
+                    type="button"
+                    data-admin-section="projectsSection"
+                >
+                    <span>▦</span>
+                    Projects
+                </button>
+
+            </nav>
+
+
+            <div class="admin-sidebar-bottom">
+
+                <a
+                    class="admin-workspace-link"
+                    href="workspace.html"
+                >
+                    <span>←</span>
+                    Back to Workspace
+                </a>
+
+
+                <button
+                    class="admin-logout-button"
+                    id="adminLogoutBtn"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN CONTENT -->
+
+        <main class="admin-main">
+
+
+            <!-- TOP HEADER -->
+
+            <header class="admin-header">
+
+                <div>
+
+                    <span class="admin-header-eyebrow">
+                        J-SYRO CONTROL CENTER
+                    </span>
+
+                    <h1 id="adminPageTitle">
+                        Dashboard
+                    </h1>
+
+                </div>
+
+
+                <div class="admin-account">
+
+                    <div class="admin-account-details">
+
+                        <strong id="adminUserName">
+                            Administrator
+                        </strong>
+
+                        <span id="adminUserEmail">
+                            Checking account...
+                        </span>
+
+                    </div>
+
+
+                    <span class="admin-role-badge">
+                        ADMIN
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- DASHBOARD SECTION -->
+
+            <section
+                class="admin-section active"
+                id="dashboardSection"
+            >
+
+                <div class="admin-section-heading">
+
+                    <div>
+
+                        <h2>
+                            Overview
+                        </h2>
+
+                        <p>
+                            Current J-SYRO platform activity.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="admin-refresh-button"
+                        id="refreshAdminDashboard"
+                        type="button"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <!-- STATISTICS -->
+
+                <div class="admin-stats-grid">
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            ◎
+                        </span>
+
+                        <div>
+
+                            <small>
+                                Total Users
+                            </small>
+
+                            <strong id="totalUsersStat">
+                                0
+                            </strong>
+
+                            <p>
+                                Registered accounts
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            ▦
+                        </span>
+
+                        <div>
+
+                            <small>
+                                Total Projects
+                            </small>
+
+                            <strong id="totalProjectsStat">
+                                0
+                            </strong>
+
+                            <p>
+                                Saved cloud projects
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            ◆
+                        </span>
+
+                        <div>
+
+                            <small>
+                                Business Requests
+                            </small>
+
+                            <strong id="totalRequestsStat">
+                                0
+                            </strong>
+
+                            <p>
+                                All submitted requests
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="admin-stat-card warning">
+
+                        <span class="admin-stat-icon">
+                            !
+                        </span>
+
+                        <div>
+
+                            <small>
+                                Pending Requests
+                            </small>
+
+                            <strong id="pendingRequestsStat">
+                                0
+                            </strong>
+
+                            <p>
+                                Require admin review
+                            </p>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- PLAN OVERVIEW -->
+
+                <div class="admin-dashboard-grid">
+
+                    <article class="admin-dashboard-card">
+
+                        <div class="admin-card-heading">
+
+                            <div>
+
+                                <h3>
+                                    User Plans
+                                </h3>
+
+                                <p>
+                                    Accounts grouped by plan.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="admin-plan-list">
+
+                            <div class="admin-plan-row">
+
+                                <span class="admin-plan-name free">
+                                    FREE
+                                </span>
+
+                                <strong id="freeUsersStat">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="admin-plan-row">
+
+                                <span class="admin-plan-name pro">
+                                    PRO
+                                </span>
+
+                                <strong id="proUsersStat">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="admin-plan-row">
+
+                                <span class="admin-plan-name business">
+                                    BUSINESS
+                                </span>
+
+                                <strong id="businessUsersStat">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="admin-plan-row">
+
+                                <span class="admin-plan-name admin">
+                                    ADMIN
+                                </span>
+
+                                <strong id="adminUsersStat">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="admin-dashboard-card">
+
+                        <div class="admin-card-heading">
+
+                            <div>
+
+                                <h3>
+                                    Recent Requests
+                                </h3>
+
+                                <p>
+                                    Latest website requests.
+                                </p>
+
+                            </div>
+
+
+                            <button
+                                class="admin-text-button"
+                                id="viewAllRequestsBtn"
+                                type="button"
+                            >
+                                View all
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="admin-recent-list"
+                            id="recentBusinessRequests"
+                        >
+
+                            <p class="admin-empty-message">
+                                Loading requests...
+                            </p>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- BUSINESS REQUESTS SECTION -->
+
+            <section
+                class="admin-section"
+                id="requestsSection"
+            >
+
+                <div class="admin-section-heading">
+
+                    <div>
+
+                        <h2>
+                            Business Requests
+                        </h2>
+
+                        <p>
+                            Review and manage customer website requests.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-table-toolbar">
+
+                    <label class="admin-search-box">
+
+                        <span>⌕</span>
+
+                        <input
+                            id="adminRequestSearch"
+                            type="search"
+                            placeholder="Search requests..."
+                            autocomplete="off"
+                        >
+
+                    </label>
+
+
+                    <select id="adminRequestStatusFilter">
+
+                        <option value="all">
+                            All statuses
+                        </option>
+
+                        <option value="pending">
+                            Pending
+                        </option>
+
+                        <option value="reviewing">
+                            Reviewing
+                        </option>
+
+                        <option value="in_progress">
+                            In Progress
+                        </option>
+
+                        <option value="completed">
+                            Completed
+                        </option>
+
+                        <option value="cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    class="admin-requests-container"
+                    id="adminRequestsList"
+                >
+
+                    <p class="admin-empty-message">
+                        Loading business requests...
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- USERS SECTION -->
+
+            <section
+                class="admin-section"
+                id="usersSection"
+            >
+
+                <div class="admin-section-heading">
+
+                    <div>
+
+                        <h2>
+                            Users
+                        </h2>
+
+                        <p>
+                            View registered accounts and plan access.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-table-toolbar">
+
+                    <label class="admin-search-box">
+
+                        <span>⌕</span>
+
+                        <input
+                            id="adminUserSearch"
+                            type="search"
+                            placeholder="Search users..."
+                            autocomplete="off"
+                        >
+
+                    </label>
+
+
+                    <select id="adminUserPlanFilter">
+
+                        <option value="all">
+                            All plans
+                        </option>
+
+                        <option value="free">
+                            Free
+                        </option>
+
+                        <option value="pro">
+                            Pro
+                        </option>
+
+                        <option value="business">
+                            Business
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    User
+                                </th>
+
+                                <th>
+                                    Plan
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th>
+                                    Joined
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="adminUsersTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="admin-table-message"
+                                >
+                                    Loading users...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- PROJECTS SECTION -->
+
+            <section
+                class="admin-section"
+                id="projectsSection"
+            >
+
+                <div class="admin-section-heading">
+
+                    <div>
+
+                        <h2>
+                            Projects
+                        </h2>
+
+                        <p>
+                            View saved J-SYRO cloud projects.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-table-toolbar">
+
+                    <label class="admin-search-box">
+
+                        <span>⌕</span>
+
+                        <input
+                            id="adminProjectSearch"
+                            type="search"
+                            placeholder="Search projects..."
+                            autocomplete="off"
+                        >
+
+                    </label>
+
+                </div>
+
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Project
+                                </th>
+
+                                <th>
+                                    Project Key
+                                </th>
+
+                                <th>
+                                    Owner
+                                </th>
+
+                                <th>
+                                    Files
+                                </th>
+
+                                <th>
+                                    Updated
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="adminProjectsTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="admin-table-message"
+                                >
+                                    Loading projects...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- REQUEST DETAILS MODAL -->
+
+    <div
+        class="admin-modal"
+        id="adminRequestModal"
+        aria-hidden="true"
+    >
+
+        <div class="admin-modal-card">
+
+            <div class="admin-modal-header">
+
+                <div>
+
+                    <span>
+                        BUSINESS REQUEST
+                    </span>
+
+                    <h2 id="adminRequestModalTitle">
+                        Request Details
+                    </h2>
+
+                </div>
+
+
+                <button
+                    id="closeAdminRequestModal"
+                    type="button"
+                    aria-label="Close request"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                class="admin-request-details"
+                id="adminRequestDetails"
+            >
+            </div>
+
+
+            <div class="admin-request-management">
+
+                <label>
+
+                    <span>
+                        Request Status
+                    </span>
+
+                    <select id="adminRequestStatus">
+
+                        <option value="pending">
+                            Pending
+                        </option>
+
+                        <option value="reviewing">
+                            Reviewing
+                        </option>
+
+                        <option value="in_progress">
+                            In Progress
+                        </option>
+
+                        <option value="completed">
+                            Completed
+                        </option>
+
+                        <option value="cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+                <label>
+
+                    <span>
+                        Customer Update
+                    </span>
+
+                    <textarea
+                        id="adminRequestNote"
+                        rows="4"
+                        placeholder="Write an update for the customer..."
+                    ></textarea>
+
+                </label>
+
+
+                <button
+                    class="admin-save-request-button"
+                    id="saveAdminRequestBtn"
+                    type="button"
+                >
+                    Save Request Update
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOAST -->
+
+    <div
+        class="admin-toast"
+        id="adminToast"
+        role="status"
+    >
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="admin.js"></script>
+
+</body>
+
+</html>

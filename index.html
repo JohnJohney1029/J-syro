@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="J-SYRO is a focused coding workspace for building, running, and managing modern projects."
+    >
+
+    <title>J-SYRO — Code. Build. Create.</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+
+    <div class="header-top">
+
+        <!-- LOGO LEFT -->
+        <a
+            class="brand"
+            href="#top"
+            aria-label="J-SYRO home"
+        >
+            <span class="brand-logo">
+                <img
+                    src="logo.png"
+                    alt="J-SYRO"
+                >
+            </span>
+        </a>
+
+
+        <!-- NAVIGATION CENTER -->
+        <nav aria-label="Main navigation">
+
+            <a href="#features">
+                Features
+            </a>
+
+            <a href="#workflow">
+                How it works
+            </a>
+
+            <a href="#plans">
+                Plans
+            </a>
+
+        </nav>
+
+
+        <!-- ACCOUNT BUTTONS RIGHT -->
+        <<div class="account-actions">
+
+    <!-- Login na hone par -->
+
+    <div
+        class="guest-actions"
+        id="guestActions"
+    >
+
+        <button
+            class="login-button"
+            type="button"
+            onclick="openLogin()"
+        >
+            Log in
+        </button>
+
+        <button
+            class="signup-button"
+            type="button"
+            onclick="openSignup()"
+        >
+            Sign Up
+        </button>
+
+    </div>
+
+
+    <!-- Login hone ke baad -->
+
+    <div
+        class="user-actions"
+        id="userActions"
+        hidden
+    >
+
+        <span id="homeUserIdentity">
+            Account
+        </span>
+
+        <button
+            class="login-button"
+            id="homeLogoutBtn"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+   <main id="top">
+
+    <!-- HERO SECTION -->
+    <section
+        class="hero"
+        aria-labelledby="hero-title"
+    >
+
+        <img
+            src="old hero.jpeg"
+            alt="J-SYRO coding workspace and brand"
+            class="hero-image"
+        >
+
+        <div class="hero-shade"></div>
+
+
+        <div class="hero-content">
+
+            <span class="eyebrow">
+                BUILD. CUSTOMIZE. RUN.
+            </span>
+
+            <h1 id="hero-title">
+                Build websites, business tools and working apps.
+            </h1>
+
+            <p>
+                Create from scratch or start with professional templates,
+                business systems and functional Work Apps — all inside
+                one focused browser workspace.
+            </p>
+
+
+            <div class="hero-actions">
+
+                <a
+                    class="button button-secondary"
+                    href="workspace.html"
+                >
+                    Launch Workspace
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+        <!-- FEATURES SECTION -->
+<section
+    class="value"
+    id="features"
+    aria-labelledby="value-title"
+>
+
+    <div class="section-heading">
+
+        <span class="eyebrow">
+            Everything in one workspace
+        </span>
+
+        <h2 id="value-title">
+            From blank files to complete projects.
+        </h2>
+
+        <p>
+            Code from scratch, start with a ready-made template,
+            or open a functional Work App and customize the entire project.
+        </p>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+        <article class="feature-card">
+
+            <span class="feature-number">
+                01
+            </span>
+
+            <div class="feature-icon">
+                &lt;/&gt;
+            </div>
+
+            <h3>
+                Focused code workspace
+            </h3>
+
+            <p>
+                Create and manage HTML, CSS and JavaScript files
+                in a clean project-based editor.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <span class="feature-number">
+                02
+            </span>
+
+            <div class="feature-icon">
+                ◇
+            </div>
+
+            <h3>
+                Professional templates
+            </h3>
+
+            <p>
+                Start faster with PRO website templates and premium
+                Business templates built for real projects.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <span class="feature-number">
+                03
+            </span>
+
+            <div class="feature-icon">
+                ▣
+            </div>
+
+            <h3>
+                Functional Work Apps
+            </h3>
+
+            <p>
+                Use ready-to-work apps for billing, attendance,
+                inventory, finance, operations and more.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <span class="feature-number">
+                04
+            </span>
+
+            <div class="feature-icon">
+                ⌁
+            </div>
+
+            <h3>
+                Complete project tools
+            </h3>
+
+            <p>
+                Save to the cloud, duplicate projects, restore history,
+                switch themes, share projects and download ZIP files.
+            </p>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+    <!-- HOW IT WORKS -->
+<section
+    class="workflow"
+    id="workflow"
+    aria-labelledby="workflow-title"
+>
+
+    <div class="workflow-copy">
+
+        <span class="eyebrow">
+            Your workflow, streamlined
+        </span>
+
+        <h2 id="workflow-title">
+            From idea to working project.
+        </h2>
+
+        <p>
+            Build manually, start from a template,
+            or use a functional Work App.
+            J-SYRO keeps your complete workflow in one place.
+        </p>
+
+    </div>
+
+
+    <ol class="steps">
+
+        <li>
+
+            <span>
+                1
+            </span>
+
+            <div>
+
+                <h3>
+                    Create or choose a starting point
+                </h3>
+
+                <p>
+                    Start a blank project, PRO template,
+                    Business template or Work App.
+                </p>
+
+            </div>
+
+        </li>
+
+
+        <li>
+
+            <span>
+                2
+            </span>
+
+            <div>
+
+                <h3>
+                    Customize your project
+                </h3>
+
+                <p>
+                    Edit files, add pages, organize folders
+                    and make the project your own.
+                </p>
+
+            </div>
+
+        </li>
+
+
+        <li>
+
+            <span>
+                3
+            </span>
+
+            <div>
+
+                <h3>
+                    Run, save and share
+                </h3>
+
+                <p>
+                    Preview your project, save it to the cloud,
+                    restore versions, share it or download the complete ZIP.
+                </p>
+
+            </div>
+
+        </li>
+
+    </ol>
+
+</section>
+
+<!-- PLANS -->
+
+<section
+    class="plans"
+    id="plans"
+    aria-labelledby="plans-title"
+>
+
+    <div class="section-heading">
+
+        <span class="eyebrow">
+            Choose your experience
+        </span>
+
+        <h2 id="plans-title">
+            Build your way with J-SYRO.
+        </h2>
+
+        <p>
+            Choose only the library you need,
+            or unlock everything with All Access.
+        </p>
+
+    </div>
+
+
+    <div class="plans-grid">
+
+
+        <!-- FREE PLAN -->
+
+        <article class="plan-card free-plan">
+
+            <span class="plan-label">
+                FREE FOREVER
+            </span>
+
+            <h3>J-SYRO FREE</h3>
+
+            <div class="plan-price">
+                <strong>$0</strong>
+                <span>/ month</span>
+            </div>
+
+            <p class="plan-description">
+                Start building with the core
+                J-SYRO workspace for free.
+            </p>
+
+            <ul class="plan-features">
+                <li>✓ HTML, CSS and JavaScript editor</li>
+                <li>✓ Create files and folders</li>
+                <li>✓ Run and preview projects</li>
+                <li>✓ Save projects to your account</li>
+                <li>✓ Project file management</li>
+                <li>✓ Download projects as ZIP</li>
+            </ul>
+
+            <button
+                class="plan-button free-button"
+                onclick="startProject()"
+            >
+                Start Free →
+            </button>
+
+        </article>
+
+
+
+        <!-- PRO TEMPLATES -->
+
+        <article class="plan-card pro-plan">
+
+            <span class="plan-label">
+                PRO TEMPLATES
+            </span>
+
+            <h3>J-SYRO PRO</h3>
+
+            <div class="plan-price">
+                <strong>$5.99</strong>
+                <span>/ month</span>
+            </div>
+
+            <p class="plan-description">
+                Unlock J-SYRO's professional
+                website and interface template library.
+            </p>
+
+            <ul class="plan-features">
+                <li>✓ Core FREE workspace included</li>
+                <li>✓ Full PRO Template Library</li>
+                <li>✓ Professional website templates</li>
+                <li>✓ Portfolio and business websites</li>
+                <li>✓ SaaS and landing page templates</li>
+                <li>✓ Dashboard and interface templates</li>
+                <li>✓ New PRO templates</li>
+            </ul>
+
+            <button
+                class="plan-button pro-button"
+                onclick="choosePro()"
+            >
+                Get PRO →
+            </button>
+
+        </article>
+
+
+
+        <!-- WORK APPS -->
+
+        <article class="plan-card workapps-plan">
+
+            <span class="plan-label">
+                FUNCTIONAL APPS
+            </span>
+
+            <h3>J-SYRO WORK APPS</h3>
+
+            <div class="plan-price">
+                <strong>$7.99</strong>
+                <span>/ month</span>
+            </div>
+
+            <p class="plan-description">
+                Unlock functional applications
+                built for real everyday work.
+            </p>
+
+            <ul class="plan-features">
+                <li>✓ Core FREE workspace included</li>
+                <li>✓ Full Work Apps Library</li>
+                <li>✓ POS & Billing apps</li>
+                <li>✓ Inventory and finance tools</li>
+                <li>✓ HR and attendance apps</li>
+                <li>✓ Productivity and operations apps</li>
+                <li>✓ New Work Apps</li>
+            </ul>
+
+            <button
+                class="plan-button workapps-button"
+                onclick="chooseWorkApps()"
+            >
+                Get Work Apps →
+            </button>
+
+        </article>
+
+
+
+        <!-- BUSINESS TEMPLATES -->
+
+        <article class="plan-card business-plan">
+
+            <span class="plan-label">
+                BUSINESS TEMPLATES
+            </span>
+
+            <h3>J-SYRO BUSINESS</h3>
+
+            <div class="plan-price">
+                <strong>$9.99</strong>
+                <span>/ month</span>
+            </div>
+
+            <p class="plan-description">
+                Unlock premium templates made
+                for professional business projects.
+            </p>
+
+            <ul class="plan-features">
+                <li>✓ Core FREE workspace included</li>
+                <li>✓ Full Business Template Library</li>
+                <li>✓ Premium business dashboards</li>
+                <li>✓ CRM and company portals</li>
+                <li>✓ Operations and management systems</li>
+                <li>✓ Professional business interfaces</li>
+                <li>✓ New Business templates</li>
+            </ul>
+
+            <button
+                class="plan-button business-button"
+                onclick="chooseBusiness()"
+            >
+                Get Business →
+            </button>
+
+        </article>
+
+
+
+        <!-- ALL ACCESS -->
+
+        <article class="plan-card all-access-plan">
+
+            <span class="plan-label">
+                BEST VALUE
+            </span>
+
+            <h3>J-SYRO ALL ACCESS</h3>
+
+            <div class="plan-price">
+                <strong>$17.99</strong>
+                <span>/ month</span>
+            </div>
+
+            <p class="plan-description">
+                Unlock every premium J-SYRO
+                library with one subscription.
+            </p>
+
+            <ul class="plan-features">
+                <li>✓ Core FREE workspace included</li>
+                <li>✓ Complete PRO Template Library</li>
+                <li>✓ Complete Work Apps Library</li>
+                <li>✓ Complete Business Template Library</li>
+                <li>✓ All future PRO templates</li>
+                <li>✓ All future Work Apps</li>
+                <li>✓ All future Business templates</li>
+            </ul>
+
+            <button
+                class="plan-button all-access-button"
+                onclick="chooseAllAccess()"
+            >
+                Get All Access →
+            </button>
+
+        </article>
+
+
+    </div>
+
+</section>
+
+
+<!-- PREMIUM ACCESS EXPLAINER -->
+
+<article class="custom-service-card">
+
+    <div class="custom-service-content">
+
+        <span class="plan-label">
+            SIMPLE PREMIUM ACCESS
+        </span>
+
+        <h3>
+            Explore first. Unlock when you're ready.
+        </h3>
+
+        <p>
+            Create a free account, browse J-SYRO's premium
+            libraries, and upgrade only when you are ready
+            to use premium content.
+        </p>
+
+        <ul class="custom-service-features">
+
+            <li>
+                ✓ <strong>Choose a Library</strong> —
+                open PRO Templates, Work Apps or Business Templates.
+            </li>
+
+            <li>
+                ✓ <strong>Browse Before Paying</strong> —
+                explore the available templates and apps first.
+            </li>
+
+            <li>
+                ✓ <strong>Choose What You Need</strong> —
+                click Use Template on the project you want.
+            </li>
+
+            <li>
+                ✓ <strong>Unlock & Build</strong> —
+                complete payment and start using the premium library.
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <div class="custom-service-action">
+
+        <span class="custom-price-label">
+            ONE SUBSCRIPTION
+        </span>
+
+        <strong class="custom-service-price">
+            ALL ACCESS
+        </strong>
+
+        <span class="custom-price-type">
+            PRO + Work Apps + Business
+        </span>
+
+        <button
+            class="plan-button custom-service-button"
+            type="button"
+            onclick="chooseAllAccess()"
+        >
+            Explore All Access →
+        </button>
+
+    </div>
+
+</article>
+
+
+<p class="pricing-service-note">
+    PRO Templates, Work Apps and Business Templates can also
+    be purchased separately. All Access unlocks all three
+    premium libraries with one subscription.
+</p>
+
+</section>
+
+
+<!-- WORKSPACE CTA -->
+<section
+    class="cta"
+    aria-labelledby="cta-title"
+>
+
+    <span class="eyebrow">
+        Ready when you are
+    </span>
+
+    <h2 id="cta-title">
+        Your next project starts here.
+    </h2>
+
+    <p>
+        Code from scratch, choose a professional template,
+        or launch a functional Work App.
+    </p>
+
+    <button
+        class="button button-primary"
+        type="button"
+        onclick="startProject()"
+    >
+        Launch workspace
+
+        <span>
+            →
+        </span>
+
+    </button>
+
+</section>
+
+</main>
+
+    <!-- LOGIN / SIGN UP POPUP -->
+    <div
+        class="auth-modal"
+        id="authModal"
+        aria-hidden="true"
+    >
+
+        <!-- DARK BACKGROUND -->
+        <div
+            class="auth-modal-backdrop"
+            onclick="closeAuthModal()"
+        ></div>
+
+
+        <!-- POPUP BOX -->
+        <div
+            class="auth-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="authTitle"
+        >
+
+            <!-- CLOSE BUTTON -->
+            <button
+                class="auth-close"
+                type="button"
+                aria-label="Close login and signup popup"
+                onclick="closeAuthModal()"
+            >
+                &times;
+            </button>
+
+
+            <!-- POPUP HEADER -->
+            <div class="auth-modal-header">
+
+                <span class="auth-logo">
+
+                    <img
+                        src="logo.png"
+                        alt="J-SYRO"
+                    >
+
+                </span>
+
+                <span class="eyebrow">
+                    Welcome to J-SYRO
+                </span>
+
+                <h2 id="authTitle">
+                    Log in to continue
+                </h2>
+
+                <p id="authSubtitle">
+                    Access your workspace and saved projects.
+                </p>
+
+            </div>
+
+
+            <!-- LOGIN / SIGNUP TABS -->
+            <div
+                class="auth-tabs"
+                role="tablist"
+                aria-label="Account options"
+            >
+
+                <button
+                    class="auth-tab active"
+                    id="loginTab"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    onclick="showLoginForm()"
+                >
+                    Log in
+                </button>
+
+                <button
+                    class="auth-tab"
+                    id="signupTab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    onclick="showSignupForm()"
+                >
+                    Sign Up
+                </button>
+
+            </div>
+
+
+            <!-- ERROR / SUCCESS MESSAGE -->
+            <p
+                class="auth-message"
+                id="authMessage"
+                aria-live="polite"
+            ></p>
+
+
+            <!-- LOGIN FORM -->
+            <form
+                class="auth-form"
+                id="loginForm"
+                onsubmit="handleLogin(event)"
+            >
+
+                <div class="auth-field">
+
+                    <label for="loginEmail">
+                        Email address
+                    </label>
+
+                    <input
+                        id="loginEmail"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label for="loginPassword">
+                        Password
+                    </label>
+
+                    <input
+                        id="loginPassword"
+                        name="password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="auth-submit"
+                    type="submit"
+                >
+                    Log in to J-SYRO
+                </button>
+
+
+                <p class="auth-switch-text">
+
+                    Don’t have an account?
+
+                    <button
+                        type="button"
+                        onclick="showSignupForm()"
+                    >
+                        Create one
+                    </button>
+
+                </p>
+
+            </form>
+
+
+            <!-- SIGN UP FORM -->
+            <form
+                class="auth-form"
+                id="signupForm"
+                onsubmit="handleSignup(event)"
+                hidden
+            >
+
+                <div class="auth-field">
+
+                    <label for="signupName">
+                        Full name
+                    </label>
+
+                    <input
+                        id="signupName"
+                        name="fullName"
+                        type="text"
+                        placeholder="Enter your name"
+                        autocomplete="name"
+                        minlength="2"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label for="signupEmail">
+                        Email address
+                    </label>
+
+                    <input
+                        id="signupEmail"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label for="signupPassword">
+                        Password
+                    </label>
+
+                    <input
+                        id="signupPassword"
+                        name="password"
+                        type="password"
+                        placeholder="Minimum 6 characters"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label for="signupConfirmPassword">
+                        Confirm password
+                    </label>
+
+                    <input
+                        id="signupConfirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        placeholder="Enter password again"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="auth-submit"
+                    type="submit"
+                >
+                    Create free account
+                </button>
+
+
+                <p class="auth-switch-text">
+
+                    Already have an account?
+
+                    <button
+                        type="button"
+                        onclick="showLoginForm()"
+                    >
+                        Log in
+                    </button>
+
+                </p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
+<!-- =========================================
+     J-SYRO SUBSCRIPTION PAYMENT MODAL
+========================================= -->
+
+<div
+    class="payment-modal"
+    id="paymentModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="payment-modal-backdrop"
+        onclick="closePaymentModal()"
+    ></div>
+
+
+    <div class="payment-modal-card">
+
+        <button
+            class="payment-close"
+            type="button"
+            onclick="closePaymentModal()"
+            aria-label="Close payment"
+        >
+            ×
+        </button>
+
+
+        <!-- LOGO -->
+
+<div class="payment-logo">
+    <img
+        src="js-logo.png"
+        alt="J-SYRO"
+    >
+</div>
+
+
+        <!-- HEADER -->
+
+        <div class="payment-header">
+
+            <h2>
+                J-SYRO Subscription
+            </h2>
+
+            <p>
+                Choose your plan and continue
+                to secure payment.
+            </p>
+
+        </div>
+
+
+        <!-- PLAN OPTIONS -->
+
+        <div class="payment-plan-list">
+
+
+            <!-- PRO -->
+
+            <label class="payment-plan-option">
+
+                <input
+                    type="radio"
+                    name="paymentPlan"
+                    value="pro"
+                >
+
+                <span class="payment-radio"></span>
+
+                <span class="payment-plan-name">
+                    PRO Templates
+                </span>
+
+                <strong>
+                    $5.99
+                </strong>
+
+            </label>
+
+
+            <!-- WORK APPS -->
+
+            <label class="payment-plan-option">
+
+                <input
+                    type="radio"
+                    name="paymentPlan"
+                    value="workapps"
+                >
+
+                <span class="payment-radio"></span>
+
+                <span class="payment-plan-name">
+                    Work Apps
+                </span>
+
+                <strong>
+                    $7.99
+                </strong>
+
+            </label>
+
+
+            <!-- BUSINESS -->
+
+            <label class="payment-plan-option">
+
+                <input
+                    type="radio"
+                    name="paymentPlan"
+                    value="business"
+                >
+
+                <span class="payment-radio"></span>
+
+                <span class="payment-plan-name">
+                    Business Templates
+                </span>
+
+                <strong>
+                    $9.99
+                </strong>
+
+            </label>
+
+
+            <!-- ALL ACCESS -->
+
+            <label class="payment-plan-option">
+
+                <input
+                    type="radio"
+                    name="paymentPlan"
+                    value="allaccess"
+                >
+
+                <span class="payment-radio"></span>
+
+                <span class="payment-plan-name">
+                    All Access
+                </span>
+
+                <strong>
+                    $17.99
+                </strong>
+
+            </label>
+
+        </div>
+
+
+
+        <!-- DIVIDER -->
+
+        <div class="payment-divider"></div>
+
+
+
+        <!-- EMAIL -->
+
+        <div class="payment-field">
+
+            <label>
+                Account Email
+            </label>
+
+            <input
+                id="paymentEmail"
+                type="email"
+                readonly
+                placeholder="your@email.com"
+            >
+
+        </div>
+
+
+
+        <!-- PAYMENT AREA -->
+
+        <div class="secure-payment-box">
+
+            <div class="secure-payment-icon">
+                ▣
+            </div>
+
+            <div>
+
+                <strong>
+                    Secure Payment
+                </strong>
+
+                <p>
+                    Your payment will be processed
+                    securely by our payment provider.
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SUBSCRIPTION INFO -->
+
+        <p class="payment-renewal-note">
+
+            This is a monthly subscription.
+            Your selected plan renews automatically
+            each month until cancelled.
+
+        </p>
+
+
+
+        <!-- BUTTON -->
+
+        <button
+            class="payment-continue-button"
+            id="paymentContinueBtn"
+            type="button"
+        >
+            Continue to Secure Payment →
+        </button>
+
+
+        <p class="payment-security-note">
+            J-SYRO does not store your card details.
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

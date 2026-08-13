@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="J-SYRO development workspace"
+    >
+
+    <title>Workspace — J-SYRO</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="workspace.css"
+    >
+
+    <style>
+        body.auth-checking {
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+
+<body class="auth-checking">
+
+    <div class="app-shell">
+
+        <!-- =========================
+             TOP HEADER
+        ========================== -->
+
+        <header class="titlebar">
+
+            <div class="titlebar-left">
+
+                <button
+                    class="icon-button mobile-menu"
+                    id="menuBtn"
+                    type="button"
+                    aria-label="Toggle sidebar"
+                >
+                    ☰
+                </button>
+
+                <a
+                    class="brand"
+                    href="index.html"
+                    aria-label="Back to J-SYRO home"
+                >
+                    <span class="brand-logo">
+
+                        <img
+                            src="logo.png"
+                            alt="J-SYRO"
+                        >
+
+                    </span>
+                </a>
+
+                <span class="workspace-label">
+                    Web workspace
+                </span>
+
+            </div>
+
+
+            <div
+    class="project-title"
+    id="projectTitleBox"
+    title="Double-click to rename project"
+>
+    <span class="project-dot"></span>
+
+    <span id="projectNameText">
+        untitled-project
+    </span>
+</div>
+
+
+        <div class="titlebar-right">
+
+   <!-- User account upar -->
+
+<div class="account-bar">
+
+    <span id="userIdentity">
+        Loading...
+    </span>
+
+    <span
+        id="userPlanBadge"
+        class="user-plan-badge"
+    >
+        FREE
+    </span>
+
+    <button
+        class="toolbar-button"
+        id="adminDashboardBtn"
+        type="button"
+        title="Open Admin Dashboard"
+        hidden
+    >
+        <span>▦</span>
+        <span class="action-label">
+            Admin
+        </span>
+    </button>
+
+    <button
+        class="toolbar-button"
+        id="logoutBtn"
+        type="button"
+        title="Logout"
+    >
+        <span>↪</span>
+        <span class="action-label">
+            Logout
+        </span>
+    </button>
+
+</div>
+
+
+<div class="titlebar-actions">
+
+    <!-- PROJECT GROUP -->
+
+    <div class="toolbar-group project-toolbar-group">
+
+        <span class="toolbar-group-label">
+            PROJECT
+        </span>
+
+        <div class="toolbar-group-buttons">
+
+            <button
+                class="toolbar-button primary-project-button"
+                id="newProjectBtn"
+                type="button"
+                title="Create a new project"
+            >
+                <span>＋</span>
+                <span class="action-label">
+                    New Project
+                </span>
+            </button>
+
+
+            <button
+                class="toolbar-button"
+                id="myProjectsBtn"
+                type="button"
+                title="View your projects"
+            >
+                <span>▦</span>
+                <span class="action-label">
+                    My Projects
+                </span>
+            </button>
+
+
+            <button
+                class="toolbar-button"
+                id="duplicateProjectBtn"
+                type="button"
+                title="Duplicate current project"
+            >
+                <span>⧉</span>
+                <span class="action-label">
+                    Duplicate
+                </span>
+            </button>
+
+        </div>
+
+    </div>
+
+
+<!-- TEMPLATE LIBRARIES GROUP -->
+
+<div class="toolbar-group product-toolbar-group">
+
+    <span class="toolbar-group-label">
+        TEMPLATE LIBRARIES
+    </span>
+
+    <div class="toolbar-group-buttons">
+
+        <!-- PRO TEMPLATES -->
+
+        <button
+            class="toolbar-button"
+            id="templatesBtn"
+            type="button"
+            title="Browse professional website templates"
+        >
+            <span>▦</span>
+
+            <span class="action-label">
+                PRO Templates
+            </span>
+
+            <span
+                class="premium-lock"
+                id="templatesLock"
+            >
+                PRO
+            </span>
+        </button>
+
+
+        <!-- BUSINESS TEMPLATES -->
+
+        <button
+            class="toolbar-button"
+            id="businessTemplatesBtn"
+            type="button"
+            title="Browse premium business templates"
+        >
+            <span>◆</span>
+
+            <span class="action-label">
+                Business Templates
+            </span>
+
+            <span class="business-feature-badge">
+                BUSINESS
+            </span>
+        </button>
+
+
+        <!-- WORK APPS -->
+
+        <button
+            class="toolbar-button"
+            id="workAppsBtn"
+            type="button"
+            title="Browse functional work applications"
+        >
+            <span>▣</span>
+
+            <span class="action-label">
+                Work Apps
+            </span>
+
+            <span class="work-apps-badge">
+                WORK
+            </span>
+        </button>
+
+    </div>
+
+</div>
+
+
+    <!-- TOOLS + ACTIONS GROUP -->
+
+    <div class="toolbar-group actions-toolbar-group">
+
+        <span class="toolbar-group-label">
+            TOOLS &amp; ACTIONS
+        </span>
+
+        <div class="toolbar-group-buttons">
+
+            <button
+                class="toolbar-button history-toolbar-button"
+                id="projectHistoryBtn"
+                type="button"
+                title="View and restore previous project versions"
+            >
+                <span>↶</span>
+
+                <span class="action-label">
+                    History
+                </span>
+
+                <span class="pro-feature-badge">
+                    PRO
+                </span>
+            </button>
+
+
+            <button
+                class="toolbar-button theme-toggle-button"
+                id="themeToggleBtn"
+                type="button"
+                title="Change editor theme"
+                aria-label="Open editor themes"
+            >
+                <span id="themeToggleIcon">
+                    ◐
+                </span>
+
+                <span
+                    class="action-label"
+                    id="themeToggleText"
+                >
+                    Themes
+                </span>
+            </button>
+
+
+            <button
+                class="toolbar-button"
+                id="shareBtn"
+                type="button"
+                title="Share project"
+            >
+                <span>↗</span>
+
+                <span class="action-label">
+                    Share
+                </span>
+            </button>
+
+
+            <button
+                class="toolbar-button"
+                id="saveBtn"
+                type="button"
+                title="Save project"
+            >
+                <span>◇</span>
+
+                <span class="action-label">
+                    Save
+                </span>
+            </button>
+
+
+            <button
+                class="toolbar-button"
+                id="downloadBtn"
+                type="button"
+                title="Download project"
+            >
+                <span>↓</span>
+
+                <span class="action-label">
+                    Download
+                </span>
+            </button>
+
+
+            <button
+                class="run-button"
+                id="runBtn"
+                type="button"
+                title="Run project"
+            >
+                <span>▷</span>
+
+                <span class="action-label">
+                    Run
+                </span>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+        </header>
+
+
+        <!-- =========================
+             MAIN WORKSPACE
+        ========================== -->
+
+        <main class="workspace">
+
+            <!-- Activity bar -->
+
+            <aside
+                class="activity-bar"
+                aria-label="Workspace tools"
+            >
+
+                <div class="activity-top">
+
+                    <button
+                        class="activity-button active"
+                        type="button"
+                        data-panel="filesPanel"
+                        aria-label="Explorer"
+                        title="Explorer"
+                    >
+                        <span class="files-symbol">
+                            ▱
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="activity-button"
+                        type="button"
+                        data-panel="searchPanel"
+                        aria-label="Search"
+                        title="Search"
+                    >
+                        <span>⌕</span>
+                    </button>
+
+                </div>
+
+            </aside>
+
+
+            <!-- Sidebar -->
+
+            <aside
+                class="side-panel"
+                id="sidebar"
+            >
+
+                <!-- Files panel -->
+
+                <section
+                    class="panel active"
+                    id="filesPanel"
+                >
+
+                    <div class="panel-heading">
+
+                        <span>
+                            Explorer
+                        </span>
+
+                        <button
+                            class="panel-close"
+                            id="closeMenu"
+                            type="button"
+                            aria-label="Collapse file drawer"
+                            title="Collapse drawer"
+                        >
+                            ‹
+                        </button>
+
+                    </div>
+
+
+                    <div class="project-heading">
+
+                        <strong id="explorerProjectName">
+                            UNTITLED-PROJECT
+                        </strong>
+
+
+                        <div class="project-actions">
+
+                            <button
+                                id="addFileBtn"
+                                type="button"
+                                title="New file"
+                            >
+                                ＋
+                            </button>
+
+
+                            <button
+                                id="addFolderBtn"
+                                type="button"
+                                title="New folder"
+                                aria-label="New folder"
+                            >
+                                ▱
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="file-tree"
+                        id="filesContainer"
+                        role="tree"
+                    ></div>
+
+                </section>
+
+
+                <!-- Search panel -->
+
+                <section
+                    class="panel"
+                    id="searchPanel"
+                >
+
+                    <div class="panel-heading">
+
+                        <span>
+                            Search
+                        </span>
+
+                        <button
+                            class="panel-close"
+                            type="button"
+                            aria-label="Close sidebar"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <label class="search-box">
+
+                        <span>⌕</span>
+
+                        <input
+                            type="search"
+                            id="searchInput"
+                            placeholder="Search files"
+                            autocomplete="off"
+                        >
+
+                    </label>
+
+
+                    <p class="panel-hint">
+                        Search across your project files.
+                    </p>
+
+
+                    <div
+                        class="search-results"
+                        id="searchResult"
+                    ></div>
+
+                </section>
+
+            </aside>
+
+
+            <!-- Workbench -->
+
+            <section class="workbench">
+
+                <!-- Editor -->
+
+                <div class="editor-pane">
+
+                    <div
+                        class="tabs"
+                        id="tabs"
+                        role="tablist"
+                    ></div>
+
+
+                    <div class="editor-toolbar">
+
+                        <div class="breadcrumbs">
+
+                            <span>
+                                untitled-project
+                            </span>
+
+                            <b>›</b>
+
+                            <span id="breadcrumbFile">
+                                index.html
+                            </span>
+
+                        </div>
+
+
+                        <div class="editor-actions">
+
+                            <button
+                                id="formatBtn"
+                                type="button"
+                                title="Format document"
+                            >
+                                { }
+                            </button>
+
+
+                            <button
+                                id="togglePreviewBtn"
+                                type="button"
+                                title="Toggle preview"
+                            >
+                                ◫
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="code-wrapper">
+
+                        <div
+                            class="line-numbers"
+                            id="lineNumbers"
+                            aria-hidden="true"
+                        >
+                            1
+                        </div>
+
+
+                        <pre
+                            class="highlight-layer"
+                            id="highlightLayer"
+                            aria-hidden="true"
+                        ><code id="highlightCode"></code></pre>
+
+
+                        <textarea
+                            id="codeEditor"
+                            class="code-editor"
+                            spellcheck="false"
+                            aria-label="Code editor"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Live preview -->
+
+                <section
+                    class="preview-pane"
+                    id="previewPane"
+                    aria-label="Live preview"
+                >
+
+                    <div class="preview-header">
+
+                        <div class="preview-title">
+
+                            <span class="live-dot"></span>
+
+                            <span>
+                                Live preview
+                            </span>
+
+                        </div>
+
+
+                        <div class="preview-address">
+
+                            <span>⌕</span>
+
+                            <span>
+                                localhost / preview
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            id="refreshPreview"
+                            type="button"
+                            aria-label="Refresh preview"
+                        >
+                            ↻
+                        </button>
+
+
+                        <button
+                            class="open-new-tab"
+                            id="openPreviewTab"
+                            type="button"
+                            aria-label="Open project in a new tab"
+                            title="Open in new tab"
+                        >
+                            <span>↗</span>
+
+                            <span class="new-tab-label">
+                                New tab
+                            </span>
+                        </button>
+
+
+                        <button
+                            class="back-to-code"
+                            id="closePreview"
+                            type="button"
+                            aria-label="Return to code"
+                        >
+                            <span>←</span>
+
+                            Code
+                        </button>
+
+                    </div>
+
+
+                    <iframe
+                        id="previewFrame"
+                        title="Project preview"
+                        sandbox="allow-scripts"
+                    ></iframe>
+
+                </section>
+
+            </section>
+
+        </main>
+
+
+        <!-- =========================
+             STATUS BAR
+        ========================== -->
+
+        <footer class="statusbar">
+
+            <div class="status-left">
+
+                <span>⑂ main</span>
+
+                <span>↻</span>
+
+                <span>ⓧ 0</span>
+
+                <span>△ 0</span>
+
+            </div>
+
+
+            <div class="status-right">
+
+                <span id="cursorPosition">
+                    Ln 1, Col 1
+                </span>
+
+                <span>
+                    Spaces: 2
+                </span>
+
+                <span>
+                    UTF-8
+                </span>
+
+                <span id="languageMode">
+                    HTML
+                </span>
+
+                <span>
+                    ◉ J-SYRO
+                </span>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+
+    <!-- =========================
+         CREATE FILE MODAL
+    ========================== -->
+
+    <div
+        class="modal"
+        id="itemModal"
+        aria-hidden="true"
+    >
+
+        <form
+            class="modal-card"
+            id="itemForm"
+        >
+
+            <div class="modal-icon">
+                ＋
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Create new file
+                </h2>
+
+                <p>
+                    Add an HTML, CSS, JavaScript, or text file.
+                </p>
+
+            </div>
+
+
+            <label for="itemName">
+                Name
+            </label>
+
+
+            <input
+                id="itemName"
+                type="text"
+                placeholder="example.js"
+                autocomplete="off"
+            >
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-button"
+                    id="cancelModal"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="create-button"
+                >
+                    Create
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- MY PROJECTS MODAL -->
+
+<div
+    class="modal"
+    id="projectsModal"
+    aria-hidden="true"
+>
+    <div class="modal-card projects-modal-card">
+
+        <div class="modal-icon">
+            ▦
+        </div>
+
+        <div>
+            <h2>My Projects</h2>
+
+            <p>
+                Select a project to open it.
+            </p>
+        </div>
+
+        <div
+            class="projects-list"
+            id="projectsList"
+        >
+            <p class="panel-hint">
+                Loading projects...
+            </p>
+        </div>
+
+        <div class="modal-actions">
+            <button
+                type="button"
+                class="cancel-button"
+                id="closeProjectsModal"
+            >
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================
+     PRO TEMPLATES MODAL
+========================================= -->
+
+<div
+    class="modal"
+    id="templatesModal"
+    aria-hidden="true"
+>
+    <div class="modal-card templates-modal-card">
+
+
+        <div class="templates-modal-header">
+
+
+            <div>
+
+                <span class="templates-eyebrow">
+                    J-SYRO PRO
+                </span>
+
+
+                <h2>
+                    PRO Website Templates
+                </h2>
+
+
+                <p>
+                    Start with a professional website
+                    or interface template and customize
+                    the complete project in J-SYRO.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="templates-close-button"
+                id="closeTemplatesModal"
+                aria-label="Close PRO templates"
+            >
+                ×
+            </button>
+
+
+        </div>
+
+
+
+        <div class="templates-toolbar">
+
+
+            <input
+                type="search"
+                id="templateSearchInput"
+                placeholder="Search PRO templates..."
+                autocomplete="off"
+            >
+
+
+            <select id="templateCategoryFilter">
+
+
+                <option value="all">
+                    All categories
+                </option>
+
+
+                <option value="portfolio">
+                    Portfolio
+                </option>
+
+
+                <option value="business">
+                    Business
+                </option>
+
+
+                <option value="saas">
+                    SaaS
+                </option>
+
+
+                <option value="restaurant">
+                    Restaurant
+                </option>
+
+
+                <option value="dashboard">
+                    Dashboard UI
+                </option>
+
+
+                <option value="app">
+                    App UI
+                </option>
+
+
+            </select>
+
+
+        </div>
+
+
+
+        <div
+            class="templates-grid"
+            id="templatesGrid"
+        >
+
+            <p class="panel-hint">
+                Loading PRO templates...
+            </p>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+<!-- =========================================
+     BUSINESS TEMPLATES MODAL
+========================================= -->
+
+<div
+    class="modal"
+    id="businessTemplatesModal"
+    aria-hidden="true"
+>
+    <div class="templates-modal-card">
+
+
+        <div class="templates-modal-header">
+
+
+            <div>
+
+                <span class="templates-eyebrow">
+                    J-SYRO BUSINESS
+                </span>
+
+
+                <h2>
+                    Business Templates
+                </h2>
+
+
+                <p>
+                    Premium business websites,
+                    dashboards and operational systems
+                    for professional company projects.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="templates-close-button"
+                id="closeBusinessTemplatesModal"
+                aria-label="Close business templates"
+            >
+                ×
+            </button>
+
+
+        </div>
+
+
+
+        <div class="templates-toolbar">
+
+
+            <input
+                type="search"
+                id="businessTemplateSearchInput"
+                placeholder="Search business templates..."
+                autocomplete="off"
+            >
+
+
+            <select id="businessTemplateCategoryFilter">
+
+
+                <option value="all">
+                    All categories
+                </option>
+
+
+                <option value="corporate">
+                    Corporate
+                </option>
+
+
+                <option value="finance">
+                    Finance
+                </option>
+
+
+                <option value="real-estate">
+                    Real Estate
+                </option>
+
+
+                <option value="technology">
+                    Technology
+                </option>
+
+
+                <option value="services">
+                    Professional Services
+                </option>
+
+
+                <option value="enterprise">
+                    Enterprise
+                </option>
+
+
+            </select>
+
+
+        </div>
+
+
+
+        <div
+            class="templates-grid"
+            id="businessTemplatesGrid"
+        >
+
+            <p class="panel-hint">
+                Loading business templates...
+            </p>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+<!-- =========================================
+     WORK APPS MODAL
+========================================= -->
+
+<div
+    class="modal"
+    id="workAppsModal"
+    aria-hidden="true"
+>
+    <div class="templates-modal-card">
+
+
+        <div class="templates-modal-header">
+
+
+            <div>
+
+                <span class="templates-eyebrow">
+                    J-SYRO WORK APPS
+                </span>
+
+
+                <h2>
+                    Functional Work Apps
+                </h2>
+
+
+                <p>
+                    Functional web applications
+                    designed for real everyday work,
+                    data management, calculations
+                    and business workflows.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="templates-close-button"
+                id="closeWorkAppsModal"
+                aria-label="Close work apps"
+            >
+                ×
+            </button>
+
+
+        </div>
+
+
+
+        <div class="templates-toolbar">
+
+
+            <input
+                type="search"
+                id="workAppSearchInput"
+                placeholder="Search work apps..."
+                autocomplete="off"
+            >
+
+
+            <select id="workAppCategoryFilter">
+
+
+                <option value="all">
+                    All Work Apps
+                </option>
+
+
+                <option value="sales-billing">
+                    Sales &amp; Billing
+                </option>
+
+
+                <option value="finance">
+                    Finance
+                </option>
+
+
+                <option value="hr">
+                    HR &amp; Payroll
+                </option>
+
+
+                <option value="operations">
+                    Operations
+                </option>
+
+
+                <option value="inventory">
+                    Inventory &amp; Orders
+                </option>
+
+
+                <option value="healthcare">
+                    Healthcare
+                </option>
+
+
+                <option value="education">
+                    Education
+                </option>
+
+
+                <option value="hospitality">
+                    Hospitality
+                </option>
+
+
+                <option value="productivity">
+                    Productivity
+                </option>
+
+
+            </select>
+
+
+        </div>
+
+
+
+        <div
+            class="templates-grid"
+            id="workAppsGrid"
+        >
+
+            <p class="panel-hint">
+                Loading functional work apps...
+            </p>
+
+        </div>
+
+
+    </div>
+</div>
+
+<!-- EDITOR THEMES MODAL -->
+
+<div
+    class="modal"
+    id="themesModal"
+    aria-hidden="true"
+>
+    <div class="modal-card themes-modal-card">
+
+        <div class="themes-modal-header">
+
+            <div>
+                <span class="themes-eyebrow">
+                    EDITOR APPEARANCE
+                </span>
+
+                <h2>Editor Themes</h2>
+
+                <p>
+                    Select a theme for your coding workspace.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="themes-close-button"
+                id="closeThemesModal"
+                aria-label="Close themes"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            class="themes-grid"
+            id="themesGrid"
+        >
+
+            <button
+                class="editor-theme-card"
+                type="button"
+                data-editor-theme="dark"
+            >
+                <span class="theme-preview theme-preview-dark">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </span>
+
+                <strong>J-SYRO Dark</strong>
+
+                <small>Default dark workspace</small>
+            </button>
+
+
+            <button
+                class="editor-theme-card"
+                type="button"
+                data-editor-theme="light"
+            >
+                <span class="theme-preview theme-preview-light">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </span>
+
+                <strong>Clean Light</strong>
+
+                <small>Bright and minimal</small>
+            </button>
+
+
+            <button
+                class="editor-theme-card"
+                type="button"
+                data-editor-theme="midnight"
+            >
+                <span class="theme-preview theme-preview-midnight">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </span>
+
+                <strong>Midnight Purple</strong>
+
+                <small>Deep purple coding theme</small>
+            </button>
+
+
+            <button
+                class="editor-theme-card"
+                type="button"
+                data-editor-theme="ocean"
+            >
+                <span class="theme-preview theme-preview-ocean">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </span>
+
+                <strong>Ocean Blue</strong>
+
+                <small>Cool blue workspace</small>
+            </button>
+
+
+            <button
+                class="editor-theme-card"
+                type="button"
+                data-editor-theme="forest"
+            >
+                <span class="theme-preview theme-preview-forest">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </span>
+
+                <strong>Forest Green</strong>
+
+                <small>Soft natural colors</small>
+            </button>
+
+
+            <button
+                class="editor-theme-card"
+                type="button"
+                data-editor-theme="contrast"
+            >
+                <span class="theme-preview theme-preview-contrast">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </span>
+
+                <strong>High Contrast</strong>
+
+                <small>Strong readable colors</small>
+            </button>
+
+        </div>
+
+    </div>
+</div>
+<!-- BUSINESS WEBSITE REQUEST MODAL -->
+
+<div
+    class="modal"
+    id="businessRequestModal"
+    aria-hidden="true"
+>
+    <div class="modal-card business-request-modal-card">
+
+        <div class="business-modal-header">
+
+            <div>
+                <span class="business-modal-eyebrow">
+                    J-SYRO BUSINESS
+                </span>
+
+                <h2>
+                    Business Website Request
+                </h2>
+
+                <p>
+                    Send your website details and track the request status.
+                </p>
+            </div>
+
+            <button
+                class="business-modal-close"
+                id="closeBusinessRequestModal"
+                type="button"
+                aria-label="Close business request"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- REQUEST TABS -->
+
+        <div class="business-request-tabs">
+
+            <button
+                class="business-request-tab active"
+                id="newBusinessRequestTab"
+                type="button"
+                data-business-panel="newBusinessRequestPanel"
+            >
+                New Request
+            </button>
+
+            <button
+                class="business-request-tab"
+                id="myBusinessRequestsTab"
+                type="button"
+                data-business-panel="myBusinessRequestsPanel"
+            >
+                My Requests
+            </button>
+
+        </div>
+
+
+        <!-- NEW REQUEST PANEL -->
+
+        <section
+            class="business-request-panel active"
+            id="newBusinessRequestPanel"
+        >
+
+            <form id="businessRequestForm">
+
+                <div class="business-form-grid">
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Business Name *
+                        </span>
+
+                        <input
+                            id="requestBusinessName"
+                            name="businessName"
+                            type="text"
+                            placeholder="Example: SClom Technologies"
+                            autocomplete="organization"
+                            required
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Website Type *
+                        </span>
+
+                        <select
+                            id="requestWebsiteType"
+                            name="websiteType"
+                            required
+                        >
+                            <option value="">
+                                Select website type
+                            </option>
+
+                            <option value="business">
+                                Business Website
+                            </option>
+
+                            <option value="portfolio">
+                                Portfolio Website
+                            </option>
+
+                            <option value="restaurant">
+                                Restaurant Website
+                            </option>
+
+                            <option value="ecommerce">
+                                E-commerce Website
+                            </option>
+
+                            <option value="saas">
+                                SaaS Website
+                            </option>
+
+                            <option value="agency">
+                                Agency Website
+                            </option>
+
+                            <option value="booking">
+                                Booking Website
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+                        </select>
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Industry *
+                        </span>
+
+                        <input
+                            id="requestIndustry"
+                            name="industry"
+                            type="text"
+                            placeholder="Example: Real estate"
+                            required
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Contact Email *
+                        </span>
+
+                        <input
+                            id="requestContactEmail"
+                            name="contactEmail"
+                            type="email"
+                            placeholder="business@example.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Phone Number
+                        </span>
+
+                        <input
+                            id="requestPhone"
+                            name="phone"
+                            type="tel"
+                            placeholder="+92 300 1234567"
+                            autocomplete="tel"
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            WhatsApp Number
+                        </span>
+
+                        <input
+                            id="requestWhatsapp"
+                            name="whatsapp"
+                            type="tel"
+                            placeholder="+92 300 1234567"
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Business Location
+                        </span>
+
+                        <input
+                            id="requestLocation"
+                            name="location"
+                            type="text"
+                            placeholder="City, Country"
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Domain Status
+                        </span>
+
+                        <select
+                            id="requestDomainStatus"
+                            name="domainStatus"
+                        >
+                            <option value="not-decided">
+                                Not decided yet
+                            </option>
+
+                            <option value="need-domain">
+                                I need a domain
+                            </option>
+
+                            <option value="already-owned">
+                                I already own a domain
+                            </option>
+                        </select>
+
+                    </label>
+
+
+                    <label class="business-form-field business-full-field">
+
+                        <span>
+                            Domain Name
+                        </span>
+
+                        <input
+                            id="requestDomainName"
+                            name="domainName"
+                            type="text"
+                            placeholder="example.com"
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field business-full-field">
+
+                        <span>
+                            Tell Us About Your Business *
+                        </span>
+
+                        <textarea
+                            id="requestDescription"
+                            name="description"
+                            rows="5"
+                            placeholder="Explain what your business does, your services, target customers and website goals."
+                            required
+                        ></textarea>
+
+                    </label>
+
+                </div>
+
+
+                <!-- REQUIRED PAGES -->
+
+                <fieldset class="business-pages-fieldset">
+
+                    <legend>
+                        Required Website Pages
+                    </legend>
+
+                    <div class="business-pages-grid">
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Home"
+                                checked
+                            >
+                            <span>Home</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="About"
+                                checked
+                            >
+                            <span>About</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Services"
+                                checked
+                            >
+                            <span>Services</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Contact"
+                                checked
+                            >
+                            <span>Contact</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Portfolio"
+                            >
+                            <span>Portfolio</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Gallery"
+                            >
+                            <span>Gallery</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Blog"
+                            >
+                            <span>Blog</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Shop"
+                            >
+                            <span>Shop</span>
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="requestedPages"
+                                value="Booking"
+                            >
+                            <span>Booking</span>
+                        </label>
+
+                    </div>
+
+                </fieldset>
+
+
+                <div class="business-form-grid">
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Preferred Brand Colors
+                        </span>
+
+                        <input
+                            id="requestBrandColors"
+                            name="brandColors"
+                            type="text"
+                            placeholder="Example: Navy blue and white"
+                        >
+
+                    </label>
+
+
+                    <label class="business-form-field">
+
+                        <span>
+                            Upload Logo
+                        </span>
+
+                        <input
+                            id="requestLogoFile"
+                            name="logoFile"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        >
+
+                        <small>
+                            PNG, JPG, WebP or SVG
+                        </small>
+
+                    </label>
+
+
+                    <label class="business-form-field business-full-field">
+
+                        <span>
+                            Social Media Links
+                        </span>
+
+                        <textarea
+                            id="requestSocialLinks"
+                            name="socialLinks"
+                            rows="3"
+                            placeholder="Facebook, Instagram, LinkedIn or other profile links"
+                        ></textarea>
+
+                    </label>
+
+
+                    <label class="business-form-field business-full-field">
+
+                        <span>
+                            Additional Requirements
+                        </span>
+
+                        <textarea
+                            id="requestAdditionalNotes"
+                            name="additionalNotes"
+                            rows="4"
+                            placeholder="Mention animations, forms, WhatsApp button, booking, payment or other requirements."
+                        ></textarea>
+
+                    </label>
+
+                </div>
+
+
+                <div class="business-request-note">
+
+                    Domain purchase, annual renewal and paid hosting charges
+                    are separate from the website development service.
+
+                </div>
+
+
+                <div class="business-form-actions">
+
+                    <button
+                        class="business-submit-button"
+                        id="submitBusinessRequestBtn"
+                        type="submit"
+                    >
+                        Submit Website Request
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- MY REQUESTS PANEL -->
+
+        <section
+            class="business-request-panel"
+            id="myBusinessRequestsPanel"
+        >
+
+            <div
+                class="business-requests-list"
+                id="businessRequestsList"
+            >
+                <p class="panel-hint">
+                    Your submitted requests will appear here.
+                </p>
+            </div>
+
+        </section>
+
+    </div>
+</div>
+<!-- Project Version History Modal -->
+
+<div
+    class="modal-overlay"
+    id="projectHistoryModal"
+    hidden
+>
+    <div class="modal-card history-modal-card">
+
+        <div class="modal-header">
+
+            <div>
+                <span class="modal-eyebrow">
+                    PRO FEATURE
+                </span>
+
+                <h2>
+                    Version History
+                </h2>
+
+                <p id="historyProjectName">
+                    Current project
+                </p>
+            </div>
+
+            <button
+                class="modal-close-button"
+                id="closeProjectHistoryModal"
+                type="button"
+                aria-label="Close version history"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="history-toolbar">
+
+            <p>
+                Save a snapshot or restore an older
+                version of this project.
+            </p>
+
+            <div class="history-toolbar-actions">
+
+                <button
+                    class="secondary-button"
+                    id="refreshProjectHistoryBtn"
+                    type="button"
+                >
+                    Refresh
+                </button>
+
+                <button
+                    class="primary-button"
+                    id="createProjectVersionBtn"
+                    type="button"
+                >
+                    Save Current Version
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="history-list"
+            id="projectHistoryList"
+        >
+            <div class="history-empty-state">
+
+                <strong>
+                    No saved versions yet
+                </strong>
+
+                <p>
+                    Save the current version to create
+                    your first restore point.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Toast -->
+
+<div
+    class="toast"
+    id="toast"
+    role="status"
+></div>
+
+
+    <!-- Toast -->
+
+    <div
+        class="toast"
+        id="toast"
+        role="status"
+    ></div>
+
+
+    <!-- File context menu -->
+
+    <div
+        class="context-menu"
+        id="fileContextMenu"
+        role="menu"
+        aria-hidden="true"
+    >
+
+        <button
+            id="renameItem"
+            type="button"
+            role="menuitem"
+        >
+            <span>✎</span>
+
+            Rename
+        </button>
+
+
+        <button
+            id="deleteItem"
+            class="danger-item"
+            type="button"
+            role="menuitem"
+        >
+            <span>⌫</span>
+
+            Delete
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         DELETE CONFIRMATION
+    ========================== -->
+
+    <div
+        class="modal delete-modal"
+        id="deleteConfirmModal"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal-card"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="deleteConfirmTitle"
+            aria-describedby="deleteConfirmMessage"
+        >
+
+            <div class="delete-modal-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"
+                    />
+                </svg>
+
+            </div>
+
+
+            <div class="delete-modal-copy">
+
+                <h2 id="deleteConfirmTitle">
+                    Delete item?
+                </h2>
+
+                <p id="deleteConfirmMessage">
+                    This action cannot be undone.
+                </p>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-button"
+                    id="cancelDelete"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="button"
+                    class="confirm-delete-button"
+                    id="confirmDelete"
+                >
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         SUPABASE LIBRARY
+    ========================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =========================
+         WORKSPACE AUTHENTICATION
+    ========================== -->
+
+    <script>
+        const WORKSPACE_SUPABASE_URL =
+            "https://sajlcmcotxssyvovykkm.supabase.co";
+
+        const WORKSPACE_SUPABASE_KEY =
+            "sb_publishable_6_oc0OAP5GXLJatcYM8Osw__8TVvBuX";
+
+
+        let workspaceSupabase = null;
+
+
+        async function checkWorkspaceUser() {
+
+            if (
+                !window.supabase ||
+                typeof window.supabase.createClient !== "function"
+            ) {
+                console.error(
+                    "Supabase library failed to load."
+                );
+
+                window.location.replace(
+                    "index.html"
+                );
+
+                return;
+            }
+
+
+            workspaceSupabase =
+                window.supabase.createClient(
+                    WORKSPACE_SUPABASE_URL,
+                    WORKSPACE_SUPABASE_KEY
+                );
+
+
+            try {
+
+                const {
+                    data,
+                    error
+                } =
+                    await workspaceSupabase.auth
+                        .getSession();
+
+
+                if (
+                    error ||
+                    !data.session
+                ) {
+                    window.location.replace(
+                        "index.html"
+                    );
+
+                    return;
+                }
+
+
+                const user =
+                    data.session.user;
+
+
+                const fullName =
+                    user.user_metadata?.full_name || "";
+
+
+                const userIdentity =
+                    document.getElementById(
+                        "userIdentity"
+                    );
+
+
+                if (userIdentity) {
+                    userIdentity.textContent =
+                        fullName ||
+                        user.email ||
+                        "Signed in";
+                }
+
+
+                document.body.classList.remove(
+                    "auth-checking"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Workspace login error:",
+                    error
+                );
+
+
+                window.location.replace(
+                    "index.html"
+                );
+            }
+        }
+
+
+        async function logoutUser() {
+
+            const logoutButton =
+                document.getElementById(
+                    "logoutBtn"
+                );
+
+
+            if (!workspaceSupabase) {
+                window.location.replace(
+                    "index.html"
+                );
+
+                return;
+            }
+
+
+            if (logoutButton) {
+                logoutButton.disabled = true;
+
+                logoutButton.textContent =
+                    "Logging out...";
+            }
+
+
+            try {
+
+                const {
+                    error
+                } =
+                    await workspaceSupabase.auth
+                        .signOut();
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                window.location.replace(
+                    "index.html"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+
+                alert(
+                    "Logout failed. Please try again."
+                );
+
+
+                if (logoutButton) {
+                    logoutButton.disabled = false;
+
+                    logoutButton.textContent =
+                        "Logout";
+                }
+            }
+        }
+
+
+        document
+            .getElementById("logoutBtn")
+            ?.addEventListener(
+                "click",
+                logoutUser
+            );
+
+
+        checkWorkspaceUser();
+        </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="workspace.js"></script>
+    <!-- =========================
+     SHARE PROJECT MODAL
+========================= -->
+
+<div
+    class="modal-overlay"
+    id="shareProjectModal"
+    aria-hidden="true"
+    hidden
+>
+    <div
+        class="modal-card share-project-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shareProjectTitle"
+    >
+
+        <div class="modal-header">
+
+            <div>
+                <span class="modal-eyebrow">
+                    SHARE PROJECT
+                </span>
+
+                <h2 id="shareProjectTitle">
+                    Share your project
+                </h2>
+
+                <p id="shareProjectName">
+                    Current project
+                </p>
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-close-button"
+                id="closeShareProjectModal"
+                aria-label="Close share modal"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="share-project-body">
+
+            <p class="share-project-description">
+                Anyone with this link can open a copy of
+                your project in J-SYRO.
+            </p>
+
+
+            <div class="share-link-box">
+
+                <input
+                    type="text"
+                    id="shareProjectLink"
+                    readonly
+                    aria-label="Project share link"
+                >
+
+                <button
+                    type="button"
+                    id="copyShareProjectLink"
+                    class="primary-button"
+                >
+                    Copy Link
+                </button>
+
+            </div>
+
+
+            <div class="share-project-actions">
+
+  <div class="share-project-actions">
+
+    <button
+        type="button"
+        id="openSharedProjectBtn"
+        class="secondary-button"
+    >
+        Open Link
+    </button>
+
+    <button
+        type="button"
+        id="nativeShareProjectBtn"
+        class="secondary-button"
+    >
+        Share
+    </button>
+
+    <button
+        type="button"
+        id="disableShareProjectBtn"
+        class="secondary-button share-disable-button"
+    >
+        Disable Link
+    </button>
+
+</div>
+
+
+            <div
+                class="share-project-status"
+                id="shareProjectStatus"
+            ></div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
