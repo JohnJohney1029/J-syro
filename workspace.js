@@ -48174,538 +48174,89 @@ function initializeTemplatesFeature() {
         "true";
 
 
+function getTemplatePlan(template) {
+
+    const category =
+        String(template?.category || "")
+            .trim()
+            .toLowerCase();
+
+
+    // BUSINESS templates
+    if (
+        category === "business"
+    ) {
+        return "business";
+    }
+
+
+    // WORK APPS templates
+    if (
+        category === "app" ||
+        category === "dashboard" ||
+        category === "work apps" ||
+        category === "work_apps"
+    ) {
+        return "work";
+    }
+
+
+    // Baqi templates PRO hain
+    return "pro";
+}
+
+
+
 function hasTemplateAccess(template) {
 
     const access =
         window.jSyroAccess || {};
 
-    // ADMIN = everything unlocked
+
+    // ADMIN = sab unlock
     if (access.isAdmin) {
         return true;
     }
 
-    // ALL ACCESS = everything unlocked
+
+    // ALL ACCESS = sab unlock
     if (access.hasAllAccess) {
         return true;
     }
 
-    // PRO plan = all PRO templates unlocked
-    if (access.hasPro) {
-        return true;
-    }
 
-    // WORK APPS access
+    const requiredPlan =
+        getTemplatePlan(template);
+
+
+    // PRO template
     if (
-        template &&
-        (
-            template.category === "WORK APPS" ||
-            template.category === "WORK_APPS" ||
-            template.category === "app"
-        ) &&
-        access.hasWorkApps
+        requiredPlan === "pro" &&
+        access.hasPro
     ) {
         return true;
     }
 
-    // BUSINESS access
+
+    // BUSINESS template
     if (
-        template &&
-        (
-            template.category === "BUSINESS" ||
-            template.category === "business"
-        ) &&
+        requiredPlan === "business" &&
         access.hasBusiness
     ) {
         return true;
     }
 
-    return false;
-}
 
-
-function updateTemplateAccessBadge() {
-
-    if (!templatesLock) return;
-
-    const access =
-        window.jSyroAccess || {};
-
-    const hasAnyAccess =
-        access.isAdmin ||
-        access.hasAllAccess ||
-        access.hasPro ||
-        access.hasWorkApps ||
-        access.hasBusiness;
-
-    templatesLock.textContent =
-        hasAnyAccess
-            ? "OPEN"
-            : "LOCKED";
-
-    templatesLock.style.color =
-        hasAnyAccess
-            ? "#aef2da"
-            : "";
-
-    templatesLock.style.borderColor =
-        hasAnyAccess
-            ? "#32b988"
-            : "";
-}
-
-
-function closeTemplatesModal() {
-
-    templatesModal.classList.remove(
-        "open"
-    );
-
-    templatesModal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-}
-
-
-async function useTemplate(
-    template
-) {
-
-    if (!hasTemplateAccess(template)) {
-
-        showToast(
-            `${template.category} plan is required to use this template`
-        );
-
-        return;
-    }
-
-
-    const enteredName =
-        window.prompt(
-            "Enter project name:",
-            template.name
-                .toLowerCase()
-                .replace(
-                    /\s+/g,
-                    "-"
-                )
-        );
-
-
-    if (enteredName === null) {
-        return;
-    }
-
-
-    const cleanName =
-        enteredName
-            .trim()
-            .replace(
-                /[\\/:*?"<>|]/g,
-                "-"
-            )
-            .replace(
-                /\s+/g,
-                "-"
-            );
-
-
-    if (!cleanName) {
-
-        showToast(
-            "Enter a valid project name"
-        );
-
-        return;
-    }
-
-
-    await saveProjectToCloud();
-
-
-    currentProjectKey =
-        window.crypto &&
-        typeof window.crypto.randomUUID ===
-            "function"
-            ? window.crypto.randomUUID()
-            : `project-${Date.now()}`;
-
-
-    localStorage.setItem(
-        "j-syro-current-project-key",
-        currentProjectKey
-    );
-
-
-    state.files =
-        JSON.parse(
-            JSON.stringify(
-                template.files
-            )
-        );
-
-
-    state.folders = [];
-
-    state.activeFile =
-        "index.html";
-
-    state.openFiles = [
-        "index.html"
-    ];
-
-    state.dirty.clear();
-    state.selectedFolder = "";
-    state.expandedFolders =
-        new Set();
-
-    state.inlineAction = null;
-    state.contextTarget = null;
-    state.pendingDelete = null;
-
-
-    const projectNameText =
-        document.getElementById(
-            "projectNameText"
-        );
-
-
-    if (projectNameText) {
-
-        projectNameText.textContent =
-            cleanName;
-    }
-
-
-    persistFiles();
-    renderFiles();
-    renderTabs();
-
-    openFile(
-        "index.html"
-    );
-
-
-    await saveProjectToCloud();
-
-
-    closeTemplatesModal();
-
-
-    showToast(
-        `${template.name} template created`
-    );
-}
-
-
-function renderTemplates() {
-
-    const searchValue =
-        searchInput
-            ?.value
-            .trim()
-            .toLowerCase() ||
-        "";
-
-
-    const categoryValue =
-        categoryFilter?.value ||
-        "all";
-
-
-    const filteredTemplates =
-        jSyroTemplates.filter(
-            function (template) {
-
-                const matchesSearch =
-                    template.name
-                        .toLowerCase()
-                        .includes(
-                            searchValue
-                        ) ||
-                    template.description
-                        .toLowerCase()
-                        .includes(
-                            searchValue
-                        );
-
-
-                const matchesCategory =
-                    categoryValue ===
-                        "all" ||
-                    template.category ===
-                        categoryValue;
-
-
-                return (
-                    matchesSearch &&
-                    matchesCategory
-                );
-            }
-        );
-
-
-    templatesGrid.innerHTML = "";
-
-
+    // WORK APP template
     if (
-        filteredTemplates.length ===
-        0
+        requiredPlan === "work" &&
+        access.hasWorkApps
     ) {
-
-        templatesGrid.innerHTML =
-            '<p class="panel-hint">' +
-            "No templates found." +
-            "</p>";
-
-        return;
+        return true;
     }
 
 
-    filteredTemplates.forEach(
-        function (template) {
-
-            const hasAccess =
-                hasTemplateAccess(
-                    template
-                );
-
-
-            const card =
-                document.createElement(
-                    "article"
-                );
-
-            card.className =
-                "template-card";
-
-
-            const preview =
-                document.createElement(
-                    "div"
-                );
-
-            preview.className =
-                "template-preview";
-
-            preview.innerHTML =
-                `<strong style="
-                    font-size:42px;
-                    color:#b8b1ff;
-                ">
-                    ${template.icon}
-                </strong>`;
-
-
-            const badge =
-                document.createElement(
-                    "span"
-                );
-
-            badge.className =
-                "template-premium-badge";
-
-badge.textContent =
-    hasAccess
-        ? "🔓 UNLOCKED"
-        : "🔒 LOCKED";
-
-
-            preview.appendChild(
-                badge
-            );
-
-
-            const content =
-                document.createElement(
-                    "div"
-                );
-
-            content.className =
-                "template-card-content";
-
-
-            const category =
-                document.createElement(
-                    "span"
-                );
-
-            category.className =
-                "template-category";
-
-            category.textContent =
-                template.category;
-
-
-            const title =
-                document.createElement(
-                    "h3"
-                );
-
-            title.textContent =
-                template.name;
-
-
-            const description =
-                document.createElement(
-                    "p"
-                );
-
-            description.textContent =
-                template.description;
-
-
-            const useButton =
-                document.createElement(
-                    "button"
-                );
-
-            useButton.type =
-                "button";
-
-            useButton.className =
-                "template-use-button";
-
-useButton.textContent =
-    hasAccess
-        ? "Use Template"
-        : "🔒 Unlock Template";
-
-useButton.disabled =
-    false;
-
-
-useButton.addEventListener(
-    "click",
-    function () {
-
-        // FREE user → PRO payment popup
-        if (!hasAccess) {
-
-            if (
-                typeof openPaymentModal ===
-                "function"
-            ) {
-                openPaymentModal("pro");
-            } else {
-
-                console.error(
-                    "openPaymentModal function not found"
-                );
-
-                showToast(
-                    "Payment system is not available."
-                );
-            }
-
-            return;
-        }
-
-
-        // PRO / ADMIN → template directly use
-        useTemplate(
-            template
-        );
-    }
-);
-
-    async function openTemplatesModal() {
-
-        if (
-            typeof initializeUserPlan ===
-            "function"
-        ) {
-            await initializeUserPlan();
-        }
-
-
-        updateTemplateAccessBadge();
-        renderTemplates();
-
-
-        templatesModal.classList.add(
-            "open"
-        );
-
-        templatesModal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-    }
-
-
-    templatesButton.addEventListener(
-        "click",
-        openTemplatesModal
-    );
-
-
-    closeButton?.addEventListener(
-        "click",
-        closeTemplatesModal
-    );
-
-
-    templatesModal.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target ===
-                templatesModal
-            ) {
-                closeTemplatesModal();
-            }
-        }
-    );
-
-
-    searchInput?.addEventListener(
-        "input",
-        renderTemplates
-    );
-
-
-    categoryFilter?.addEventListener(
-        "change",
-        renderTemplates
-    );
-
-
-document.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-            event.key ===
-            "Escape"
-        ) {
-            closeTemplatesModal();
-        }
-    }
-);
-
-
-setTimeout(
-    updateTemplateAccessBadge,
-    1200
-);
-
-}
-
-
-
-if (
-    document.readyState ===
-    "loading"
-) {
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeTemplatesFeature
-    );
-} else {
-    initializeTemplatesFeature();
+    return false;
 }
 /* =========================
    DUPLICATE PROJECT
