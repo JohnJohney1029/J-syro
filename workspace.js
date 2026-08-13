@@ -3756,8 +3756,11 @@ window.jSyroAccess = {
     role: "user",
     status: "active",
     isAdmin: false,
+
     hasPro: false,
-    hasBusiness: false
+    hasWorkApps: false,
+    hasBusiness: false,
+    hasAllAccess: false
 };
 
 
@@ -3772,7 +3775,6 @@ async function initializeUserPlan() {
         console.error(
             "User plan badge not found"
         );
-
         return;
     }
 
@@ -3867,12 +3869,29 @@ async function initializeUserPlan() {
             !isExpired;
 
 
-        const hasBusiness =
-            isAdmin ||
-            (
-                isActive &&
-                plan === "business"
-            );
+        /*
+         * =========================
+         * PLAN ACCESS
+         * =========================
+         *
+         * FREE
+         * → nothing unlocked
+         *
+         * PRO
+         * → all PRO templates
+         *
+         * WORK APPS
+         * → all Work Apps templates
+         *
+         * BUSINESS
+         * → all Business templates
+         *
+         * ALL ACCESS
+         * → everything
+         *
+         * ADMIN
+         * → everything
+         */
 
 
         const hasPro =
@@ -3881,8 +3900,39 @@ async function initializeUserPlan() {
                 isActive &&
                 (
                     plan === "pro" ||
-                    plan === "business"
+                    plan === "business" ||
+                    plan === "all_access"
                 )
+            );
+
+
+        const hasWorkApps =
+            isAdmin ||
+            (
+                isActive &&
+                (
+                    plan === "work_apps" ||
+                    plan === "all_access"
+                )
+            );
+
+
+        const hasBusiness =
+            isAdmin ||
+            (
+                isActive &&
+                (
+                    plan === "business" ||
+                    plan === "all_access"
+                )
+            );
+
+
+        const hasAllAccess =
+            isAdmin ||
+            (
+                isActive &&
+                plan === "all_access"
             );
 
 
@@ -3890,10 +3940,21 @@ async function initializeUserPlan() {
             plan,
             role,
             status,
+
             isAdmin,
+
             hasPro,
-            hasBusiness
+            hasWorkApps,
+            hasBusiness,
+            hasAllAccess
         };
+
+
+        /*
+         * =========================
+         * PLAN BADGE
+         * =========================
+         */
 
 
         planBadge.classList.remove(
@@ -3912,7 +3973,16 @@ async function initializeUserPlan() {
                 "plan-admin"
             );
 
-        } else if (hasBusiness) {
+        } else if (
+            hasAllAccess
+        ) {
+
+            planBadge.textContent =
+                "ALL ACCESS";
+
+        } else if (
+            plan === "business"
+        ) {
 
             planBadge.textContent =
                 "BUSINESS";
@@ -3921,7 +3991,16 @@ async function initializeUserPlan() {
                 "plan-business"
             );
 
-        } else if (hasPro) {
+        } else if (
+            plan === "work_apps"
+        ) {
+
+            planBadge.textContent =
+                "WORK APPS";
+
+        } else if (
+            plan === "pro"
+        ) {
 
             planBadge.textContent =
                 "PRO";
@@ -3954,11 +4033,14 @@ if (
     document.readyState ===
     "loading"
 ) {
+
     document.addEventListener(
         "DOMContentLoaded",
         initializeUserPlan
     );
+
 } else {
+
     initializeUserPlan();
 }
 /* =========================
