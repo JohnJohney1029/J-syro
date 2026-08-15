@@ -1,3 +1,263 @@
+/* ==================================================
+   TEMPLATE PAYMENT POPUP BRIDGE
+   Locked template buttons stay clickable and open the
+   existing J-SYRO subscription popup.
+================================================== */
+
+function openTemplatePaymentModal(requiredPlan) {
+
+    let plan = String(requiredPlan || "pro")
+        .trim()
+        .toLowerCase();
+
+    if (plan === "work_apps") {
+        plan = "workapps";
+    }
+
+    const allowedPlans = {
+        pro: {
+            name: "PRO Templates",
+            price: "$5.99"
+        },
+        workapps: {
+            name: "Work Apps",
+            price: "$7.99"
+        },
+        business: {
+            name: "Business Templates",
+            price: "$9.99"
+        },
+        allaccess: {
+            name: "All Access",
+            price: "$17.99"
+        }
+    };
+
+    if (!allowedPlans[plan]) {
+        plan = "pro";
+    }
+
+    /*
+     * Use the real payment function when it is available.
+     */
+    if (
+        typeof window.openPaymentModal ===
+        "function"
+    ) {
+        window.openPaymentModal(plan);
+        return true;
+    }
+
+    /*
+     * Fallback:
+     * open the existing payment modal directly.
+     * This keeps template buttons working even when
+     * the payment script loaded after workspace.js.
+     */
+    const modal =
+        document.getElementById(
+            "paymentModal"
+        );
+
+    if (!modal) {
+
+        console.error(
+            "Payment modal not found"
+        );
+
+        if (
+            typeof window.showToast ===
+            "function"
+        ) {
+            window.showToast(
+                "Payment popup is not available."
+            );
+        }
+
+        return false;
+    }
+
+    try {
+
+        localStorage.setItem(
+            "jSyroCheckoutPlan",
+            plan
+        );
+
+    } catch (error) {
+        console.warn(
+            "Could not store checkout plan:",
+            error
+        );
+    }
+
+    const planRadio =
+        document.querySelector(
+            'input[name="paymentPlan"][value="' +
+            plan +
+            '"]'
+        );
+
+    if (planRadio) {
+        planRadio.checked = true;
+    }
+
+    const paymentEmail =
+        document.getElementById(
+            "paymentEmail"
+        );
+
+    if (paymentEmail) {
+
+        if (
+            typeof window.getJSyroUserEmail ===
+            "function"
+        ) {
+            paymentEmail.value =
+                window.getJSyroUserEmail();
+        }
+    }
+
+    const continueButton =
+        document.getElementById(
+            "paymentContinueBtn"
+        );
+
+    if (continueButton) {
+
+        continueButton.dataset.plan =
+            plan;
+
+        continueButton.textContent =
+            "Continue with " +
+            allowedPlans[plan].name +
+            " — " +
+            allowedPlans[plan].price +
+            "/month →";
+    }
+
+    const authModal =
+        document.querySelector(
+            ".auth-modal"
+        );
+
+    if (authModal) {
+
+        authModal.classList.remove(
+            "active"
+        );
+
+        authModal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+    document.body.classList.remove(
+        "auth-modal-open"
+    );
+
+    modal.classList.add(
+        "active"
+    );
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    document.body.classList.add(
+        "payment-modal-open"
+    );
+
+    return true;
+}
+
+
+/* ==================================================
+   TEMPLATE ACCESS HELPERS
+================================================== */
+
+function getTemplateRequiredPlan(
+    template
+) {
+
+    const category =
+        String(
+            template?.category || ""
+        )
+            .trim()
+            .toLowerCase();
+
+    if (
+        category === "business"
+    ) {
+        return "business";
+    }
+
+    if (
+        category === "app" ||
+        category === "dashboard" ||
+        category === "work apps" ||
+        category === "work_apps" ||
+        category === "workapp" ||
+        category === "work-app"
+    ) {
+        return "workapps";
+    }
+
+    return "pro";
+}
+
+
+function hasTemplateAccess(
+    template
+) {
+
+    const access =
+        window.jSyroAccess || {};
+
+    if (access.isAdmin) {
+        return true;
+    }
+
+    if (access.hasAllAccess) {
+        return true;
+    }
+
+    const requiredPlan =
+        getTemplateRequiredPlan(
+            template
+        );
+
+    if (
+        requiredPlan === "pro"
+    ) {
+        return Boolean(
+            access.hasPro
+        );
+    }
+
+    if (
+        requiredPlan === "business"
+    ) {
+        return Boolean(
+            access.hasBusiness
+        );
+    }
+
+    if (
+        requiredPlan === "workapps"
+    ) {
+        return Boolean(
+            access.hasWorkApps
+        );
+    }
+
+    return false;
+}
+
+
 const starterFiles = {
 
   "index.html": `<!DOCTYPE html>
@@ -1738,6 +1998,15 @@ function selectPanel(panelId) {
   sidebar.classList.add("open");
   if (panelId === "searchPanel") setTimeout(() => $("#searchInput").focus(), 0);
 }
+
+
+/* ==================================================
+   PAYMENT PLAN ALIAS
+   Existing payment code uses "workapps".
+================================================== */
+
+window.openTemplatePaymentModal =
+    openTemplatePaymentModal;
 
 /* ==================================================
    PROFESSIONAL SHARE PROJECT MODAL
@@ -48105,23 +48374,12 @@ function initializeTemplatesFeature() {
         "true";
 
 
-    function hasTemplateAccess() {
-
-        const access =
-            window.jSyroAccess || {};
-
-        return Boolean(
-            access.isAdmin ||
-            access.hasAllAccess ||
-            access.hasPro
-        );
-    }
-
-
     function updateTemplateAccessBadge() {
 
         const hasAccess =
-            hasTemplateAccess();
+            hasTemplateAccess({
+                category: "pro"
+            });
 
         if (!templatesLock) return;
 
@@ -48162,20 +48420,13 @@ function initializeTemplatesFeature() {
         template
     ) {
 
-        if (!hasTemplateAccess()) {
+        if (!hasTemplateAccess(template)) {
 
-            if (
-                typeof openPaymentModal ===
-                "function"
-            ) {
-                openPaymentModal(
-                    "pro"
-                );
-            } else {
-                showToast(
-                    "Payment popup is not available."
-                );
-            }
+            openTemplatePaymentModal(
+                getTemplateRequiredPlan(
+                    template
+                )
+            );
 
             return;
         }
@@ -48315,7 +48566,9 @@ function initializeTemplatesFeature() {
 
 
         const hasAccess =
-            hasTemplateAccess();
+            hasTemplateAccess({
+                category: "pro"
+            });
 
 
         const filteredTemplates =
@@ -52951,18 +53204,9 @@ async function useBusinessTemplate(template) {
 
     if (!canUseBusiness) {
 
-        if (
-            typeof openPaymentModal ===
-            "function"
-        ) {
-            openPaymentModal(
-                "business"
-            );
-        } else {
-            showToast(
-                "Business plan is required to use this template."
-            );
-        }
+        openTemplatePaymentModal(
+            "business"
+        );
 
         return;
     }
@@ -81502,18 +81746,9 @@ function initializeWorkAppsModal() {
 
                         if (!canUseWorkApps) {
 
-                            if (
-                                typeof openPaymentModal ===
-                                "function"
-                            ) {
-                                openPaymentModal(
-                                    "work_apps"
-                                );
-                            } else {
-                                showToast(
-                                    "Payment popup is not available."
-                                );
-                            }
+                            openTemplatePaymentModal(
+                                "workapps"
+                            );
 
                             return;
                         }
@@ -81545,18 +81780,9 @@ function initializeWorkAppsModal() {
 
         if (!canUseWorkApps) {
 
-            if (
-                typeof openPaymentModal ===
-                "function"
-            ) {
-                openPaymentModal(
-                    "work_apps"
-                );
-            } else {
-                showToast(
-                    "Work Apps plan is required to use this app."
-                );
-            }
+            openTemplatePaymentModal(
+                "workapps"
+            );
 
             return;
         }
