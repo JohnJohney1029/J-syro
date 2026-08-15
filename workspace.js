@@ -3757,9 +3757,7 @@ window.jSyroAccess = {
     status: "active",
     isAdmin: false,
     hasPro: false,
-    hasBusiness: false,
-    hasWorkApps: false,
-    hasAllAccess: false
+    hasBusiness: false
 };
 
 
@@ -3774,6 +3772,7 @@ async function initializeUserPlan() {
         console.error(
             "User plan badge not found"
         );
+
         return;
     }
 
@@ -3834,30 +3833,16 @@ async function initializeUserPlan() {
 
 
         const plan =
-            String(
-                planData?.plan ||
-                "free"
-            )
-                .trim()
-                .toLowerCase();
-
+            planData?.plan ||
+            "free";
 
         const role =
-            String(
-                planData?.role ||
-                "user"
-            )
-                .trim()
-                .toLowerCase();
-
+            planData?.role ||
+            "user";
 
         const status =
-            String(
-                planData?.status ||
-                "active"
-            )
-                .trim()
-                .toLowerCase();
+            planData?.status ||
+            "active";
 
 
         const expiryDate =
@@ -3877,39 +3862,24 @@ async function initializeUserPlan() {
         const isAdmin =
             role === "admin";
 
-
         const isActive =
             status === "active" &&
             !isExpired;
 
-
-        /*
-         * IMPORTANT:
-         *
-         * PRO
-         * → only PRO
-         *
-         * BUSINESS
-         * → only BUSINESS
-         *
-         * WORK APPS
-         * → only WORK APPS
-         *
-         * ALL ACCESS
-         * → everything
-         *
-         * ADMIN
-         * → everything
-         *
-         * A paid plan does NOT unlock
-         * the other paid plans.
-         */
 
         const hasPro =
             isAdmin ||
             (
                 isActive &&
                 plan === "pro"
+            );
+
+
+        const hasWorkApps =
+            isAdmin ||
+            (
+                isActive &&
+                plan === "work_apps"
             );
 
 
@@ -3921,27 +3891,11 @@ async function initializeUserPlan() {
             );
 
 
-        const hasWorkApps =
-            isAdmin ||
-            (
-                isActive &&
-                (
-                    plan === "work_apps" ||
-                    plan === "workapps" ||
-                    plan === "work-apps"
-                )
-            );
-
-
         const hasAllAccess =
             isAdmin ||
             (
                 isActive &&
-                (
-                    plan === "all_access" ||
-                    plan === "all-access" ||
-                    plan === "allaccess"
-                )
+                plan === "all_access"
             );
 
 
@@ -3951,8 +3905,8 @@ async function initializeUserPlan() {
             status,
             isAdmin,
             hasPro,
-            hasBusiness,
             hasWorkApps,
+            hasBusiness,
             hasAllAccess
         };
 
@@ -3973,11 +3927,6 @@ async function initializeUserPlan() {
                 "plan-admin"
             );
 
-        } else if (hasAllAccess) {
-
-            planBadge.textContent =
-                "ALL ACCESS";
-
         } else if (hasBusiness) {
 
             planBadge.textContent =
@@ -3986,11 +3935,6 @@ async function initializeUserPlan() {
             planBadge.classList.add(
                 "plan-business"
             );
-
-        } else if (hasWorkApps) {
-
-            planBadge.textContent =
-                "WORK APPS";
 
         } else if (hasPro) {
 
@@ -4015,17 +3959,6 @@ async function initializeUserPlan() {
             error
         );
 
-        window.jSyroAccess = {
-            plan: "free",
-            role: "user",
-            status: "active",
-            isAdmin: false,
-            hasPro: false,
-            hasBusiness: false,
-            hasWorkApps: false,
-            hasAllAccess: false
-        };
-
         planBadge.textContent =
             "FREE";
     }
@@ -4036,17 +3969,13 @@ if (
     document.readyState ===
     "loading"
 ) {
-
     document.addEventListener(
         "DOMContentLoaded",
         initializeUserPlan
     );
-
 } else {
-
     initializeUserPlan();
 }
-
 /* =========================
    J-SYRO TEMPLATES FEATURE
 ========================= */
@@ -48161,6 +48090,7 @@ function initializeTemplatesFeature() {
         console.error(
             "Templates elements were not found"
         );
+
         return;
     }
 
@@ -48177,23 +48107,10 @@ function initializeTemplatesFeature() {
         "true";
 
 
-    /*
-     * Return the paid plan required
-     * for a template.
-     *
-     * Main Templates:
-     * - business → BUSINESS
-     * - app/dashboard → WORK APPS
-     * - everything else → PRO
-     */
-
     function getTemplatePlan(template) {
 
         const category =
-            String(
-                template?.category ||
-                ""
-            )
+            String(template?.category || "")
                 .trim()
                 .toLowerCase();
 
@@ -48207,10 +48124,8 @@ function initializeTemplatesFeature() {
 
         if (
             category === "app" ||
-            category === "dashboard" ||
             category === "work apps" ||
-            category === "work_apps" ||
-            category === "work-apps"
+            category === "work_apps"
         ) {
             return "work";
         }
@@ -48237,9 +48152,7 @@ function initializeTemplatesFeature() {
 
 
         const requiredPlan =
-            getTemplatePlan(
-                template
-            );
+            getTemplatePlan(template);
 
 
         if (
@@ -48270,14 +48183,10 @@ function initializeTemplatesFeature() {
     }
 
 
-    function getTemplatePaymentPlan(
-        template
-    ) {
+    function getTemplatePaymentPlan(template) {
 
         const requiredPlan =
-            getTemplatePlan(
-                template
-            );
+            getTemplatePlan(template);
 
 
         if (
@@ -48290,7 +48199,7 @@ function initializeTemplatesFeature() {
         if (
             requiredPlan === "work"
         ) {
-            return "work_apps";
+            return "workapps";
         }
 
 
@@ -48298,48 +48207,129 @@ function initializeTemplatesFeature() {
     }
 
 
-    function updateTemplateAccessBadge() {
+    function openTemplatePayment(template) {
 
-        if (!templatesLock) {
-            return;
+        const plan =
+            getTemplatePaymentPlan(
+                template
+            );
+
+
+        if (
+            typeof openPaymentModal ===
+            "function"
+        ) {
+
+            openPaymentModal(
+                plan
+            );
+
+            return true;
         }
 
 
-        /*
-         * The main Templates library can
-         * always be opened.
-         *
-         * This badge only indicates that
-         * paid templates are available
-         * according to the user's plan.
-         */
+        if (
+            typeof openPaidLibrary ===
+            "function"
+        ) {
+
+            openPaidLibrary(
+                plan
+            );
+
+            return true;
+        }
+
+
+        const modal =
+            document.getElementById(
+                "paymentModal"
+            );
+
+
+        if (modal) {
+
+            localStorage.setItem(
+                "jSyroCheckoutPlan",
+                plan
+            );
+
+
+            const radio =
+                document.querySelector(
+                    'input[name="paymentPlan"][value="' +
+                    plan +
+                    '"]'
+                );
+
+
+            if (radio) {
+                radio.checked = true;
+            }
+
+
+            modal.classList.add(
+                "active"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+            document.body.classList.add(
+                "payment-modal-open"
+            );
+
+            return true;
+        }
+
+
+        console.error(
+            "Payment popup function/modal not found."
+        );
+
+
+        showToast(
+            "Payment popup is not available."
+        );
+
+
+        return false;
+    }
+
+
+    function updateTemplateAccessBadge() {
+
+        if (!templatesLock) return;
+
 
         const access =
             window.jSyroAccess || {};
 
 
-        const hasAnyPaidAccess =
+        const hasAnyAccess =
             access.isAdmin ||
             access.hasAllAccess ||
             access.hasPro ||
-            access.hasBusiness ||
-            access.hasWorkApps;
+            access.hasWorkApps ||
+            access.hasBusiness;
 
 
         templatesLock.textContent =
-            hasAnyPaidAccess
+            hasAnyAccess
                 ? "OPEN"
                 : "LOCKED";
 
 
         templatesLock.style.color =
-            hasAnyPaidAccess
+            hasAnyAccess
                 ? "#aef2da"
                 : "";
 
 
         templatesLock.style.borderColor =
-            hasAnyPaidAccess
+            hasAnyAccess
                 ? "#32b988"
                 : "";
     }
@@ -48362,42 +48352,15 @@ function initializeTemplatesFeature() {
         template
     ) {
 
-        const hasAccess =
-            hasTemplateAccess(
+        if (
+            !hasTemplateAccess(
+                template
+            )
+        ) {
+
+            openTemplatePayment(
                 template
             );
-
-
-        /*
-         * IMPORTANT:
-         * Locked templates are still
-         * clickable. Clicking them opens
-         * the correct payment popup.
-         */
-
-        if (!hasAccess) {
-
-            const paymentPlan =
-                getTemplatePaymentPlan(
-                    template
-                );
-
-
-            if (
-                typeof openPaymentModal ===
-                "function"
-            ) {
-
-                openPaymentModal(
-                    paymentPlan
-                );
-
-            } else {
-
-                showToast(
-                    `${paymentPlan} plan is required to use this template.`
-                );
-            }
 
             return;
         }
@@ -48450,9 +48413,7 @@ function initializeTemplatesFeature() {
             window.crypto &&
             typeof window.crypto.randomUUID ===
                 "function"
-
                 ? window.crypto.randomUUID()
-
                 : `project-${Date.now()}`;
 
 
@@ -48480,16 +48441,12 @@ function initializeTemplatesFeature() {
         ];
 
         state.dirty.clear();
-
         state.selectedFolder = "";
-
         state.expandedFolders =
             new Set();
 
         state.inlineAction = null;
-
         state.contextTarget = null;
-
         state.pendingDelete = null;
 
 
@@ -48507,9 +48464,7 @@ function initializeTemplatesFeature() {
 
 
         persistFiles();
-
         renderFiles();
-
         renderTabs();
 
         openFile(
@@ -48704,13 +48659,6 @@ function initializeTemplatesFeature() {
                         : "🔒 Unlock Template";
 
 
-                /*
-                 * NEVER disable the button.
-                 *
-                 * Free users must be able to
-                 * click it and see payment.
-                 */
-
                 useButton.disabled =
                     false;
 
@@ -48719,7 +48667,21 @@ function initializeTemplatesFeature() {
                     "click",
                     function () {
 
-                        useTemplate(
+                        if (
+                            hasTemplateAccess(
+                                template
+                            )
+                        ) {
+
+                            useTemplate(
+                                template
+                            );
+
+                            return;
+                        }
+
+
+                        openTemplatePayment(
                             template
                         );
                     }
@@ -48759,7 +48721,6 @@ function initializeTemplatesFeature() {
 
 
         updateTemplateAccessBadge();
-
         renderTemplates();
 
 
@@ -48830,24 +48791,22 @@ function initializeTemplatesFeature() {
         updateTemplateAccessBadge,
         1200
     );
+
 }
+
 
 
 if (
     document.readyState ===
     "loading"
 ) {
-
     document.addEventListener(
         "DOMContentLoaded",
         initializeTemplatesFeature
     );
-
 } else {
-
     initializeTemplatesFeature();
 }
-
 /* =========================
    DUPLICATE PROJECT
 ========================= */
@@ -53026,15 +52985,18 @@ function initializeBusinessTemplatesModal() {
             "businessTemplatesBtn"
         );
 
+
     const businessTemplatesModal =
         document.getElementById(
             "businessTemplatesModal"
         );
 
+
     const businessTemplatesGrid =
         document.getElementById(
             "businessTemplatesGrid"
         );
+
 
     const closeBusinessTemplatesButton =
         document.getElementById(
@@ -53051,13 +53013,13 @@ function initializeBusinessTemplatesModal() {
     }
 
 
-    function getBusinessAccess() {
+    function hasBusinessAccess() {
 
         const access =
             window.jSyroAccess || {};
 
 
-        return (
+        return Boolean(
             access.isAdmin ||
             access.hasAllAccess ||
             access.hasBusiness
@@ -53067,8 +53029,8 @@ function initializeBusinessTemplatesModal() {
 
     function renderBusinessTemplates() {
 
-        const hasBusinessAccess =
-            getBusinessAccess();
+        const hasAccess =
+            hasBusinessAccess();
 
 
         businessTemplatesGrid.innerHTML =
@@ -53090,7 +53052,7 @@ function initializeBusinessTemplatesModal() {
 
                                     <span class="template-premium-badge">
                                         ${
-                                            hasBusinessAccess
+                                            hasAccess
                                                 ? "🔓 UNLOCKED"
                                                 : "🔒 LOCKED"
                                         }
@@ -53118,7 +53080,7 @@ function initializeBusinessTemplatesModal() {
                                         data-business-template-id="${template.id}"
                                     >
                                         ${
-                                            hasBusinessAccess
+                                            hasAccess
                                                 ? "Use Template"
                                                 : "🔒 Unlock Template"
                                         }
@@ -53167,13 +53129,8 @@ function initializeBusinessTemplatesModal() {
                             }
 
 
-                            /*
-                             * Locked business template:
-                             * open BUSINESS payment.
-                             */
-
                             if (
-                                !getBusinessAccess()
+                                !hasBusinessAccess()
                             ) {
 
                                 if (
@@ -53185,10 +53142,19 @@ function initializeBusinessTemplatesModal() {
                                         "business"
                                     );
 
+                                } else if (
+                                    typeof openPaidLibrary ===
+                                    "function"
+                                ) {
+
+                                    openPaidLibrary(
+                                        "business"
+                                    );
+
                                 } else {
 
                                     showToast(
-                                        "Business plan is required to use this template."
+                                        "Payment popup is not available."
                                     );
                                 }
 
@@ -53210,13 +53176,8 @@ function initializeBusinessTemplatesModal() {
         template
     ) {
 
-        /*
-         * Second access check so a direct
-         * function call cannot bypass payment.
-         */
-
         if (
-            !getBusinessAccess()
+            !hasBusinessAccess()
         ) {
 
             if (
@@ -53228,10 +53189,19 @@ function initializeBusinessTemplatesModal() {
                     "business"
                 );
 
+            } else if (
+                typeof openPaidLibrary ===
+                "function"
+            ) {
+
+                openPaidLibrary(
+                    "business"
+                );
+
             } else {
 
                 showToast(
-                    "Business plan is required to use this template."
+                    "Payment popup is not available."
                 );
             }
 
@@ -53286,9 +53256,7 @@ function initializeBusinessTemplatesModal() {
             window.crypto &&
             typeof window.crypto.randomUUID ===
                 "function"
-
                 ? window.crypto.randomUUID()
-
                 : `project-${Date.now()}`;
 
 
@@ -53323,9 +53291,7 @@ function initializeBusinessTemplatesModal() {
             new Set();
 
         state.inlineAction = null;
-
         state.contextTarget = null;
-
         state.pendingDelete = null;
 
 
@@ -53343,10 +53309,9 @@ function initializeBusinessTemplatesModal() {
 
 
         persistFiles();
-
         renderFiles();
-
         renderTabs();
+
 
         openFile(
             "index.html"
@@ -53382,6 +53347,7 @@ function initializeBusinessTemplatesModal() {
             "open"
         );
 
+
         businessTemplatesModal.setAttribute(
             "aria-hidden",
             "false"
@@ -53394,6 +53360,7 @@ function initializeBusinessTemplatesModal() {
         businessTemplatesModal.classList.remove(
             "open"
         );
+
 
         businessTemplatesModal.setAttribute(
             "aria-hidden",
@@ -53423,23 +53390,6 @@ function initializeBusinessTemplatesModal() {
                 event.target ===
                 businessTemplatesModal
             ) {
-                closeBusinessTemplatesModal();
-            }
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (
-                event.key === "Escape" &&
-                businessTemplatesModal
-                    .classList
-                    .contains("open")
-            ) {
-
                 closeBusinessTemplatesModal();
             }
         }
@@ -81530,25 +81480,30 @@ function initializeWorkAppsModal() {
             "workAppsBtn"
         );
 
+
     const workAppsModal =
         document.getElementById(
             "workAppsModal"
         );
+
 
     const workAppsGrid =
         document.getElementById(
             "workAppsGrid"
         );
 
+
     const closeWorkAppsButton =
         document.getElementById(
             "closeWorkAppsModal"
         );
 
+
     const workAppSearchInput =
         document.getElementById(
             "workAppSearchInput"
         );
+
 
     const workAppCategoryFilter =
         document.getElementById(
@@ -81565,13 +81520,13 @@ function initializeWorkAppsModal() {
     }
 
 
-    function getWorkAppsAccess() {
+    function hasWorkAppsAccess() {
 
         const access =
             window.jSyroAccess || {};
 
 
-        return (
+        return Boolean(
             access.isAdmin ||
             access.hasAllAccess ||
             access.hasWorkApps
@@ -81579,11 +81534,83 @@ function initializeWorkAppsModal() {
     }
 
 
+    function openWorkAppsPayment() {
+
+        if (
+            typeof openPaymentModal ===
+            "function"
+        ) {
+
+            openPaymentModal(
+                "workapps"
+            );
+
+            return;
+        }
+
+
+        if (
+            typeof openPaidLibrary ===
+            "function"
+        ) {
+
+            openPaidLibrary(
+                "workapps"
+            );
+
+            return;
+        }
+
+
+        const modal =
+            document.getElementById(
+                "paymentModal"
+            );
+
+
+        if (modal) {
+
+            localStorage.setItem(
+                "jSyroCheckoutPlan",
+                "workapps"
+            );
+
+
+            const radio =
+                document.querySelector(
+                    'input[name="paymentPlan"][value="workapps"]'
+                );
+
+
+            if (radio) {
+                radio.checked = true;
+            }
+
+
+            modal.classList.add(
+                "active"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+            document.body.classList.add(
+                "payment-modal-open"
+            );
+
+            return;
+        }
+
+
+        showToast(
+            "Payment popup is not available."
+        );
+    }
+
+
     function renderWorkApps() {
-
-        const hasWorkAppsAccess =
-            getWorkAppsAccess();
-
 
         const searchValue =
             workAppSearchInput
@@ -81621,8 +81648,7 @@ function initializeWorkAppsModal() {
 
 
                     const matchesCategory =
-                        categoryValue ===
-                            "all" ||
+                        categoryValue === "all" ||
                         app.category ===
                             categoryValue;
 
@@ -81636,8 +81662,7 @@ function initializeWorkAppsModal() {
 
 
         if (
-            filteredApps.length ===
-            0
+            filteredApps.length === 0
         ) {
 
             workAppsGrid.innerHTML = `
@@ -81695,6 +81720,10 @@ function initializeWorkAppsModal() {
                                 .join("");
 
 
+                        const hasAccess =
+                            hasWorkAppsAccess();
+
+
                         return `
                             <article class="template-card work-app-card">
 
@@ -81706,13 +81735,14 @@ function initializeWorkAppsModal() {
 
                                     <span class="work-app-premium-badge">
                                         ${
-                                            hasWorkAppsAccess
+                                            hasAccess
                                                 ? "🔓 UNLOCKED"
                                                 : "🔒 LOCKED"
                                         }
                                     </span>
 
                                 </div>
+
 
                                 <div class="template-card-content">
 
@@ -81738,7 +81768,7 @@ function initializeWorkAppsModal() {
                                         data-work-app-id="${app.id}"
                                     >
                                         ${
-                                            hasWorkAppsAccess
+                                            hasAccess
                                                 ? "Use Work App"
                                                 : "🔒 Unlock Work App"
                                         }
@@ -81787,30 +81817,11 @@ function initializeWorkAppsModal() {
                             }
 
 
-                            /*
-                             * Locked Work App:
-                             * open WORK APPS payment.
-                             */
-
                             if (
-                                !getWorkAppsAccess()
+                                !hasWorkAppsAccess()
                             ) {
 
-                                if (
-                                    typeof openPaymentModal ===
-                                    "function"
-                                ) {
-
-                                    openPaymentModal(
-                                        "work_apps"
-                                    );
-
-                                } else {
-
-                                    showToast(
-                                        "Work Apps plan is required to use this app."
-                                    );
-                                }
+                                openWorkAppsPayment();
 
                                 return;
                             }
@@ -81830,30 +81841,11 @@ function initializeWorkAppsModal() {
         app
     ) {
 
-        /*
-         * Second access check so direct
-         * calls cannot bypass payment.
-         */
-
         if (
-            !getWorkAppsAccess()
+            !hasWorkAppsAccess()
         ) {
 
-            if (
-                typeof openPaymentModal ===
-                "function"
-            ) {
-
-                openPaymentModal(
-                    "work_apps"
-                );
-
-            } else {
-
-                showToast(
-                    "Work Apps plan is required to use this app."
-                );
-            }
+            openWorkAppsPayment();
 
             return;
         }
@@ -82050,10 +82042,11 @@ function initializeWorkAppsModal() {
 
     if (workAppCategoryFilter) {
 
-        workAppCategoryFilter.addEventListener(
-            "change",
-            renderWorkApps
-        );
+        workAppCategoryFilter
+            .addEventListener(
+                "change",
+                renderWorkApps
+            );
     }
 
 
@@ -82093,7 +82086,9 @@ function initializeWorkAppsModal() {
                 event.key === "Escape" &&
                 workAppsModal
                     .classList
-                    .contains("open")
+                    .contains(
+                        "open"
+                    )
             ) {
 
                 closeWorkAppsModal();
@@ -82102,10 +82097,6 @@ function initializeWorkAppsModal() {
     );
 }
 
-
-/* =========================================
-   INITIALIZE WORK APPS
-========================================= */
 
 if (
     document.readyState ===
@@ -82120,7 +82111,6 @@ if (
 } else {
 
     initializeWorkAppsModal();
-
 }
 
 /* =========================================
