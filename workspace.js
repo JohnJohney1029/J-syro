@@ -3757,9 +3757,7 @@ window.jSyroAccess = {
     status: "active",
     isAdmin: false,
     hasPro: false,
-    hasWorkApps: false,
-    hasBusiness: false,
-    hasAllAccess: false
+    hasBusiness: false
 };
 
 
@@ -3774,8 +3772,10 @@ async function initializeUserPlan() {
         console.error(
             "User plan badge not found"
         );
+
         return;
     }
+
 
     try {
 
@@ -3789,6 +3789,7 @@ async function initializeUserPlan() {
             );
         }
 
+
         const {
             data: userData,
             error: userError
@@ -3797,15 +3798,18 @@ async function initializeUserPlan() {
                 .auth
                 .getUser();
 
+
         if (userError) {
             throw userError;
         }
+
 
         if (!userData.user) {
             throw new Error(
                 "User is not logged in"
             );
         }
+
 
         const {
             data: planData,
@@ -3822,33 +3826,24 @@ async function initializeUserPlan() {
                 )
                 .maybeSingle();
 
+
         if (planError) {
             throw planError;
         }
 
+
         const plan =
-            String(
-                planData?.plan ||
-                "free"
-            )
-                .trim()
-                .toLowerCase();
+            planData?.plan ||
+            "free";
 
         const role =
-            String(
-                planData?.role ||
-                "user"
-            )
-                .trim()
-                .toLowerCase();
+            planData?.role ||
+            "user";
 
         const status =
-            String(
-                planData?.status ||
-                "active"
-            )
-                .trim()
-                .toLowerCase();
+            planData?.status ||
+            "active";
+
 
         const expiryDate =
             planData?.expires_at
@@ -3857,10 +3852,12 @@ async function initializeUserPlan() {
                 )
                 : null;
 
+
         const isExpired =
             expiryDate &&
             expiryDate.getTime() <
                 Date.now();
+
 
         const isAdmin =
             role === "admin";
@@ -3869,41 +3866,35 @@ async function initializeUserPlan() {
             status === "active" &&
             !isExpired;
 
-        const hasAllAccess =
+
+        const hasBusiness =
             isAdmin ||
             (
                 isActive &&
-                (
-                    plan === "all_access" ||
-                    plan === "allaccess"
-                )
+                plan === "business"
             );
+
 
         const hasPro =
             isAdmin ||
-            hasAllAccess ||
             (
                 isActive &&
                 plan === "pro"
             );
 
+
         const hasWorkApps =
             isAdmin ||
-            hasAllAccess ||
             (
                 isActive &&
-                (
-                    plan === "work_apps" ||
-                    plan === "workapps"
-                )
+                plan === "work_apps"
             );
 
-        const hasBusiness =
+        const hasAllAccess =
             isAdmin ||
-            hasAllAccess ||
             (
                 isActive &&
-                plan === "business"
+                plan === "all_access"
             );
 
         window.jSyroAccess = {
@@ -3917,11 +3908,13 @@ async function initializeUserPlan() {
             hasAllAccess
         };
 
+
         planBadge.classList.remove(
             "plan-pro",
             "plan-business",
             "plan-admin"
         );
+
 
         if (isAdmin) {
 
@@ -3932,12 +3925,7 @@ async function initializeUserPlan() {
                 "plan-admin"
             );
 
-        } else if (hasAllAccess) {
-
-            planBadge.textContent =
-                "ALL ACCESS";
-
-        } else if (plan === "business") {
+        } else if (hasBusiness) {
 
             planBadge.textContent =
                 "BUSINESS";
@@ -3946,15 +3934,7 @@ async function initializeUserPlan() {
                 "plan-business"
             );
 
-        } else if (
-            plan === "work_apps" ||
-            plan === "workapps"
-        ) {
-
-            planBadge.textContent =
-                "WORK APPS";
-
-        } else if (plan === "pro") {
+        } else if (hasPro) {
 
             planBadge.textContent =
                 "PRO";
@@ -3969,23 +3949,13 @@ async function initializeUserPlan() {
                 "FREE";
         }
 
+
     } catch (error) {
 
         console.error(
             "User plan error:",
             error
         );
-
-        window.jSyroAccess = {
-            plan: "free",
-            role: "user",
-            status: "active",
-            isAdmin: false,
-            hasPro: false,
-            hasWorkApps: false,
-            hasBusiness: false,
-            hasAllAccess: false
-        };
 
         planBadge.textContent =
             "FREE";
@@ -3997,17 +3967,13 @@ if (
     document.readyState ===
     "loading"
 ) {
-
     document.addEventListener(
         "DOMContentLoaded",
         initializeUserPlan
     );
-
 } else {
-
     initializeUserPlan();
 }
-
 /* =========================
    J-SYRO TEMPLATES FEATURE
 ========================= */
@@ -48163,7 +48129,7 @@ function initializeTemplatesFeature() {
         templatesLock.textContent =
             hasAccess
                 ? "OPEN"
-                : "PRO";
+                : "LOCKED";
 
 
         templatesLock.style.color =
@@ -48202,19 +48168,12 @@ function initializeTemplatesFeature() {
                 typeof openPaymentModal ===
                 "function"
             ) {
-
                 openPaymentModal(
                     "pro"
                 );
-
             } else {
-
-                console.error(
-                    "openPaymentModal function not found"
-                );
-
                 showToast(
-                    "Payment popup is not available. Make sure the payment script is loaded."
+                    "Payment popup is not available."
                 );
             }
 
@@ -52947,7 +52906,6 @@ function renderBusinessTemplates() {
                 }
 
 
-                
                 const currentAccess =
                     window.jSyroAccess || {};
 
@@ -52962,19 +52920,12 @@ function renderBusinessTemplates() {
                         typeof openPaymentModal ===
                         "function"
                     ) {
-
                         openPaymentModal(
                             "business"
                         );
-
                     } else {
-
-                        console.error(
-                            "openPaymentModal function not found"
-                        );
-
                         showToast(
-                            "Payment popup is not available. Make sure the payment script is loaded."
+                            "Payment popup is not available."
                         );
                     }
 
@@ -53004,13 +52955,10 @@ async function useBusinessTemplate(template) {
             typeof openPaymentModal ===
             "function"
         ) {
-
             openPaymentModal(
                 "business"
             );
-
         } else {
-
             showToast(
                 "Business plan is required to use this template."
             );
@@ -81492,10 +81440,10 @@ function initializeWorkAppsModal() {
                                         data-work-app-id="${app.id}"
                                     >
                                         ${
-                                            hasWorkAppsAccess
-                                                ? "Use Work App"
-                                                : "🔒 Unlock Work App"
-                                        }
+                                        hasWorkAppsAccess
+                                            ? "Use Work App"
+                                            : "🔒 Unlock Work App"
+                                    }
                                     </button>
 
 
@@ -81544,43 +81492,35 @@ function initializeWorkAppsModal() {
                             }
 
 
-                            
                             const currentAccess =
-                                window.jSyroAccess || {};
+                            window.jSyroAccess || {};
 
-                            const canUseWorkApps =
-                                currentAccess.isAdmin ||
-                                currentAccess.hasAllAccess ||
-                                currentAccess.hasWorkApps;
+                        const canUseWorkApps =
+                            currentAccess.isAdmin ||
+                            currentAccess.hasAllAccess ||
+                            currentAccess.hasWorkApps;
 
-                            if (!canUseWorkApps) {
+                        if (!canUseWorkApps) {
 
-                                if (
-                                    typeof openPaymentModal ===
-                                    "function"
-                                ) {
-
-                                    openPaymentModal(
-                                        "workapps"
-                                    );
-
-                                } else {
-
-                                    console.error(
-                                        "openPaymentModal function not found"
-                                    );
-
-                                    showToast(
-                                        "Payment popup is not available. Make sure the payment script is loaded."
-                                    );
-                                }
-
-                                return;
+                            if (
+                                typeof openPaymentModal ===
+                                "function"
+                            ) {
+                                openPaymentModal(
+                                    "work_apps"
+                                );
+                            } else {
+                                showToast(
+                                    "Payment popup is not available."
+                                );
                             }
 
-                            useWorkApp(
-                                app
-                            );
+                            return;
+                        }
+
+                        useWorkApp(
+                            app
+                        );
                         }
                     );
                 }
@@ -81609,13 +81549,10 @@ function initializeWorkAppsModal() {
                 typeof openPaymentModal ===
                 "function"
             ) {
-
                 openPaymentModal(
-                    "workapps"
+                    "work_apps"
                 );
-
             } else {
-
                 showToast(
                     "Work Apps plan is required to use this app."
                 );
