@@ -3867,22 +3867,6 @@ async function initializeUserPlan() {
             !isExpired;
 
 
-        const hasPro =
-            isAdmin ||
-            (
-                isActive &&
-                plan === "pro"
-            );
-
-
-        const hasWorkApps =
-            isAdmin ||
-            (
-                isActive &&
-                plan === "work_apps"
-            );
-
-
         const hasBusiness =
             isAdmin ||
             (
@@ -3891,11 +3875,14 @@ async function initializeUserPlan() {
             );
 
 
-        const hasAllAccess =
+        const hasPro =
             isAdmin ||
             (
                 isActive &&
-                plan === "all_access"
+                (
+                    plan === "pro" ||
+                    plan === "business"
+                )
             );
 
 
@@ -3905,9 +3892,7 @@ async function initializeUserPlan() {
             status,
             isAdmin,
             hasPro,
-            hasWorkApps,
-            hasBusiness,
-            hasAllAccess
+            hasBusiness
         };
 
 
@@ -48107,29 +48092,25 @@ function initializeTemplatesFeature() {
         "true";
 
 
-    function getTemplatePlan(template) {
+    function getTemplateRequiredPlan(template) {
 
         const category =
             String(template?.category || "")
                 .trim()
                 .toLowerCase();
 
-
-        if (
-            category === "business"
-        ) {
+        if (category === "business") {
             return "business";
         }
 
-
         if (
             category === "app" ||
+            category === "dashboard" ||
             category === "work apps" ||
             category === "work_apps"
         ) {
-            return "work";
+            return "workapps";
         }
-
 
         return "pro";
     }
@@ -48140,196 +48121,96 @@ function initializeTemplatesFeature() {
         const access =
             window.jSyroAccess || {};
 
-
         if (access.isAdmin) {
             return true;
         }
-
 
         if (access.hasAllAccess) {
             return true;
         }
 
-
         const requiredPlan =
-            getTemplatePlan(template);
+            getTemplateRequiredPlan(template);
 
-
-        if (
-            requiredPlan === "pro" &&
-            access.hasPro
-        ) {
-            return true;
+        if (requiredPlan === "pro") {
+            return Boolean(access.hasPro);
         }
 
-
-        if (
-            requiredPlan === "business" &&
-            access.hasBusiness
-        ) {
-            return true;
+        if (requiredPlan === "business") {
+            return Boolean(access.hasBusiness);
         }
 
-
-        if (
-            requiredPlan === "work" &&
-            access.hasWorkApps
-        ) {
-            return true;
+        if (requiredPlan === "workapps") {
+            return Boolean(access.hasWorkApps);
         }
-
 
         return false;
-    }
-
-
-    function getTemplatePaymentPlan(template) {
-
-        const requiredPlan =
-            getTemplatePlan(template);
-
-
-        if (
-            requiredPlan === "business"
-        ) {
-            return "business";
-        }
-
-
-        if (
-            requiredPlan === "work"
-        ) {
-            return "workapps";
-        }
-
-
-        return "pro";
     }
 
 
     function openTemplatePayment(template) {
 
-        const plan =
-            getTemplatePaymentPlan(
-                template
-            );
+        const requiredPlan =
+            getTemplateRequiredPlan(template);
 
-
-        if (
-            typeof openPaymentModal ===
-            "function"
-        ) {
-
-            openPaymentModal(
-                plan
-            );
-
-            return true;
+        if (typeof openPaymentModal === "function") {
+            openPaymentModal(requiredPlan);
+            return;
         }
-
-
-        if (
-            typeof openPaidLibrary ===
-            "function"
-        ) {
-
-            openPaidLibrary(
-                plan
-            );
-
-            return true;
-        }
-
 
         const modal =
-            document.getElementById(
-                "paymentModal"
-            );
+            document.getElementById("paymentModal");
 
-
-        if (modal) {
-
-            localStorage.setItem(
-                "jSyroCheckoutPlan",
-                plan
-            );
-
-
-            const radio =
-                document.querySelector(
-                    'input[name="paymentPlan"][value="' +
-                    plan +
-                    '"]'
-                );
-
-
-            if (radio) {
-                radio.checked = true;
-            }
-
-
-            modal.classList.add(
-                "active"
-            );
-
-            modal.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
-            document.body.classList.add(
-                "payment-modal-open"
-            );
-
-            return true;
+        if (!modal) {
+            console.error("Payment modal not found");
+            showToast("Payment popup is not available.");
+            return;
         }
 
-
-        console.error(
-            "Payment popup function/modal not found."
+        localStorage.setItem(
+            "jSyroCheckoutPlan",
+            requiredPlan
         );
 
+        const planRadio =
+            document.querySelector(
+                'input[name="paymentPlan"][value="' +
+                requiredPlan +
+                '"]'
+            );
 
-        showToast(
-            "Payment popup is not available."
-        );
+        if (planRadio) {
+            planRadio.checked = true;
+        }
 
-
-        return false;
+        modal.classList.add("active");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("payment-modal-open");
     }
 
 
     function updateTemplateAccessBadge() {
 
+        const hasAccess =
+            hasTemplateAccess();
+
         if (!templatesLock) return;
 
 
-        const access =
-            window.jSyroAccess || {};
-
-
-        const hasAnyAccess =
-            access.isAdmin ||
-            access.hasAllAccess ||
-            access.hasPro ||
-            access.hasWorkApps ||
-            access.hasBusiness;
-
-
         templatesLock.textContent =
-            hasAnyAccess
+            hasAccess
                 ? "OPEN"
-                : "LOCKED";
+                : "PRO";
 
 
         templatesLock.style.color =
-            hasAnyAccess
+            hasAccess
                 ? "#aef2da"
                 : "";
 
 
         templatesLock.style.borderColor =
-            hasAnyAccess
+            hasAccess
                 ? "#32b988"
                 : "";
     }
@@ -48352,15 +48233,9 @@ function initializeTemplatesFeature() {
         template
     ) {
 
-        if (
-            !hasTemplateAccess(
-                template
-            )
-        ) {
+        if (!hasTemplateAccess(template)) {
 
-            openTemplatePayment(
-                template
-            );
+            openTemplatePayment(template);
 
             return;
         }
@@ -48499,6 +48374,10 @@ function initializeTemplatesFeature() {
             "all";
 
 
+        const hasAccess =
+            hasTemplateAccess(template);
+
+
         const filteredTemplates =
             jSyroTemplates.filter(
                 function (template) {
@@ -48551,12 +48430,6 @@ function initializeTemplatesFeature() {
         filteredTemplates.forEach(
             function (template) {
 
-                const hasAccess =
-                    hasTemplateAccess(
-                        template
-                    );
-
-
                 const card =
                     document.createElement(
                         "article"
@@ -48593,8 +48466,8 @@ function initializeTemplatesFeature() {
 
                 badge.textContent =
                     hasAccess
-                        ? "🔓 UNLOCKED"
-                        : "🔒 LOCKED";
+                        ? "UNLOCKED"
+                        : "PRO";
 
 
                 preview.appendChild(
@@ -48652,36 +48525,25 @@ function initializeTemplatesFeature() {
                 useButton.className =
                     "template-use-button";
 
-
                 useButton.textContent =
                     hasAccess
                         ? "Use Template"
                         : "🔒 Unlock Template";
 
-
-                useButton.disabled =
-                    false;
-
+                // Locked buttons must stay clickable.
+                // Clicking a locked template opens payment.
+                useButton.disabled = false;
 
                 useButton.addEventListener(
                     "click",
                     function () {
 
-                        if (
-                            hasTemplateAccess(
-                                template
-                            )
-                        ) {
-
-                            useTemplate(
-                                template
-                            );
-
+                        if (!hasTemplateAccess(template)) {
+                            openTemplatePayment(template);
                             return;
                         }
 
-
-                        openTemplatePayment(
+                        useTemplate(
                             template
                         );
                     }
@@ -48773,24 +48635,24 @@ function initializeTemplatesFeature() {
     );
 
 
-    document.addEventListener(
-        "keydown",
-        function (event) {
+document.addEventListener(
+    "keydown",
+    function (event) {
 
-            if (
-                event.key ===
-                "Escape"
-            ) {
-                closeTemplatesModal();
-            }
+        if (
+            event.key ===
+            "Escape"
+        ) {
+            closeTemplatesModal();
         }
-    );
+    }
+);
 
 
-    setTimeout(
-        updateTemplateAccessBadge,
-        1200
-    );
+setTimeout(
+    updateTemplateAccessBadge,
+    1200
+);
 
 }
 
@@ -52985,18 +52847,15 @@ function initializeBusinessTemplatesModal() {
             "businessTemplatesBtn"
         );
 
-
     const businessTemplatesModal =
         document.getElementById(
             "businessTemplatesModal"
         );
 
-
-    const businessTemplatesGrid =
-        document.getElementById(
-            "businessTemplatesGrid"
-        );
-
+        const businessTemplatesGrid =
+    document.getElementById(
+        "businessTemplatesGrid"
+    );
 
     const closeBusinessTemplatesButton =
         document.getElementById(
@@ -53004,349 +52863,235 @@ function initializeBusinessTemplatesModal() {
         );
 
 
-    if (
-        !businessTemplatesButton ||
-        !businessTemplatesModal ||
-        !businessTemplatesGrid
-    ) {
+if (
+    !businessTemplatesButton ||
+    !businessTemplatesModal ||
+    !businessTemplatesGrid
+) {
+    return;
+}
+
+function renderBusinessTemplates() {
+
+    businessTemplatesGrid.innerHTML =
+        jSyroBusinessTemplates
+            .map(function (template) {
+
+                return `
+                    <article class="template-card">
+
+                        <div class="template-preview">
+
+                            <strong style="
+                                font-size:42px;
+                                color:#d6b36a;
+                            ">
+                                ${template.icon}
+                            </strong>
+
+                            <span class="template-premium-badge">
+                                BUSINESS
+                            </span>
+
+                        </div>
+
+                        <div class="template-card-content">
+
+                            <span class="template-category">
+                                ${template.category}
+                            </span>
+
+                            <h3>
+                                ${template.name}
+                            </h3>
+
+                            <p>
+                                ${template.description}
+                            </p>
+
+                            <button
+                                type="button"
+                                class="template-use-button"
+                                data-business-template-id="${template.id}"
+                            >
+                                Use Template
+                            </button>
+
+                        </div>
+
+                    </article>
+                `;
+            })
+            .join("");
+
+            businessTemplatesGrid
+    .querySelectorAll(
+        "[data-business-template-id]"
+    )
+    .forEach(function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                const templateId =
+                    button.getAttribute(
+                        "data-business-template-id"
+                    );
+
+                const template =
+                    jSyroBusinessTemplates.find(
+                        function (item) {
+                            return (
+                                item.id ===
+                                templateId
+                            );
+                        }
+                    );
+
+
+                if (!template) {
+                    return;
+                }
+
+
+                useBusinessTemplate(
+                    template
+                );
+            }
+        );
+    });
+}
+async function useBusinessTemplate(template) {
+
+    const enteredName =
+        window.prompt(
+            "Enter project name:",
+            template.name
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+        );
+
+
+    if (enteredName === null) {
         return;
     }
 
 
-    function hasBusinessAccess() {
-
-        const access =
-            window.jSyroAccess || {};
-
-
-        return Boolean(
-            access.isAdmin ||
-            access.hasAllAccess ||
-            access.hasBusiness
-        );
-    }
-
-
-    function renderBusinessTemplates() {
-
-        const hasAccess =
-            hasBusinessAccess();
-
-
-        businessTemplatesGrid.innerHTML =
-            jSyroBusinessTemplates
-                .map(
-                    function (template) {
-
-                        return `
-                            <article class="template-card">
-
-                                <div class="template-preview">
-
-                                    <strong style="
-                                        font-size:42px;
-                                        color:#d6b36a;
-                                    ">
-                                        ${template.icon}
-                                    </strong>
-
-                                    <span class="template-premium-badge">
-                                        ${
-                                            hasAccess
-                                                ? "🔓 UNLOCKED"
-                                                : "🔒 LOCKED"
-                                        }
-                                    </span>
-
-                                </div>
-
-                                <div class="template-card-content">
-
-                                    <span class="template-category">
-                                        ${template.category}
-                                    </span>
-
-                                    <h3>
-                                        ${template.name}
-                                    </h3>
-
-                                    <p>
-                                        ${template.description}
-                                    </p>
-
-                                    <button
-                                        type="button"
-                                        class="template-use-button"
-                                        data-business-template-id="${template.id}"
-                                    >
-                                        ${
-                                            hasAccess
-                                                ? "Use Template"
-                                                : "🔒 Unlock Template"
-                                        }
-                                    </button>
-
-                                </div>
-
-                            </article>
-                        `;
-                    }
-                )
-                .join("");
-
-
-        businessTemplatesGrid
-            .querySelectorAll(
-                "[data-business-template-id]"
+    const cleanName =
+        enteredName
+            .trim()
+            .replace(
+                /[\\/:*?"<>|]/g,
+                "-"
             )
-            .forEach(
-                function (button) {
-
-                    button.addEventListener(
-                        "click",
-                        function () {
-
-                            const templateId =
-                                button.getAttribute(
-                                    "data-business-template-id"
-                                );
-
-
-                            const template =
-                                jSyroBusinessTemplates.find(
-                                    function (item) {
-
-                                        return (
-                                            item.id ===
-                                            templateId
-                                        );
-                                    }
-                                );
-
-
-                            if (!template) {
-                                return;
-                            }
-
-
-                            if (
-                                !hasBusinessAccess()
-                            ) {
-
-                                if (
-                                    typeof openPaymentModal ===
-                                    "function"
-                                ) {
-
-                                    openPaymentModal(
-                                        "business"
-                                    );
-
-                                } else if (
-                                    typeof openPaidLibrary ===
-                                    "function"
-                                ) {
-
-                                    openPaidLibrary(
-                                        "business"
-                                    );
-
-                                } else {
-
-                                    showToast(
-                                        "Payment popup is not available."
-                                    );
-                                }
-
-                                return;
-                            }
-
-
-                            useBusinessTemplate(
-                                template
-                            );
-                        }
-                    );
-                }
-            );
-    }
-
-
-    async function useBusinessTemplate(
-        template
-    ) {
-
-        if (
-            !hasBusinessAccess()
-        ) {
-
-            if (
-                typeof openPaymentModal ===
-                "function"
-            ) {
-
-                openPaymentModal(
-                    "business"
-                );
-
-            } else if (
-                typeof openPaidLibrary ===
-                "function"
-            ) {
-
-                openPaidLibrary(
-                    "business"
-                );
-
-            } else {
-
-                showToast(
-                    "Payment popup is not available."
-                );
-            }
-
-            return;
-        }
-
-
-        const enteredName =
-            window.prompt(
-                "Enter project name:",
-                template.name
-                    .toLowerCase()
-                    .replace(
-                        /\s+/g,
-                        "-"
-                    )
+            .replace(
+                /\s+/g,
+                "-"
             );
 
 
-        if (enteredName === null) {
-            return;
-        }
-
-
-        const cleanName =
-            enteredName
-                .trim()
-                .replace(
-                    /[\\/:*?"<>|]/g,
-                    "-"
-                )
-                .replace(
-                    /\s+/g,
-                    "-"
-                );
-
-
-        if (!cleanName) {
-
-            showToast(
-                "Enter a valid project name"
-            );
-
-            return;
-        }
-
-
-        await saveProjectToCloud();
-
-
-        currentProjectKey =
-            window.crypto &&
-            typeof window.crypto.randomUUID ===
-                "function"
-                ? window.crypto.randomUUID()
-                : `project-${Date.now()}`;
-
-
-        localStorage.setItem(
-            "j-syro-current-project-key",
-            currentProjectKey
-        );
-
-
-        state.files =
-            JSON.parse(
-                JSON.stringify(
-                    template.files
-                )
-            );
-
-
-        state.folders = [];
-
-        state.activeFile =
-            "index.html";
-
-        state.openFiles = [
-            "index.html"
-        ];
-
-        state.dirty.clear();
-
-        state.selectedFolder = "";
-
-        state.expandedFolders =
-            new Set();
-
-        state.inlineAction = null;
-        state.contextTarget = null;
-        state.pendingDelete = null;
-
-
-        const projectNameText =
-            document.getElementById(
-                "projectNameText"
-            );
-
-
-        if (projectNameText) {
-
-            projectNameText.textContent =
-                cleanName;
-        }
-
-
-        persistFiles();
-        renderFiles();
-        renderTabs();
-
-
-        openFile(
-            "index.html"
-        );
-
-
-        await saveProjectToCloud();
-
-
-        closeBusinessTemplatesModal();
-
+    if (!cleanName) {
 
         showToast(
-            `${template.name} template created`
+            "Enter a valid project name"
         );
+
+        return;
     }
 
 
-    async function openBusinessTemplatesModal() {
+    await saveProjectToCloud();
 
-        if (
-            typeof initializeUserPlan ===
+
+    currentProjectKey =
+        window.crypto &&
+        typeof window.crypto.randomUUID ===
             "function"
-        ) {
-            await initializeUserPlan();
-        }
+            ? window.crypto.randomUUID()
+            : `project-${Date.now()}`;
 
+
+    localStorage.setItem(
+        "j-syro-current-project-key",
+        currentProjectKey
+    );
+
+
+    state.files =
+        JSON.parse(
+            JSON.stringify(
+                template.files
+            )
+        );
+
+
+    state.folders = [];
+
+    state.activeFile =
+        "index.html";
+
+    state.openFiles = [
+        "index.html"
+    ];
+
+    state.dirty.clear();
+
+    state.selectedFolder = "";
+
+    state.expandedFolders =
+        new Set();
+
+    state.inlineAction = null;
+
+    state.contextTarget = null;
+
+    state.pendingDelete = null;
+
+
+    const projectNameText =
+        document.getElementById(
+            "projectNameText"
+        );
+
+
+    if (projectNameText) {
+
+        projectNameText.textContent =
+            cleanName;
+    }
+
+
+    persistFiles();
+
+    renderFiles();
+
+    renderTabs();
+
+    openFile(
+        "index.html"
+    );
+
+
+    await saveProjectToCloud();
+
+
+    closeBusinessTemplatesModal();
+
+
+    showToast(
+        `${template.name} template created`
+    );
+}
+
+
+    function openBusinessTemplatesModal() {
 
         renderBusinessTemplates();
-
 
         businessTemplatesModal.classList.add(
             "open"
         );
-
 
         businessTemplatesModal.setAttribute(
             "aria-hidden",
@@ -53360,7 +53105,6 @@ function initializeBusinessTemplatesModal() {
         businessTemplatesModal.classList.remove(
             "open"
         );
-
 
         businessTemplatesModal.setAttribute(
             "aria-hidden",
@@ -81480,30 +81224,25 @@ function initializeWorkAppsModal() {
             "workAppsBtn"
         );
 
-
     const workAppsModal =
         document.getElementById(
             "workAppsModal"
         );
-
 
     const workAppsGrid =
         document.getElementById(
             "workAppsGrid"
         );
 
-
     const closeWorkAppsButton =
         document.getElementById(
             "closeWorkAppsModal"
         );
 
-
     const workAppSearchInput =
         document.getElementById(
             "workAppSearchInput"
         );
-
 
     const workAppCategoryFilter =
         document.getElementById(
@@ -81520,95 +81259,10 @@ function initializeWorkAppsModal() {
     }
 
 
-    function hasWorkAppsAccess() {
 
-        const access =
-            window.jSyroAccess || {};
-
-
-        return Boolean(
-            access.isAdmin ||
-            access.hasAllAccess ||
-            access.hasWorkApps
-        );
-    }
-
-
-    function openWorkAppsPayment() {
-
-        if (
-            typeof openPaymentModal ===
-            "function"
-        ) {
-
-            openPaymentModal(
-                "workapps"
-            );
-
-            return;
-        }
-
-
-        if (
-            typeof openPaidLibrary ===
-            "function"
-        ) {
-
-            openPaidLibrary(
-                "workapps"
-            );
-
-            return;
-        }
-
-
-        const modal =
-            document.getElementById(
-                "paymentModal"
-            );
-
-
-        if (modal) {
-
-            localStorage.setItem(
-                "jSyroCheckoutPlan",
-                "workapps"
-            );
-
-
-            const radio =
-                document.querySelector(
-                    'input[name="paymentPlan"][value="workapps"]'
-                );
-
-
-            if (radio) {
-                radio.checked = true;
-            }
-
-
-            modal.classList.add(
-                "active"
-            );
-
-            modal.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
-            document.body.classList.add(
-                "payment-modal-open"
-            );
-
-            return;
-        }
-
-
-        showToast(
-            "Payment popup is not available."
-        );
-    }
-
+    /* =========================
+       RENDER WORK APPS
+    ========================= */
 
     function renderWorkApps() {
 
@@ -81618,7 +81272,6 @@ function initializeWorkAppsModal() {
                     .trim()
                     .toLowerCase()
                 : "";
-
 
         const categoryValue =
             workAppCategoryFilter
@@ -81661,6 +81314,7 @@ function initializeWorkAppsModal() {
             );
 
 
+
         if (
             filteredApps.length === 0
         ) {
@@ -81689,6 +81343,7 @@ function initializeWorkAppsModal() {
 
             return;
         }
+
 
 
         workAppsGrid.innerHTML =
@@ -81720,67 +81375,68 @@ function initializeWorkAppsModal() {
                                 .join("");
 
 
-                        const hasAccess =
-                            hasWorkAppsAccess();
-
-
                         return `
                             <article class="template-card work-app-card">
 
+
                                 <div class="template-preview work-app-preview">
+
 
                                     <strong class="work-app-preview-icon">
                                         ${app.icon}
                                     </strong>
 
+
                                     <span class="work-app-premium-badge">
-                                        ${
-                                            hasAccess
-                                                ? "🔓 UNLOCKED"
-                                                : "🔒 LOCKED"
-                                        }
+                                        WORK APP
                                     </span>
+
 
                                 </div>
 
 
+
                                 <div class="template-card-content">
+
 
                                     <span class="template-category">
                                         ${app.category}
                                     </span>
 
+
                                     <h3>
                                         ${app.name}
                                     </h3>
+
 
                                     <p>
                                         ${app.description}
                                     </p>
 
+
                                     <div class="work-app-card-features">
                                         ${features}
                                     </div>
+
 
                                     <button
                                         type="button"
                                         class="template-use-button"
                                         data-work-app-id="${app.id}"
                                     >
-                                        ${
-                                            hasAccess
-                                                ? "Use Work App"
-                                                : "🔒 Unlock Work App"
-                                        }
+                                        Use Work App
                                     </button>
 
+
                                 </div>
+
 
                             </article>
                         `;
                     }
                 )
                 .join("");
+
 
 
         workAppsGrid
@@ -81817,16 +81473,6 @@ function initializeWorkAppsModal() {
                             }
 
 
-                            if (
-                                !hasWorkAppsAccess()
-                            ) {
-
-                                openWorkAppsPayment();
-
-                                return;
-                            }
-
-
                             useWorkApp(
                                 app
                             );
@@ -81837,19 +81483,12 @@ function initializeWorkAppsModal() {
     }
 
 
-    async function useWorkApp(
-        app
-    ) {
 
-        if (
-            !hasWorkAppsAccess()
-        ) {
+    /* =========================
+       CREATE PROJECT FROM APP
+    ========================= */
 
-            openWorkAppsPayment();
-
-            return;
-        }
-
+    async function useWorkApp(app) {
 
         const enteredName =
             window.prompt(
@@ -81896,6 +81535,7 @@ function initializeWorkAppsModal() {
         await saveProjectToCloud();
 
 
+
         currentProjectKey =
             window.crypto &&
             typeof window.crypto.randomUUID ===
@@ -81906,10 +81546,12 @@ function initializeWorkAppsModal() {
                 : `project-${Date.now()}`;
 
 
+
         localStorage.setItem(
             "j-syro-current-project-key",
             currentProjectKey
         );
+
 
 
         state.files =
@@ -81943,6 +81585,7 @@ function initializeWorkAppsModal() {
         state.pendingDelete = null;
 
 
+
         const projectNameText =
             document.getElementById(
                 "projectNameText"
@@ -81954,6 +81597,7 @@ function initializeWorkAppsModal() {
             projectNameText.textContent =
                 cleanName;
         }
+
 
 
         persistFiles();
@@ -81979,15 +81623,12 @@ function initializeWorkAppsModal() {
     }
 
 
-    async function openWorkAppsModal() {
 
-        if (
-            typeof initializeUserPlan ===
-            "function"
-        ) {
-            await initializeUserPlan();
-        }
+    /* =========================
+       OPEN MODAL
+    ========================= */
 
+    function openWorkAppsModal() {
 
         renderWorkApps();
 
@@ -82017,6 +81658,11 @@ function initializeWorkAppsModal() {
     }
 
 
+
+    /* =========================
+       CLOSE MODAL
+    ========================= */
+
     function closeWorkAppsModal() {
 
         workAppsModal.classList.remove(
@@ -82031,6 +81677,11 @@ function initializeWorkAppsModal() {
     }
 
 
+
+    /* =========================
+       SEARCH
+    ========================= */
+
     if (workAppSearchInput) {
 
         workAppSearchInput.addEventListener(
@@ -82039,6 +81690,11 @@ function initializeWorkAppsModal() {
         );
     }
 
+
+
+    /* =========================
+       CATEGORY FILTER
+    ========================= */
 
     if (workAppCategoryFilter) {
 
@@ -82050,11 +81706,21 @@ function initializeWorkAppsModal() {
     }
 
 
+
+    /* =========================
+       OPEN BUTTON
+    ========================= */
+
     workAppsButton.addEventListener(
         "click",
         openWorkAppsModal
     );
 
+
+
+    /* =========================
+       CLOSE BUTTON
+    ========================= */
 
     closeWorkAppsButton
         ?.addEventListener(
@@ -82062,6 +81728,11 @@ function initializeWorkAppsModal() {
             closeWorkAppsModal
         );
 
+
+
+    /* =========================
+       CLICK OUTSIDE
+    ========================= */
 
     workAppsModal.addEventListener(
         "click",
@@ -82077,6 +81748,11 @@ function initializeWorkAppsModal() {
         }
     );
 
+
+
+    /* =========================
+       ESCAPE KEY
+    ========================= */
 
     document.addEventListener(
         "keydown",
@@ -82095,8 +81771,13 @@ function initializeWorkAppsModal() {
             }
         }
     );
+
 }
 
+
+/* =========================================
+   INITIALIZE WORK APPS
+========================================= */
 
 if (
     document.readyState ===
@@ -82111,6 +81792,7 @@ if (
 } else {
 
     initializeWorkAppsModal();
+
 }
 
 /* =========================================
