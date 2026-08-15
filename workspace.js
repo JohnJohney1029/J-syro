@@ -4940,7 +4940,16 @@ function buildTemplateFiles({
 
         "index.html": `<!DOCTYPE html>
 <html lang="en">
+
 <head>
+
+    <!-- J-SYRO JS browser icon -->
+    <link
+        rel="icon"
+        type="image/png"
+        href="js-logo.png"
+    >
+
     <meta charset="UTF-8">
 
     <meta
@@ -4954,6 +4963,7 @@ function buildTemplateFiles({
         rel="stylesheet"
         href="style.css"
     >
+
 </head>
 
 <body>
