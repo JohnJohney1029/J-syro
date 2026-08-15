@@ -3761,6 +3761,7 @@ window.jSyroAccess = {
 };
 
 
+
 async function initializeUserPlan() {
 
     const planBadge =
@@ -3768,14 +3769,28 @@ async function initializeUserPlan() {
             "userPlanBadge"
         );
 
+    /*
+     * Keep a safe FREE state until
+     * Supabase confirms the real plan.
+     */
+    window.jSyroAccess = {
+        plan: "free",
+        role: "user",
+        status: "active",
+        isAdmin: false,
+
+        hasPro: false,
+        hasWorkApps: false,
+        hasBusiness: false,
+        hasAllAccess: false
+    };
+
     if (!planBadge) {
         console.error(
             "User plan badge not found"
         );
-
         return;
     }
-
 
     try {
 
@@ -3789,7 +3804,6 @@ async function initializeUserPlan() {
             );
         }
 
-
         const {
             data: userData,
             error: userError
@@ -3798,18 +3812,15 @@ async function initializeUserPlan() {
                 .auth
                 .getUser();
 
-
         if (userError) {
             throw userError;
         }
-
 
         if (!userData.user) {
             throw new Error(
                 "User is not logged in"
             );
         }
-
 
         const {
             data: planData,
@@ -3826,24 +3837,43 @@ async function initializeUserPlan() {
                 )
                 .maybeSingle();
 
-
         if (planError) {
             throw planError;
         }
 
+        /*
+         * Normalize possible database spellings.
+         */
+        const rawPlan =
+            String(
+                planData?.plan ||
+                "free"
+            )
+                .trim()
+                .toLowerCase();
 
         const plan =
-            planData?.plan ||
-            "free";
+            rawPlan === "workapps"
+                ? "work_apps"
+                : rawPlan === "allaccess"
+                    ? "all_access"
+                    : rawPlan;
 
         const role =
-            planData?.role ||
-            "user";
+            String(
+                planData?.role ||
+                "user"
+            )
+                .trim()
+                .toLowerCase();
 
         const status =
-            planData?.status ||
-            "active";
-
+            String(
+                planData?.status ||
+                "active"
+            )
+                .trim()
+                .toLowerCase();
 
         const expiryDate =
             planData?.expires_at
@@ -3852,12 +3882,10 @@ async function initializeUserPlan() {
                 )
                 : null;
 
-
         const isExpired =
             expiryDate &&
             expiryDate.getTime() <
                 Date.now();
-
 
         const isAdmin =
             role === "admin";
@@ -3866,6 +3894,27 @@ async function initializeUserPlan() {
             status === "active" &&
             !isExpired;
 
+        /*
+         * IMPORTANT:
+         *
+         * Each paid plan unlocks ONLY its
+         * own library.
+         *
+         * ALL ACCESS and ADMIN unlock all.
+         */
+        const hasPro =
+            isAdmin ||
+            (
+                isActive &&
+                plan === "pro"
+            );
+
+        const hasWorkApps =
+            isAdmin ||
+            (
+                isActive &&
+                plan === "work_apps"
+            );
 
         const hasBusiness =
             isAdmin ||
@@ -3874,34 +3923,31 @@ async function initializeUserPlan() {
                 plan === "business"
             );
 
-
-        const hasPro =
+        const hasAllAccess =
             isAdmin ||
             (
                 isActive &&
-                (
-                    plan === "pro" ||
-                    plan === "business"
-                )
+                plan === "all_access"
             );
-
 
         window.jSyroAccess = {
             plan,
             role,
             status,
-            isAdmin,
-            hasPro,
-            hasBusiness
-        };
 
+            isAdmin,
+
+            hasPro,
+            hasWorkApps,
+            hasBusiness,
+            hasAllAccess
+        };
 
         planBadge.classList.remove(
             "plan-pro",
             "plan-business",
             "plan-admin"
         );
-
 
         if (isAdmin) {
 
@@ -3912,6 +3958,11 @@ async function initializeUserPlan() {
                 "plan-admin"
             );
 
+        } else if (hasAllAccess) {
+
+            planBadge.textContent =
+                "ALL ACCESS";
+
         } else if (hasBusiness) {
 
             planBadge.textContent =
@@ -3920,6 +3971,11 @@ async function initializeUserPlan() {
             planBadge.classList.add(
                 "plan-business"
             );
+
+        } else if (hasWorkApps) {
+
+            planBadge.textContent =
+                "WORK APPS";
 
         } else if (hasPro) {
 
@@ -3936,13 +3992,28 @@ async function initializeUserPlan() {
                 "FREE";
         }
 
-
     } catch (error) {
 
         console.error(
             "User plan error:",
             error
         );
+
+        /*
+         * Fail closed: if the plan cannot
+         * be verified, keep premium locked.
+         */
+        window.jSyroAccess = {
+            plan: "free",
+            role: "user",
+            status: "active",
+            isAdmin: false,
+
+            hasPro: false,
+            hasWorkApps: false,
+            hasBusiness: false,
+            hasAllAccess: false
+        };
 
         planBadge.textContent =
             "FREE";
@@ -3954,13 +4025,904 @@ if (
     document.readyState ===
     "loading"
 ) {
+
     document.addEventListener(
         "DOMContentLoaded",
         initializeUserPlan
     );
+
 } else {
+
     initializeUserPlan();
 }
+
+
+/* =========================================================
+   J-SYRO WORKSPACE PAYMENT POPUP
+   ---------------------------------------------------------
+   workspace.html does not contain the payment modal from
+   index.html, so the workspace creates the same popup here.
+
+   FREE users can browse every premium library, but clicking
+   a locked Use button opens this popup instead of disabling
+   the button.
+========================================================= */
+
+(function initializeWorkspacePaymentPopup() {
+
+    const PAYMENT_PLANS = {
+        pro: {
+            name: "PRO Templates",
+            price: "$5.99"
+        },
+
+        workapps: {
+            name: "Work Apps",
+            price: "$7.99"
+        },
+
+        business: {
+            name: "Business Templates",
+            price: "$9.99"
+        },
+
+        allaccess: {
+            name: "All Access",
+            price: "$17.99"
+        }
+    };
+
+    function normalizePaymentPlan(plan) {
+
+        const value =
+            String(
+                plan || "pro"
+            )
+                .trim()
+                .toLowerCase();
+
+        if (value === "work_apps") {
+            return "workapps";
+        }
+
+        if (value === "all_access") {
+            return "allaccess";
+        }
+
+        if (
+            PAYMENT_PLANS[value]
+        ) {
+            return value;
+        }
+
+        return "pro";
+    }
+
+
+    function getUserEmailForPayment() {
+
+        const directEmail =
+            document.querySelector(
+                "#paymentEmail"
+            );
+
+        /*
+         * First try the same Supabase session
+         * already used by the workspace.
+         */
+        if (
+            typeof workspaceSupabase !==
+                "undefined" &&
+            workspaceSupabase
+        ) {
+            /*
+             * getUser() is async, so the popup
+             * will fill the email after opening.
+             */
+        }
+
+        /*
+         * Fallback to common email fields.
+         */
+        const inputs =
+            document.querySelectorAll(
+                'input[type="email"]'
+            );
+
+        for (
+            const input
+            of inputs
+        ) {
+
+            const value =
+                String(
+                    input.value || ""
+                )
+                    .trim();
+
+            if (
+                value &&
+                value.includes("@") &&
+                input.id !==
+                    "paymentEmail"
+            ) {
+                return value;
+            }
+        }
+
+        return "";
+    }
+
+
+    function ensurePaymentPopup() {
+
+        let modal =
+            document.getElementById(
+                "paymentModal"
+            );
+
+        if (modal) {
+            return modal;
+        }
+
+        const style =
+            document.createElement(
+                "style"
+            );
+
+        style.id =
+            "jSyroWorkspacePaymentStyles";
+
+        style.textContent = `
+            #paymentModal.jsyro-workspace-payment {
+                position: fixed;
+                inset: 0;
+                z-index: 99999999;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+                background: rgba(7, 9, 18, 0.78);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            #paymentModal.jsyro-workspace-payment.active {
+                display: flex;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-modal-backdrop {
+                position: absolute;
+                inset: 0;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-modal-card {
+                position: relative;
+                width: min(
+                    780px,
+                    calc(100vw - 32px)
+                );
+                max-height: calc(100vh - 32px);
+                overflow-y: auto;
+                background: #ffffff;
+                color: #2d3040;
+                border-radius: 24px;
+                box-shadow:
+                    0 30px 90px
+                    rgba(0, 0, 0, 0.42);
+                padding: 34px 48px 28px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-close {
+                position: absolute;
+                top: 18px;
+                right: 18px;
+                width: 56px;
+                height: 56px;
+                border: 1px solid #e0e3ea;
+                border-radius: 50%;
+                background: #f7f8fa;
+                color: #707786;
+                font-size: 34px;
+                line-height: 1;
+                cursor: pointer;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-logo {
+                width: 72px;
+                height: 72px;
+                margin: -72px auto 28px;
+                border: 7px solid #ffffff;
+                border-radius: 50%;
+                background: #10121c;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                box-shadow:
+                    0 12px 28px
+                    rgba(0, 0, 0, 0.18);
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-header {
+                text-align: center;
+                margin-bottom: 28px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-header h2 {
+                margin: 0 0 12px;
+                font-size: clamp(
+                    28px,
+                    4vw,
+                    42px
+                );
+                color: #0d0f18;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-header p {
+                margin: 0;
+                color: #7d8492;
+                font-size: 17px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-plan-list {
+                display: grid;
+                gap: 10px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-plan-option {
+                min-height: 70px;
+                display: grid;
+                grid-template-columns:
+                    28px
+                    1fr
+                    auto;
+                align-items: center;
+                gap: 12px;
+                padding: 0 20px;
+                border: 1px solid #e2e4eb;
+                border-radius: 14px;
+                cursor: pointer;
+                transition:
+                    border-color .15s ease,
+                    background .15s ease;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-plan-option:has(
+                input:checked
+            ) {
+                border-color: #8b7cff;
+                background: #f5f3ff;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-plan-option input {
+                width: 18px;
+                height: 18px;
+                accent-color: #6d5cff;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-plan-name {
+                font-weight: 800;
+                font-size: 17px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-plan-option strong {
+                font-size: 17px;
+                color: #303342;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-divider {
+                height: 1px;
+                background: #e6e8ed;
+                margin: 28px -48px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-field label {
+                display: block;
+                margin-bottom: 10px;
+                font-weight: 800;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-field input {
+                width: 100%;
+                height: 58px;
+                padding: 0 18px;
+                border: 1px solid #d7dbe4;
+                border-radius: 13px;
+                background: #fafbfc;
+                color: #353846;
+                font-size: 16px;
+                outline: none;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .secure-payment-box {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-top: 26px;
+                padding: 18px;
+                border: 1px solid #ddd8ff;
+                border-radius: 16px;
+                background: #faf9ff;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .secure-payment-icon {
+                width: 64px;
+                height: 64px;
+                flex: 0 0 64px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 14px;
+                background: #eeeaff;
+                color: #6d5cff;
+                font-size: 30px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .secure-payment-box strong {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 17px;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .secure-payment-box span {
+                color: #858b98;
+                line-height: 1.45;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-note {
+                margin: 26px 0;
+                color: #7d8492;
+                line-height: 1.55;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-continue {
+                width: 100%;
+                min-height: 64px;
+                border: 0;
+                border-radius: 15px;
+                color: #ffffff;
+                background:
+                    linear-gradient(
+                        135deg,
+                        #6858ff,
+                        #765dff
+                    );
+                box-shadow:
+                    0 14px 30px
+                    rgba(105, 88, 255, 0.25);
+                font-size: 18px;
+                font-weight: 900;
+                cursor: pointer;
+            }
+
+            #paymentModal.jsyro-workspace-payment
+            .payment-footer {
+                margin-top: 22px;
+                text-align: center;
+                color: #a1a6b1;
+                font-size: 14px;
+            }
+
+            @media (max-width: 700px) {
+
+                #paymentModal.jsyro-workspace-payment
+                .payment-modal-card {
+                    width: calc(100vw - 20px);
+                    max-height: calc(100vh - 20px);
+                    padding: 30px 20px 22px;
+                    border-radius: 18px;
+                }
+
+                #paymentModal.jsyro-workspace-payment
+                .payment-divider {
+                    margin-left: -20px;
+                    margin-right: -20px;
+                }
+
+                #paymentModal.jsyro-workspace-payment
+                .payment-logo {
+                    margin-top: -62px;
+                }
+            }
+        `;
+
+        document.head.appendChild(
+            style
+        );
+
+        modal =
+            document.createElement(
+                "div"
+            );
+
+        modal.id =
+            "paymentModal";
+
+        modal.className =
+            "payment-modal jsyro-workspace-payment";
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        modal.innerHTML = `
+            <div
+                class="payment-modal-backdrop"
+                data-payment-backdrop
+            ></div>
+
+            <div
+                class="payment-modal-card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="workspacePaymentTitle"
+            >
+
+                <button
+                    class="payment-close"
+                    type="button"
+                    data-payment-close
+                    aria-label="Close payment"
+                >
+                    ×
+                </button>
+
+                <div class="payment-logo">
+                    <img
+                        src="js-logo.png"
+                        alt="J-SYRO"
+                        onerror="this.style.display='none';"
+                    >
+                </div>
+
+                <div class="payment-header">
+                    <h2 id="workspacePaymentTitle">
+                        J-SYRO Subscription
+                    </h2>
+
+                    <p>
+                        Choose your plan and continue
+                        to secure payment.
+                    </p>
+                </div>
+
+                <div class="payment-plan-list">
+
+                    <label class="payment-plan-option">
+                        <input
+                            type="radio"
+                            name="workspacePaymentPlan"
+                            value="pro"
+                        >
+
+                        <span class="payment-plan-name">
+                            PRO Templates
+                        </span>
+
+                        <strong>$5.99</strong>
+                    </label>
+
+                    <label class="payment-plan-option">
+                        <input
+                            type="radio"
+                            name="workspacePaymentPlan"
+                            value="workapps"
+                        >
+
+                        <span class="payment-plan-name">
+                            Work Apps
+                        </span>
+
+                        <strong>$7.99</strong>
+                    </label>
+
+                    <label class="payment-plan-option">
+                        <input
+                            type="radio"
+                            name="workspacePaymentPlan"
+                            value="business"
+                        >
+
+                        <span class="payment-plan-name">
+                            Business Templates
+                        </span>
+
+                        <strong>$9.99</strong>
+                    </label>
+
+                    <label class="payment-plan-option">
+                        <input
+                            type="radio"
+                            name="workspacePaymentPlan"
+                            value="allaccess"
+                        >
+
+                        <span class="payment-plan-name">
+                            All Access
+                        </span>
+
+                        <strong>$17.99</strong>
+                    </label>
+
+                </div>
+
+                <div class="payment-divider"></div>
+
+                <div class="payment-field">
+
+                    <label for="workspacePaymentEmail">
+                        Account Email
+                    </label>
+
+                    <input
+                        id="workspacePaymentEmail"
+                        type="email"
+                        readonly
+                        placeholder="your@email.com"
+                    >
+
+                </div>
+
+                <div class="secure-payment-box">
+
+                    <div class="secure-payment-icon">
+                        ▣
+                    </div>
+
+                    <div>
+                        <strong>
+                            Secure Payment
+                        </strong>
+
+                        <span>
+                            Your payment will be processed
+                            securely by our payment provider.
+                        </span>
+                    </div>
+
+                </div>
+
+                <p class="payment-note">
+                    This is a monthly subscription.
+                    Your selected plan renews automatically
+                    each month until cancelled.
+                </p>
+
+                <button
+                    type="button"
+                    class="payment-continue"
+                    id="workspacePaymentContinueBtn"
+                >
+                    Continue with PRO Templates — $5.99/month →
+                </button>
+
+                <div class="payment-footer">
+                    J-SYRO does not store your card details.
+                </div>
+
+            </div>
+        `;
+
+        document.body.appendChild(
+            modal
+        );
+
+        const close =
+            function () {
+
+                modal.classList.remove(
+                    "active"
+                );
+
+                modal.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+                document.body.classList.remove(
+                    "payment-modal-open"
+                );
+            };
+
+        modal
+            .querySelector(
+                "[data-payment-close]"
+            )
+            ?.addEventListener(
+                "click",
+                close
+            );
+
+        modal
+            .querySelector(
+                "[data-payment-backdrop]"
+            )
+            ?.addEventListener(
+                "click",
+                close
+            );
+
+        modal
+            .querySelectorAll(
+                'input[name="workspacePaymentPlan"]'
+            )
+            .forEach(
+                function (radio) {
+
+                    radio.addEventListener(
+                        "change",
+                        function () {
+
+                            const selected =
+                                normalizePaymentPlan(
+                                    radio.value
+                                );
+
+                            localStorage.setItem(
+                                "jSyroCheckoutPlan",
+                                selected
+                            );
+
+                            updateWorkspacePaymentButton(
+                                selected
+                            );
+                        }
+                    );
+                }
+            );
+
+        modal
+            .querySelector(
+                "#workspacePaymentContinueBtn"
+            )
+            ?.addEventListener(
+                "click",
+                function () {
+
+                    const checked =
+                        modal.querySelector(
+                            'input[name="workspacePaymentPlan"]:checked'
+                        );
+
+                    const selected =
+                        normalizePaymentPlan(
+                            checked?.value ||
+                            "pro"
+                        );
+
+                    /*
+                     * The real checkout flow already exists
+                     * on index.html/script.js. Send the user
+                     * there with the selected plan queued.
+                     */
+                    localStorage.setItem(
+                        "jSyroCheckoutPlan",
+                        selected
+                    );
+
+                    localStorage.setItem(
+                        "jSyroPendingLibrary",
+                        selected
+                    );
+
+                    window.location.href =
+                        "index.html";
+                }
+            );
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key ===
+                    "Escape" &&
+                    modal.classList.contains(
+                        "active"
+                    )
+                ) {
+                    close();
+                }
+            }
+        );
+
+        return modal;
+    }
+
+
+    function updateWorkspacePaymentButton(
+        plan
+    ) {
+
+        const normalized =
+            normalizePaymentPlan(
+                plan
+            );
+
+        const data =
+            PAYMENT_PLANS[
+                normalized
+            ];
+
+        const modal =
+            document.getElementById(
+                "paymentModal"
+            );
+
+        if (
+            !modal ||
+            !data
+        ) {
+            return;
+        }
+
+        const radio =
+            modal.querySelector(
+                'input[name="workspacePaymentPlan"][value="' +
+                normalized +
+                '"]'
+            );
+
+        if (radio) {
+            radio.checked = true;
+        }
+
+        const button =
+            modal.querySelector(
+                "#workspacePaymentContinueBtn"
+            );
+
+        if (button) {
+
+            button.textContent =
+                "Continue with " +
+                data.name +
+                " — " +
+                data.price +
+                "/month →";
+        }
+    }
+
+
+    window.openPaymentModal =
+        function (
+            plan
+        ) {
+
+            const normalized =
+                normalizePaymentPlan(
+                    plan
+                );
+
+            const modal =
+                ensurePaymentPopup();
+
+            updateWorkspacePaymentButton(
+                normalized
+            );
+
+            const emailInput =
+                modal.querySelector(
+                    "#workspacePaymentEmail"
+                );
+
+            if (emailInput) {
+
+                emailInput.value =
+                    getUserEmailForPayment();
+            }
+
+            /*
+             * Fill the email from Supabase
+             * when available.
+             */
+            if (
+                typeof workspaceSupabase !==
+                    "undefined" &&
+                workspaceSupabase
+            ) {
+
+                workspaceSupabase.auth
+                    .getUser()
+                    .then(
+                        function ({
+                            data
+                        }) {
+
+                            if (
+                                data?.user?.email &&
+                                emailInput
+                            ) {
+                                emailInput.value =
+                                    data.user.email;
+                            }
+                        }
+                    )
+                    .catch(
+                        function () {}
+                    );
+            }
+
+            localStorage.setItem(
+                "jSyroCheckoutPlan",
+                normalized
+            );
+
+            modal.classList.add(
+                "active"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+            document.body.classList.add(
+                "payment-modal-open"
+            );
+        };
+
+
+    window.closePaymentModal =
+        function () {
+
+            const modal =
+                document.getElementById(
+                    "paymentModal"
+                );
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove(
+                "active"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            document.body.classList.remove(
+                "payment-modal-open"
+            );
+        };
+
+})();
+
+
 /* =========================
    J-SYRO TEMPLATES FEATURE
 ========================= */
@@ -48029,6 +48991,7 @@ body {
    INITIALIZE TEMPLATES
 ========================= */
 
+
 function initializeTemplatesFeature() {
 
     const templatesButton =
@@ -48072,6 +49035,7 @@ function initializeTemplatesFeature() {
         !templatesModal ||
         !templatesGrid
     ) {
+
         console.error(
             "Templates elements were not found"
         );
@@ -48092,78 +49056,117 @@ function initializeTemplatesFeature() {
         "true";
 
 
-    function getTemplatePlan(template) {
-    const category =
-        String(template?.category || "")
-            .trim()
-            .toLowerCase();
-
-    if (category === "business") {
-        return "business";
-    }
-
-    if (
-        category === "app" ||
-        category === "dashboard" ||
-        category === "work apps" ||
-        category === "work_apps" ||
-        category === "work app"
+    /*
+     * =====================================================
+     * TEMPLATE PLAN
+     *
+     * General J-SYRO templates are PRO by default.
+     * If a template explicitly says BUSINESS it uses
+     * Business access. Work Apps are handled by their
+     * own library below.
+     * =====================================================
+     */
+    function getTemplatePlan(
+        template
     ) {
-        return "work";
+
+        const category =
+            String(
+                template?.category ||
+                ""
+            )
+                .trim()
+                .toLowerCase();
+
+        if (
+            category ===
+                "business"
+        ) {
+            return "business";
+        }
+
+        return "pro";
     }
 
-    return "pro";
-}
 
-function hasTemplateAccess(template) {
-    const access = window.jSyroAccess || {};
+    function hasTemplateAccess(
+        template
+    ) {
 
-    if (access.isAdmin || access.hasAllAccess) {
-        return true;
+        const access =
+            window.jSyroAccess ||
+            {};
+
+        if (
+            access.isAdmin ||
+            access.hasAllAccess
+        ) {
+            return true;
+        }
+
+        const requiredPlan =
+            getTemplatePlan(
+                template
+            );
+
+        if (
+            requiredPlan ===
+                "pro"
+        ) {
+
+            return Boolean(
+                access.hasPro
+            );
+        }
+
+        if (
+            requiredPlan ===
+                "business"
+        ) {
+
+            return Boolean(
+                access.hasBusiness
+            );
+        }
+
+        return false;
     }
 
-    const requiredPlan = getTemplatePlan(template);
 
-    if (requiredPlan === "pro") {
-        return !!access.hasPro;
+    function getRequiredPlanName(
+        template
+    ) {
+
+        return getTemplatePlan(
+            template
+        ) === "business"
+            ? "BUSINESS"
+            : "PRO";
     }
-
-    if (requiredPlan === "business") {
-        return !!access.hasBusiness;
-    }
-
-    if (requiredPlan === "work") {
-        return !!access.hasWorkApps;
-    }
-
-    return false;
-}
 
 
     function updateTemplateAccessBadge() {
 
-        const hasAccess =
-            hasTemplateAccess();
+        if (!templatesLock) {
+            return;
+        }
 
-        if (!templatesLock) return;
+        const access =
+            window.jSyroAccess ||
+            {};
 
-
+        /*
+         * The library itself is OPEN for everyone
+         * to browse. Individual templates are locked.
+         */
         templatesLock.textContent =
-            hasAccess
-                ? "OPEN"
-                : "PRO";
-
+            "OPEN";
 
         templatesLock.style.color =
-            hasAccess
-                ? "#aef2da"
-                : "";
-
+            "#aef2da";
 
         templatesLock.style.borderColor =
-            hasAccess
-                ? "#32b988"
-                : "";
+            "#32b988";
     }
 
 
@@ -48183,41 +49186,29 @@ function hasTemplateAccess(template) {
     async function useTemplate(
         template
     ) {
-    const access =
-        window.jSyroAccess || {};
 
-    if (!hasTemplateAccess(template)) {
-
-        const requiredPlan =
-            getTemplatePlan(template);
-
-        const paymentPlan =
-            requiredPlan === "business"
-                ? "business"
-                : requiredPlan === "work"
-                    ? "workapps"
-                    : "pro";
-
-        if (
-            typeof openPaymentModal ===
-            "function"
-        ) {
-            openPaymentModal(paymentPlan);
-        } else {
-            showToast(
-                "Payment system is not available."
+        const hasAccess =
+            hasTemplateAccess(
+                template
             );
-        }
 
-        return;
-    }
+        /*
+         * FREE / wrong paid plan:
+         * DO NOT disable the button.
+         * Open the payment popup.
+         */
+        if (!hasAccess) {
 
+            const requiredPlan =
+                getTemplatePlan(
+                    template
+                );
 
-
-        if (!hasTemplateAccess()) {
-
-            showToast(
-                "PRO plan is required to use templates"
+            openPaymentModal(
+                requiredPlan ===
+                    "business"
+                    ? "business"
+                    : "pro"
             );
 
             return;
@@ -48299,12 +49290,16 @@ function hasTemplateAccess(template) {
         ];
 
         state.dirty.clear();
+
         state.selectedFolder = "";
+
         state.expandedFolders =
             new Set();
 
         state.inlineAction = null;
+
         state.contextTarget = null;
+
         state.pendingDelete = null;
 
 
@@ -48322,7 +49317,9 @@ function hasTemplateAccess(template) {
 
 
         persistFiles();
+
         renderFiles();
+
         renderTabs();
 
         openFile(
@@ -48357,33 +49354,37 @@ function hasTemplateAccess(template) {
             "all";
 
 
-        const hasAccess =
-            hasTemplateAccess();
-
-
         const filteredTemplates =
             jSyroTemplates.filter(
                 function (template) {
 
-                    const matchesSearch =
-                        template.name
-                            .toLowerCase()
-                            .includes(
-                                searchValue
-                            ) ||
-                        template.description
-                            .toLowerCase()
-                            .includes(
-                                searchValue
-                            );
+                    const name =
+                        String(
+                            template?.name ||
+                            ""
+                        )
+                            .toLowerCase();
 
+                    const description =
+                        String(
+                            template?.description ||
+                            ""
+                        )
+                            .toLowerCase();
+
+                    const matchesSearch =
+                        name.includes(
+                            searchValue
+                        ) ||
+                        description.includes(
+                            searchValue
+                        );
 
                     const matchesCategory =
                         categoryValue ===
                             "all" ||
                         template.category ===
                             categoryValue;
-
 
                     return (
                         matchesSearch &&
@@ -48413,6 +49414,17 @@ function hasTemplateAccess(template) {
         filteredTemplates.forEach(
             function (template) {
 
+                const hasAccess =
+                    hasTemplateAccess(
+                        template
+                    );
+
+                const requiredPlan =
+                    getRequiredPlanName(
+                        template
+                    );
+
+
                 const card =
                     document.createElement(
                         "article"
@@ -48429,6 +49441,7 @@ function hasTemplateAccess(template) {
 
                 preview.className =
                     "template-preview";
+
 
                 preview.innerHTML =
                     `<strong style="
@@ -48449,8 +49462,8 @@ function hasTemplateAccess(template) {
 
                 badge.textContent =
                     hasAccess
-                        ? "UNLOCKED"
-                        : "PRO";
+                        ? "🔓 UNLOCKED"
+                        : `🔒 ${requiredPlan}`;
 
 
                 preview.appendChild(
@@ -48508,13 +49521,18 @@ function hasTemplateAccess(template) {
                 useButton.className =
                     "template-use-button";
 
+                /*
+                 * NEVER disable premium buttons.
+                 * They must remain clickable so a FREE user
+                 * can open the payment popup.
+                 */
+                useButton.disabled =
+                    false;
+
                 useButton.textContent =
                     hasAccess
                         ? "Use Template"
-                        : "PRO Required";
-
-                useButton.disabled =
-                    !hasAccess;
+                        : "🔒 Unlock Template";
 
 
                 useButton.addEventListener(
@@ -48556,11 +49574,13 @@ function hasTemplateAccess(template) {
             typeof initializeUserPlan ===
             "function"
         ) {
+
             await initializeUserPlan();
         }
 
 
         updateTemplateAccessBadge();
+
         renderTemplates();
 
 
@@ -48613,40 +49633,43 @@ function hasTemplateAccess(template) {
     );
 
 
-document.addEventListener(
-    "keydown",
-    function (event) {
+    document.addEventListener(
+        "keydown",
+        function (event) {
 
-        if (
-            event.key ===
-            "Escape"
-        ) {
-            closeTemplatesModal();
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeTemplatesModal();
+            }
         }
-    }
-);
+    );
 
 
-setTimeout(
-    updateTemplateAccessBadge,
-    1200
-);
-
+    setTimeout(
+        updateTemplateAccessBadge,
+        1200
+    );
 }
-
 
 
 if (
     document.readyState ===
     "loading"
 ) {
+
     document.addEventListener(
         "DOMContentLoaded",
         initializeTemplatesFeature
     );
+
 } else {
+
     initializeTemplatesFeature();
 }
+
 /* =========================
    DUPLICATE PROJECT
 ========================= */
@@ -52849,105 +53872,176 @@ if (
     return;
 }
 
+
 function renderBusinessTemplates() {
+
+    const access =
+        window.jSyroAccess ||
+        {};
+
+    const hasBusinessAccess =
+        access.isAdmin ||
+        access.hasAllAccess ||
+        access.hasBusiness;
+
 
     businessTemplatesGrid.innerHTML =
         jSyroBusinessTemplates
-            .map(function (template) {
+            .map(
+                function (template) {
 
-                return `
-                    <article class="template-card">
+                    return `
+                        <article class="template-card">
 
-                        <div class="template-preview">
+                            <div class="template-preview">
 
-                            <strong style="
-                                font-size:42px;
-                                color:#d6b36a;
-                            ">
-                                ${template.icon}
-                            </strong>
+                                <strong style="
+                                    font-size:42px;
+                                    color:#d6b36a;
+                                ">
+                                    ${template.icon}
+                                </strong>
 
-                            <span class="template-premium-badge">
-                                BUSINESS
-                            </span>
+                                <span class="template-premium-badge">
+                                    ${
+                                        hasBusinessAccess
+                                            ? "🔓 UNLOCKED"
+                                            : "🔒 BUSINESS"
+                                    }
+                                </span>
 
-                        </div>
+                            </div>
 
-                        <div class="template-card-content">
+                            <div class="template-card-content">
 
-                            <span class="template-category">
-                                ${template.category}
-                            </span>
+                                <span class="template-category">
+                                    ${template.category}
+                                </span>
 
-                            <h3>
-                                ${template.name}
-                            </h3>
+                                <h3>
+                                    ${template.name}
+                                </h3>
 
-                            <p>
-                                ${template.description}
-                            </p>
+                                <p>
+                                    ${template.description}
+                                </p>
 
-                            <button
-                                type="button"
-                                class="template-use-button"
-                                data-business-template-id="${template.id}"
-                            >
-                                Use Template
-                            </button>
+                                <button
+                                    type="button"
+                                    class="template-use-button"
+                                    data-business-template-id="${template.id}"
+                                >
+                                    ${
+                                        hasBusinessAccess
+                                            ? "Use Template"
+                                            : "🔒 Unlock Template"
+                                    }
+                                </button>
 
-                        </div>
+                            </div>
 
-                    </article>
-                `;
-            })
+                        </article>
+                    `;
+                }
+            )
             .join("");
 
-            businessTemplatesGrid
-    .querySelectorAll(
-        "[data-business-template-id]"
-    )
-    .forEach(function (button) {
 
-        button.addEventListener(
-            "click",
-            function () {
+    businessTemplatesGrid
+        .querySelectorAll(
+            "[data-business-template-id]"
+        )
+        .forEach(
+            function (button) {
 
-                const templateId =
-                    button.getAttribute(
-                        "data-business-template-id"
-                    );
+                button.addEventListener(
+                    "click",
+                    function () {
 
-                const template =
-                    jSyroBusinessTemplates.find(
-                        function (item) {
-                            return (
-                                item.id ===
-                                templateId
+                        const templateId =
+                            button.getAttribute(
+                                "data-business-template-id"
                             );
+
+                        const template =
+                            jSyroBusinessTemplates.find(
+                                function (item) {
+
+                                    return (
+                                        item.id ===
+                                        templateId
+                                    );
+                                }
+                            );
+
+                        if (!template) {
+                            return;
                         }
-                    );
 
 
-                if (!template) {
-                    return;
-                }
+                        const currentAccess =
+                            window.jSyroAccess ||
+                            {};
+
+                        const canUseBusiness =
+                            currentAccess.isAdmin ||
+                            currentAccess.hasAllAccess ||
+                            currentAccess.hasBusiness;
 
 
-                useBusinessTemplate(
-                    template
+                        if (!canUseBusiness) {
+
+                            openPaymentModal(
+                                "business"
+                            );
+
+                            return;
+                        }
+
+
+                        useBusinessTemplate(
+                            template
+                        );
+                    }
                 );
             }
         );
-    });
 }
-async function useBusinessTemplate(template) {
+
+
+async function useBusinessTemplate(
+    template
+) {
+
+    const access =
+        window.jSyroAccess ||
+        {};
+
+    const canUseBusiness =
+        access.isAdmin ||
+        access.hasAllAccess ||
+        access.hasBusiness;
+
+
+    if (!canUseBusiness) {
+
+        openPaymentModal(
+            "business"
+        );
+
+        return;
+    }
+
 
     const enteredName =
         window.prompt(
             "Enter project name:",
             template.name
                 .toLowerCase()
-                .replace(/\s+/g, "-")
+                .replace(
+                    /\s+/g,
+                    "-"
+                )
         );
 
 
@@ -53063,59 +54157,66 @@ async function useBusinessTemplate(template) {
 }
 
 
-    function openBusinessTemplatesModal() {
+function openBusinessTemplatesModal() {
 
-        renderBusinessTemplates();
+    /*
+     * Library is always visible.
+     * Only individual template use is locked.
+     */
+    renderBusinessTemplates();
 
-        businessTemplatesModal.classList.add(
-            "open"
-        );
+    businessTemplatesModal.classList.add(
+        "open"
+    );
 
-        businessTemplatesModal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-    }
-
-
-    function closeBusinessTemplatesModal() {
-
-        businessTemplatesModal.classList.remove(
-            "open"
-        );
-
-        businessTemplatesModal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-    }
+    businessTemplatesModal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+}
 
 
-    businessTemplatesButton.addEventListener(
+function closeBusinessTemplatesModal() {
+
+    businessTemplatesModal.classList.remove(
+        "open"
+    );
+
+    businessTemplatesModal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+}
+
+
+businessTemplatesButton.addEventListener(
+    "click",
+    openBusinessTemplatesModal
+);
+
+
+closeBusinessTemplatesButton
+    ?.addEventListener(
         "click",
-        openBusinessTemplatesModal
+        closeBusinessTemplatesModal
     );
 
 
-    closeBusinessTemplatesButton
-        ?.addEventListener(
-            "click",
-            closeBusinessTemplatesModal
-        );
+businessTemplatesModal.addEventListener(
+    "click",
+    function (event) {
 
+        if (
+            event.target ===
+            businessTemplatesModal
+        ) {
 
-    businessTemplatesModal.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target ===
-                businessTemplatesModal
-            ) {
-                closeBusinessTemplatesModal();
-            }
+            closeBusinessTemplatesModal();
         }
-    );
+    }
+);
+
+
 }
 
 
@@ -81242,253 +82343,277 @@ function initializeWorkAppsModal() {
        RENDER WORK APPS
     ========================= */
 
-    function renderWorkApps() {
+    
+function renderWorkApps() {
 
-        const searchValue =
-            workAppSearchInput
-                ? workAppSearchInput.value
-                    .trim()
-                    .toLowerCase()
-                : "";
+    const access =
+        window.jSyroAccess ||
+        {};
 
-        const categoryValue =
-            workAppCategoryFilter
-                ? workAppCategoryFilter.value
-                : "all";
+    const hasWorkAppsAccess =
+        access.isAdmin ||
+        access.hasAllAccess ||
+        access.hasWorkApps;
 
 
-        const filteredApps =
-            jSyroWorkApps.filter(
+    const searchValue =
+        workAppSearchInput
+            ? workAppSearchInput.value
+                .trim()
+                .toLowerCase()
+            : "";
+
+
+    const categoryValue =
+        workAppCategoryFilter
+            ? workAppCategoryFilter.value
+            : "all";
+
+
+    const filteredApps =
+        jSyroWorkApps.filter(
+            function (app) {
+
+                const searchableText = [
+                    app.name,
+                    app.description,
+                    app.category,
+                    ...(app.features || [])
+                ]
+                    .join(" ")
+                    .toLowerCase();
+
+
+                const matchesSearch =
+                    !searchValue ||
+                    searchableText.includes(
+                        searchValue
+                    );
+
+
+                const matchesCategory =
+                    categoryValue ===
+                        "all" ||
+                    app.category ===
+                        categoryValue;
+
+
+                return (
+                    matchesSearch &&
+                    matchesCategory
+                );
+            }
+        );
+
+
+    if (
+        filteredApps.length ===
+        0
+    ) {
+
+        workAppsGrid.innerHTML = `
+            <div class="work-apps-empty-state">
+
+                <strong>
+                    ${
+                        jSyroWorkApps.length
+                            ? "No Work Apps Found"
+                            : "Work Apps Library"
+                    }
+                </strong>
+
+                <p>
+                    ${
+                        jSyroWorkApps.length
+                            ? "Try another search or category."
+                            : "Functional Work Apps are ready to be added."
+                    }
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    workAppsGrid.innerHTML =
+        filteredApps
+            .map(
                 function (app) {
 
-                    const searchableText = [
-                        app.name,
-                        app.description,
-                        app.category,
-                        ...(app.features || [])
-                    ]
-                        .join(" ")
-                        .toLowerCase();
-
-
-                    const matchesSearch =
-                        !searchValue ||
-                        searchableText.includes(
-                            searchValue
-                        );
-
-
-                    const matchesCategory =
-                        categoryValue === "all" ||
-                        app.category ===
-                            categoryValue;
-
-
-                    return (
-                        matchesSearch &&
-                        matchesCategory
-                    );
-                }
-            );
-
-
-
-        if (
-            filteredApps.length === 0
-        ) {
-
-            workAppsGrid.innerHTML = `
-                <div class="work-apps-empty-state">
-
-                    <strong>
-                        ${
-                            jSyroWorkApps.length
-                                ? "No Work Apps Found"
-                                : "Work Apps Library"
-                        }
-                    </strong>
-
-                    <p>
-                        ${
-                            jSyroWorkApps.length
-                                ? "Try another search or category."
-                                : "Functional Work Apps are ready to be added."
-                        }
-                    </p>
-
-                </div>
-            `;
-
-            return;
-        }
-
-
-
-        workAppsGrid.innerHTML =
-            filteredApps
-                .map(
-                    function (app) {
-
-                        const features =
-                            (
-                                app.features ||
-                                []
+                    const features =
+                        (
+                            app.features ||
+                            []
+                        )
+                            .slice(
+                                0,
+                                3
                             )
-                                .slice(
-                                    0,
-                                    3
-                                )
-                                .map(
-                                    function (
-                                        feature
-                                    ) {
+                            .map(
+                                function (
+                                    feature
+                                ) {
 
-                                        return `
-                                            <span class="work-app-card-feature">
-                                                ✓ ${feature}
-                                            </span>
-                                        `;
+                                    return `
+                                        <span class="work-app-card-feature">
+                                            ✓ ${feature}
+                                        </span>
+                                    `;
+                                }
+                            )
+                            .join("");
+
+
+                    return `
+                        <article class="template-card work-app-card">
+
+                            <div class="template-preview work-app-preview">
+
+                                <strong class="work-app-preview-icon">
+                                    ${app.icon}
+                                </strong>
+
+                                <span class="work-app-premium-badge">
+                                    ${
+                                        hasWorkAppsAccess
+                                            ? "🔓 UNLOCKED"
+                                            : "🔒 WORK APP"
                                     }
-                                )
-                                .join("");
+                                </span>
+
+                            </div>
 
 
-                        return `
-                            <article class="template-card work-app-card">
+                            <div class="template-card-content">
 
+                                <span class="template-category">
+                                    ${app.category}
+                                </span>
 
-                                <div class="template-preview work-app-preview">
+                                <h3>
+                                    ${app.name}
+                                </h3>
 
+                                <p>
+                                    ${app.description}
+                                </p>
 
-                                    <strong class="work-app-preview-icon">
-                                        ${app.icon}
-                                    </strong>
-
-
-                                    <span class="work-app-premium-badge">
-                                        WORK APP
-                                    </span>
-
-
+                                <div class="work-app-card-features">
+                                    ${features}
                                 </div>
 
+                                <button
+                                    type="button"
+                                    class="template-use-button"
+                                    data-work-app-id="${app.id}"
+                                >
+                                    ${
+                                        hasWorkAppsAccess
+                                            ? "Use Work App"
+                                            : "🔒 Unlock Work App"
+                                    }
+                                </button>
 
+                            </div>
 
-                                <div class="template-card-content">
-
-
-                                    <span class="template-category">
-                                        ${app.category}
-                                    </span>
-
-
-                                    <h3>
-                                        ${app.name}
-                                    </h3>
-
-
-                                    <p>
-                                        ${app.description}
-                                    </p>
-
-
-                                    <div class="work-app-card-features">
-                                        ${features}
-                                    </div>
-
-
-                                    <button
-                                        type="button"
-                                        class="template-use-button"
-                                        data-work-app-id="${app.id}"
-                                    >
-                                        Use Work App
-                                    </button>
-
-
-                                </div>
-
-
-                            </article>
-                        `;
-                    }
-                )
-                .join("");
-
-
-
-        workAppsGrid
-            .querySelectorAll(
-                "[data-work-app-id]"
+                        </article>
+                    `;
+                }
             )
-            .forEach(
-                function (button) {
-
-                    button.addEventListener(
-                        "click",
-                        function () {
-
-                            const appId =
-                                button.getAttribute(
-                                    "data-work-app-id"
-                                );
+            .join("");
 
 
-                            const app =
-                                jSyroWorkApps.find(
-                                    function (item) {
+    workAppsGrid
+        .querySelectorAll(
+            "[data-work-app-id]"
+        )
+        .forEach(
+            function (button) {
 
-                                        return (
-                                            item.id ===
-                                            appId
-                                        );
-                                    }
-                                );
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const appId =
+                            button.getAttribute(
+                                "data-work-app-id"
+                            );
 
 
-                            if (!app) {
-                                return;
-                            }
+                        const app =
+                            jSyroWorkApps.find(
+                                function (item) {
+
+                                    return (
+                                        item.id ===
+                                        appId
+                                    );
+                                }
+                            );
 
 
-                            const currentAccess =
-                            window.jSyroAccess || {};
+                        if (!app) {
+                            return;
+                        }
+
+
+                        const currentAccess =
+                            window.jSyroAccess ||
+                            {};
 
                         const canUseWorkApps =
                             currentAccess.isAdmin ||
                             currentAccess.hasAllAccess ||
                             currentAccess.hasWorkApps;
 
+
                         if (!canUseWorkApps) {
 
-                            if (
-                                typeof openPaymentModal ===
-                                "function"
-                            ) {
-                                openPaymentModal("workapps");
-                            } else {
-                                showToast(
-                                    "Work Apps plan is required to use this app."
-                                );
-                            }
+                            openPaymentModal(
+                                "workapps"
+                            );
 
                             return;
                         }
 
-                        useWorkApp(app);
-                        }
-                    );
-                }
-            );
-    }
 
+                        useWorkApp(
+                            app
+                        );
+                    }
+                );
+            }
+        );
+}
 
-
-    /* =========================
+/* =========================
        CREATE PROJECT FROM APP
     ========================= */
 
     async function useWorkApp(app) {
+
+
+        const access =
+            window.jSyroAccess ||
+            {};
+
+        const canUseWorkApps =
+            access.isAdmin ||
+            access.hasAllAccess ||
+            access.hasWorkApps;
+
+
+        if (!canUseWorkApps) {
+
+            openPaymentModal(
+                "workapps"
+            );
+
+            return;
+        }
+
 
         const enteredName =
             window.prompt(
