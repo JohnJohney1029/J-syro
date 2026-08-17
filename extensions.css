@@ -1757,3 +1757,40 @@ a {
     }
 
 }
+
+/* =========================================================
+   J-SYRO EXTENSIONS
+   PAID / PRO EXTENSIONS FIRST
+   ========================================================= */
+
+/*
+ * Paid extension cards ko marketplace grid mein
+ * sab se pehle show karo.
+ *
+ * Paid cards ke andar existing:
+ * .price-badge.paid
+ * already present hai, isliye hum existing
+ * marketplace structure ko change nahi kar rahe.
+ */
+
+.extensions-grid > .extension-card {
+    order: 0;
+}
+
+
+/* PRO / PAID cards first */
+
+.extensions-grid > .extension-card:has(.price-badge.paid) {
+    order: -1 !important;
+}
+
+
+/*
+ * FREE cards normal order mein rahenge.
+ * Isse paid cards ke baad free extensions
+ * automatically render honge.
+ */
+
+.extensions-grid > .extension-card:has(.price-badge.free) {
+    order: 0 !important;
+}
