@@ -624,182 +624,96 @@
     }
 
 
-   /*
- * =====================================================
- * MARKETPLACE
- * =====================================================
- *
- * Paid / PRO extensions ALWAYS appear first.
- *
- * Existing:
- * - Search
- * - Category filter
- * - Sort
- * - Install
- * - Unlock
- * - Details
- *
- * are preserved.
- * =====================================================
- */
-
-function renderMarketplace() {
-
-    const container =
-        $(
-            "#extensionsGrid"
-        );
-
-    if (!container) {
-        return;
-    }
-
-
-    /*
-     * Get the existing marketplace results.
-     *
-     * We keep the existing store.search()
-     * so search, category and selected sort
-     * continue working normally.
-     */
-    const extensions =
-        store.search({
-            query:
-                state.query,
-
-            category:
-                state.category,
-
-            sort:
-                state.sort
-        });
-
-
-    /*
-     * Clear the current marketplace cards.
-     */
-    clear(
-        container
-    );
-
-
-    /*
-     * Empty state.
-     */
-    if (!extensions.length) {
-
-        renderEmptyState(
-            container,
-            "No extensions found.",
-            "Try another search or category."
-        );
-
-        return;
-    }
-
-
     /*
      * =====================================================
-     * PAID FIRST
+     * MARKETPLACE
      * =====================================================
-     *
-     * Any extension with price > 0
-     * is treated as PRO / Paid.
      */
-    const paidExtensions =
-        [];
 
-    const freeExtensions =
-        [];
+    function renderMarketplace() {
 
-
-    extensions.forEach(
-        extension => {
-
-            const price =
-                Number(
-                    extension.price
-                ) || 0;
-
-
-            if (price > 0) {
-
-                paidExtensions.push(
-                    extension
-                );
-
-            } else {
-
-                freeExtensions.push(
-                    extension
-                );
-
-            }
-
-        }
-    );
-
-
-    /*
-     * =====================================================
-     * FINAL ORDER
-     * =====================================================
-     *
-     * PRO / Paid first
-     * FREE afterwards
-     */
-    const orderedExtensions =
-        paidExtensions.concat(
-            freeExtensions
-        );
-
-
-    /*
-     * Render the final ordered list.
-     */
-    orderedExtensions.forEach(
-        extension => {
-
-            const card =
-                createExtensionCard(
-                    extension
-                );
-
-
-            /*
-             * Add an explicit class to paid cards.
-             *
-             * This does NOT change payment logic.
-             * It only identifies the card visually.
-             */
-            if (
-                Number(
-                    extension.price
-                ) > 0
-            ) {
-
-                card.classList.add(
-                    "extension-card-paid"
-                );
-
-            } else {
-
-                card.classList.add(
-                    "extension-card-free"
-                );
-
-            }
-
-
-            container.appendChild(
-                card
+        const container =
+            $(
+                "#extensionsGrid"
             );
 
-        }
-    );
 
-}
-}
+        if (!container) {
+            return;
+        }
+
+
+        const extensions =
+            store.search({
+
+                query:
+                    state.query,
+
+                category:
+                    state.category,
+
+                sort:
+                    state.sort
+
+            });
+
+
+        clear(
+            container
+        );
+
+
+        if (!extensions.length) {
+
+            renderEmptyState(
+                container,
+                "No extensions found.",
+                "Try another search or category."
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+         * Paid / PRO extensions first.
+         *
+         * Keep the existing search, category and sort result,
+         * but partition the visible results so paid extensions
+         * occupy the first row(s), followed by free extensions.
+         */
+        const paidExtensions =
+            extensions.filter(
+                extension =>
+                    Number(extension.price) > 0
+            );
+
+        const freeExtensions =
+            extensions.filter(
+                extension =>
+                    Number(extension.price) <= 0
+            );
+
+        const orderedExtensions =
+            paidExtensions.concat(
+                freeExtensions
+            );
+
+        orderedExtensions.forEach(
+            extension => {
+
+                container.appendChild(
+                    createExtensionCard(
+                        extension
+                    )
+                );
+
+            }
+        );
+
+    }
 
 
     /*
