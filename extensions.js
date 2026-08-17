@@ -677,7 +677,38 @@
         }
 
 
-        extensions.forEach(
+        /*
+         * Paid / PRO extensions first.
+         *
+         * IMPORTANT:
+         * - Existing search stays unchanged.
+         * - Existing category filter stays unchanged.
+         * - Existing sort stays unchanged.
+         * - Existing card creation stays unchanged.
+         * - Existing payment / unlock logic stays unchanged.
+         *
+         * We only change the order in which the already-filtered
+         * extensions are appended to the existing grid.
+         */
+        const orderedExtensions =
+            [
+                ...extensions
+            ].sort(
+                (a, b) =>
+                    (
+                        Number(b.price) > 0
+                        ? 1
+                        : 0
+                    ) -
+                    (
+                        Number(a.price) > 0
+                        ? 1
+                        : 0
+                    )
+            );
+
+
+        orderedExtensions.forEach(
             extension => {
 
                 container.appendChild(
@@ -866,17 +897,6 @@
             Number(
                 extension.price
             ) > 0;
-
-
-        /*
-         * Mark paid/free cards for marketplace ordering.
-         * Existing install, unlock and payment logic remains unchanged.
-         */
-        card.classList.add(
-            paid
-                ? "extension-card-paid"
-                : "extension-card-free"
-        );
 
 
         const unlocked =
