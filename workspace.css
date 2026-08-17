@@ -7273,3 +7273,125 @@ border:
     visibility: visible !important;
     opacity: 1 !important;
 }
+
+
+/* J-SYRO MOBILE FINAL FIX */
+@media (max-width: 600px) {
+    html, body, .app-shell {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+    }
+
+    .titlebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .titlebar-actions,
+    .titlebar-right .titlebar-actions {
+        width: calc(100% - 14px) !important;
+        max-width: calc(100% - 14px) !important;
+        min-width: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .titlebar-actions::-webkit-scrollbar,
+    .titlebar-right .titlebar-actions::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .titlebar-actions > *,
+    .titlebar-right .titlebar-actions > * {
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+    }
+
+    .titlebar-actions .toolbar-button,
+    .titlebar-actions .run-button,
+    .titlebar-actions button {
+        min-width: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 10px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+
+    .project-toolbar-group,
+    .toolbar-group-buttons,
+    .actions-toolbar-group {
+        width: max-content !important;
+        min-width: max-content !important;
+        max-width: none !important;
+        flex: 0 0 auto !important;
+    }
+
+    .toolbar-group-buttons {
+        gap: 6px !important;
+    }
+
+    #projectHistoryBtn {
+        min-width: 78px !important;
+        width: auto !important;
+        padding-inline: 9px !important;
+    }
+
+    .workbench,
+    .editor-pane,
+    .editor-container,
+    .code-wrapper,
+    .workspace-toolbar,
+    .toolbar,
+    .toolbar-row {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .editor-toolbar,
+    .tabs {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+    }
+
+    .editor-toolbar::-webkit-scrollbar,
+    .tabs::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .tab {
+        flex: 0 0 auto !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .titlebar-actions,
+    .titlebar-right .titlebar-actions {
+        gap: 5px !important;
+    }
+
+    .titlebar-actions .toolbar-button,
+    .titlebar-actions .run-button,
+    .titlebar-actions button {
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 8px !important;
+        font-size: 10px !important;
+    }
+
+    #projectHistoryBtn {
+        min-width: 72px !important;
+    }
+}
