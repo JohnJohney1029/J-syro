@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="J-SYRO Extensions Marketplace"
+    >
+
+    <title>Extensions — J-SYRO</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="extensions.css"
+    >
+</head>
+
+<body>
+
+<div class="extensions-app">
+
+    <!-- =========================================
+         TOP BAR
+    ========================================== -->
+
+    <header class="extensions-topbar">
+
+        <div class="topbar-left">
+
+            <a
+                href="workspace.html"
+                class="back-button"
+                title="Back to workspace"
+            >
+                <span>‹</span>
+                <span>Workspace</span>
+            </a>
+
+            <div class="brand-divider"></div>
+
+            <div class="extensions-brand">
+
+                <div class="extensions-brand-icon">
+                    ◈
+                </div>
+
+                <div>
+                    <strong>Extensions</strong>
+                    <span>J-SYRO Marketplace</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="topbar-right">
+
+            <button
+                id="refreshMarketplaceBtn"
+                class="topbar-button"
+                type="button"
+                title="Refresh marketplace"
+            >
+                ↻
+            </button>
+
+            <a
+                href="workspace.html"
+                class="open-workspace-button"
+            >
+                Open Workspace
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================
+         MAIN LAYOUT
+    ========================================== -->
+
+    <main class="extensions-layout">
+
+
+        <!-- =====================================
+             LEFT NAVIGATION
+        ====================================== -->
+
+        <aside class="extensions-sidebar">
+
+            <div class="sidebar-section">
+
+                <span class="sidebar-title">
+                    EXTENSIONS
+                </span>
+
+                <button
+                    class="sidebar-item active"
+                    data-view="marketplace"
+                    type="button"
+                >
+                    <span class="sidebar-icon">▦</span>
+                    <span>Marketplace</span>
+                </button>
+
+                <button
+                    class="sidebar-item"
+                    data-view="installed"
+                    type="button"
+                >
+                    <span class="sidebar-icon">◉</span>
+                    <span>Installed</span>
+
+                    <span
+                        class="sidebar-count"
+                        id="installedCount"
+                    >
+                        0
+                    </span>
+                </button>
+
+                <button
+                    class="sidebar-item"
+                    data-view="updates"
+                    type="button"
+                >
+                    <span class="sidebar-icon">↻</span>
+                    <span>Updates</span>
+
+                    <span
+                        class="sidebar-count update-count"
+                        id="updatesCount"
+                    >
+                        0
+                    </span>
+                </button>
+
+            </div>
+
+
+            <div class="sidebar-section">
+
+                <span class="sidebar-title">
+                    CATEGORIES
+                </span>
+
+                <button
+                    class="category-item active"
+                    data-category="all"
+                    type="button"
+                >
+                    All Extensions
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="productivity"
+                    type="button"
+                >
+                    Productivity
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="languages"
+                    type="button"
+                >
+                    Languages
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="themes"
+                    type="button"
+                >
+                    Themes
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="formatters"
+                    type="button"
+                >
+                    Formatters
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="linters"
+                    type="button"
+                >
+                    Linters
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="git"
+                    type="button"
+                >
+                    Git
+                </button>
+
+                <button
+                    class="category-item"
+                    data-category="ai"
+                    type="button"
+                >
+                    AI
+                </button>
+
+            </div>
+
+
+            <div class="sidebar-footer">
+
+                <div class="security-badge">
+                    <span>✓</span>
+
+                    <div>
+                        <strong>J-SYRO Secure</strong>
+                        <small>
+                            Permission-based extensions
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================
+             CONTENT
+        ====================================== -->
+
+        <section class="extensions-content">
+
+
+            <!-- =================================
+                 MARKETPLACE VIEW
+            ================================== -->
+
+            <div
+                id="marketplaceView"
+                class="extension-view active"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            EXTENSIONS
+                        </span>
+
+                        <h1>
+                            Customize your workspace.
+                        </h1>
+
+                        <p>
+                            Discover extensions that add new
+                            capabilities to J-SYRO.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SEARCH -->
+
+                <div class="marketplace-toolbar">
+
+                    <label class="extension-search">
+
+                        <span>⌕</span>
+
+                        <input
+                            type="search"
+                            id="extensionSearch"
+                            placeholder="Search extensions..."
+                            autocomplete="off"
+                        >
+
+                        <kbd>
+                            /
+                        </kbd>
+
+                    </label>
+
+                    <select
+                        id="sortExtensions"
+                        class="sort-select"
+                    >
+                        <option value="popular">
+                            Most Popular
+                        </option>
+
+                        <option value="rating">
+                            Highest Rated
+                        </option>
+
+                        <option value="newest">
+                            Newest
+                        </option>
+
+                        <option value="name">
+                            Name
+                        </option>
+
+                        <option value="price-low">
+                            Price: Low to High
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- FEATURED -->
+
+                <section
+                    class="featured-section"
+                    id="featuredSection"
+                >
+
+                    <div class="section-title-row">
+
+                        <div>
+                            <span class="section-eyebrow">
+                                FEATURED
+                            </span>
+
+                            <h2>
+                                Recommended extensions
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="featured-grid"
+                        id="featuredExtensions"
+                    ></div>
+
+                </section>
+
+
+                <!-- MARKETPLACE -->
+
+                <section class="marketplace-section">
+
+                    <div class="section-title-row">
+
+                        <div>
+                            <span class="section-eyebrow">
+                                MARKETPLACE
+                            </span>
+
+                            <h2>
+                                All extensions
+                            </h2>
+                        </div>
+
+                        <span
+                            id="resultsCount"
+                            class="results-count"
+                        >
+                            0 extensions
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="extensions-grid"
+                        id="extensionsGrid"
+                    ></div>
+
+                    <div
+                        class="empty-state"
+                        id="marketplaceEmpty"
+                        hidden
+                    >
+                        <div class="empty-icon">
+                            ⌕
+                        </div>
+
+                        <h3>
+                            No extensions found
+                        </h3>
+
+                        <p>
+                            Try another search or category.
+                        </p>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- =================================
+                 INSTALLED VIEW
+            ================================== -->
+
+            <div
+                id="installedView"
+                class="extension-view"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            YOUR EXTENSIONS
+                        </span>
+
+                        <h1>
+                            Installed extensions.
+                        </h1>
+
+                        <p>
+                            Manage extensions installed in
+                            your J-SYRO workspace.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="extensions-grid"
+                    id="installedGrid"
+                ></div>
+
+                <div
+                    class="empty-state"
+                    id="installedEmpty"
+                    hidden
+                >
+
+                    <div class="empty-icon">
+                        ◉
+                    </div>
+
+                    <h3>
+                        No extensions installed
+                    </h3>
+
+                    <p>
+                        Browse the marketplace to find
+                        extensions for your workspace.
+                    </p>
+
+                    <button
+                        id="browseMarketplaceBtn"
+                        type="button"
+                        class="primary-button"
+                    >
+                        Browse Marketplace
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 UPDATES VIEW
+            ================================== -->
+
+            <div
+                id="updatesView"
+                class="extension-view"
+            >
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            UPDATES
+                        </span>
+
+                        <h1>
+                            Extension updates.
+                        </h1>
+
+                        <p>
+                            Keep your installed extensions
+                            up to date.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="extensions-grid"
+                    id="updatesGrid"
+                ></div>
+
+                <div
+                    class="empty-state"
+                    id="updatesEmpty"
+                    hidden
+                >
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        Everything is up to date
+                    </h3>
+
+                    <p>
+                        Your installed extensions are using
+                        their latest available versions.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================
+         EXTENSION DETAILS MODAL
+    ========================================== -->
+
+    <div
+        class="extension-modal"
+        id="extensionDetailsModal"
+        aria-hidden="true"
+    >
+
+        <div class="modal-backdrop"></div>
+
+        <div
+            class="extension-details-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="extensionDetailsName"
+        >
+
+            <button
+                class="modal-close"
+                id="closeExtensionDetails"
+                type="button"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+
+            <div class="details-header">
+
+                <div
+                    class="details-icon"
+                    id="extensionDetailsIcon"
+                >
+                    ◈
+                </div>
+
+                <div class="details-title">
+
+                    <div class="details-name-row">
+
+                        <h2 id="extensionDetailsName">
+                            Extension
+                        </h2>
+
+                        <span
+                            class="verified-badge"
+                            id="extensionVerifiedBadge"
+                            hidden
+                        >
+                            ✓ Verified
+                        </span>
+
+                    </div>
+
+                    <p id="extensionDetailsPublisher">
+                        Publisher
+                    </p>
+
+                    <div class="details-meta">
+
+                        <span id="extensionDetailsRating">
+                            ★ 0.0
+                        </span>
+
+                        <span id="extensionDetailsInstalls">
+                            0 installs
+                        </span>
+
+                        <span id="extensionDetailsVersion">
+                            v1.0.0
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="details-tabs">
+
+                <button
+                    class="details-tab active"
+                    data-details-tab="overview"
+                    type="button"
+                >
+                    Overview
+                </button>
+
+                <button
+                    class="details-tab"
+                    data-details-tab="readme"
+                    type="button"
+                >
+                    README
+                </button>
+
+                <button
+                    class="details-tab"
+                    data-details-tab="permissions"
+                    type="button"
+                >
+                    Permissions
+                </button>
+
+                <button
+                    class="details-tab"
+                    data-details-tab="changelog"
+                    type="button"
+                >
+                    Changelog
+                </button>
+
+            </div>
+
+
+            <div class="details-body">
+
+                <section
+                    class="details-tab-content active"
+                    id="detailsOverview"
+                >
+
+                    <div
+                        class="details-banner"
+                        id="extensionDetailsBanner"
+                    ></div>
+
+                    <p
+                        class="details-description"
+                        id="extensionDetailsDescription"
+                    ></p>
+
+                    <div class="details-features">
+
+                        <h3>
+                            Features
+                        </h3>
+
+                        <ul id="extensionDetailsFeatures"></ul>
+
+                    </div>
+
+                </section>
+
+
+                <section
+                    class="details-tab-content"
+                    id="detailsReadme"
+                >
+
+                    <div
+                        class="readme-content"
+                        id="extensionReadmeContent"
+                    ></div>
+
+                </section>
+
+
+                <section
+                    class="details-tab-content"
+                    id="detailsPermissions"
+                >
+
+                    <div class="permission-warning">
+
+                        <span>!</span>
+
+                        <div>
+                            <strong>
+                                Extension permissions
+                            </strong>
+
+                            <p>
+                                Extensions can only access
+                                J-SYRO capabilities explicitly
+                                granted by their permissions.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="permissions-list"
+                        id="extensionPermissionsList"
+                    ></div>
+
+                </section>
+
+
+                <section
+                    class="details-tab-content"
+                    id="detailsChangelog"
+                >
+
+                    <div
+                        class="changelog-content"
+                        id="extensionChangelogContent"
+                    ></div>
+
+                </section>
+
+            </div>
+
+
+            <div class="details-footer">
+
+                <div class="extension-price-area">
+
+                    <span
+                        id="extensionPriceBadge"
+                        class="price-badge free"
+                    >
+                        FREE
+                    </span>
+
+                    <strong
+                        id="extensionPrice"
+                    >
+                        Free
+                    </strong>
+
+                </div>
+
+
+                <div class="details-actions">
+
+                    <button
+                        id="extensionSecondaryAction"
+                        type="button"
+                        class="secondary-button"
+                    >
+                        Close
+                    </button>
+
+                    <button
+                        id="extensionPrimaryAction"
+                        type="button"
+                        class="primary-button"
+                    >
+                        Install
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         TOAST
+    ========================================== -->
+
+    <div
+        class="extension-toast"
+        id="extensionToast"
+        role="status"
+        aria-live="polite"
+    >
+        <span id="extensionToastIcon">✓</span>
+        <span id="extensionToastMessage">
+            Done
+        </span>
+    </div>
+
+
+    <!-- =========================================
+         SCRIPTS
+    ========================================== -->
+
+    <script src="extension-system/extension-security.js"></script>
+
+    <script src="extension-system/extension-api.js"></script>
+
+    <script src="extension-system/extension-store.js"></script>
+
+    <script src="extension-system/extension-manager.js"></script>
+
+    <script src="extensions.js"></script>
+
+</body>
+
+</html>
