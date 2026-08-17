@@ -928,51 +928,31 @@ a {
     font-size: 10px;
 }
 
-.extension-card-actions {
-    display: flex;
-    gap: 5px;
-}
 
 
 /* =========================================
-   BUTTONS - J-SYRO EXTENSION SYSTEM
+   BUTTONS — J-SYRO EXTENSIONS
 ========================================= */
 
-.extension-actions,
-.extension-card-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 5px;
-}
-
-.extension-button,
-.primary-button,
-.secondary-button,
-.unlock-button,
-.install-button,
-.manage-button,
-.update-button {
+.extension-button {
     height: 31px;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    box-sizing: border-box;
-
     padding: 0 11px;
 
     border-radius: 6px;
-
     border: 1px solid transparent;
 
-    font-family: inherit;
+    font: inherit;
     font-size: 9px;
     font-weight: 600;
     line-height: 1;
 
     cursor: pointer;
+    white-space: nowrap;
 
     appearance: none;
     -webkit-appearance: none;
@@ -985,181 +965,64 @@ a {
         transform .12s ease;
 }
 
-/* PRO / Install / Update */
-.extension-button.primary,
-.primary-button,
-.install-button,
-.update-button {
-    border-color:
-        var(--accent);
-
-    background:
-        var(--accent);
-
-    color:
-        #fff;
-
-    box-shadow:
-        0 4px 12px
-        rgba(99,91,255,.18);
+.extension-button.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 5px 14px rgba(99, 91, 255, .18);
 }
 
-.extension-button.primary:hover,
-.primary-button:hover,
-.install-button:hover,
-.update-button:hover {
-    background:
-        var(--accent-hover);
-
-    border-color:
-        var(--accent-hover);
-
-    box-shadow:
-        0 6px 16px
-        rgba(99,91,255,.25);
-
-    transform:
-        translateY(-1px);
+.extension-button.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    box-shadow: 0 7px 18px rgba(99, 91, 255, .25);
+    transform: translateY(-1px);
 }
 
-/* Details / Disable */
-.extension-button.secondary,
-.secondary-button,
-.manage-button {
-    border-color:
-        var(--border);
-
-    background:
-        var(--surface-2);
-
-    color:
-        var(--muted);
+.extension-button.secondary {
+    border-color: var(--border);
+    background: var(--surface-2);
+    color: var(--muted);
 }
 
-.extension-button.secondary:hover,
-.secondary-button:hover,
-.manage-button:hover {
-    color:
-        var(--text);
-
-    background:
-        var(--surface-3);
-
-    border-color:
-        #3b4252;
+.extension-button.secondary:hover {
+    color: var(--text);
+    background: var(--surface-3);
+    border-color: rgba(255,255,255,.14);
 }
 
-/* Uninstall */
 .extension-button.danger {
-    border-color:
-        rgba(239,115,115,.25);
-
-    background:
-        rgba(239,115,115,.08);
-
-    color:
-        #ef8d8d;
+    border-color: rgba(239, 115, 115, .28);
+    background: rgba(239, 115, 115, .10);
+    color: #f08d8d;
 }
 
 .extension-button.danger:hover {
-    border-color:
-        rgba(239,115,115,.42);
-
-    background:
-        rgba(239,115,115,.15);
-
-    color:
-        #ffaaaa;
+    border-color: rgba(239, 115, 115, .42);
+    background: rgba(239, 115, 115, .17);
+    color: #ffaaaa;
 }
 
-/* Paid extension price */
-.extension-price.paid {
-    color:
-        #b8b3ff;
-
-    font-weight:
-        700;
-}
-
-/* Free extension price */
-.extension-price.free {
-    color:
-        #69d9a2;
-
-    font-weight:
-        700;
-}
-
-/* Make PRO cards visually distinct without requiring
-   a paid/free class on the article itself. */
-.extension-card:has(.extension-price.paid) {
-    border-color:
-        rgba(99,91,255,.35);
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(35,33,58,.96),
-            rgba(19,22,30,.96)
-        );
-}
-
-.extension-card:has(.extension-price.paid):hover {
-    border-color:
-        rgba(99,91,255,.65);
-
-    box-shadow:
-        0 15px 35px
-        rgba(99,91,255,.14);
-}
-
-/* PRO marker */
-.extension-card:has(.extension-price.paid)::before {
-    content: "PRO";
-
-    position: absolute;
-    top: 10px;
-    right: 10px;
-
-    z-index: 2;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    height: 19px;
-    padding: 0 7px;
-
-    border-radius: 5px;
-
-    border: 1px solid
-        rgba(99,91,255,.45);
-
-    background:
-        rgba(99,91,255,.16);
-
-    color:
-        #b8b3ff;
-
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: .06em;
-}
-
-.extension-button:focus-visible,
-.primary-button:focus-visible,
-.secondary-button:focus-visible,
-.unlock-button:focus-visible,
-.install-button:focus-visible,
-.manage-button:focus-visible,
-.update-button:focus-visible {
-    outline:
-        2px solid
-        rgba(99,91,255,.65);
-
+.extension-button:focus-visible {
+    outline: 2px solid rgba(139, 124, 255, .75);
     outline-offset: 2px;
 }
 
+.extension-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
+.extension-card .extension-actions .extension-button {
+    min-width: 68px;
+}
+
+.extension-card .extension-actions .extension-button.primary {
+    min-width: 82px;
+}
 
 /* =========================================
    INSTALLED STATES
