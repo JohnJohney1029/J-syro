@@ -50,6 +50,108 @@ button { color: inherit; }
 .activity-button.active::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #f1f1f1; }
 .files-symbol { display: inline-block; transform: rotate(90deg); }
 
+/* =========================================================
+   J-SYRO EXTENSIONS ACTIVITY BUTTON
+   ========================================================= */
+
+.extensions-activity-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #858585;
+    cursor: pointer;
+    font-size: 23px;
+    line-height: 1;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: .1s;
+}
+
+.extensions-activity-button:hover,
+.extensions-activity-button.active {
+    color: #f1f1f1;
+}
+
+.extensions-activity-button.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #f1f1f1;
+}
+
+.extensions-activity-button span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Light theme */
+body.light-theme .extensions-activity-button {
+    color: #7d8798;
+}
+
+body.light-theme .extensions-activity-button:hover,
+body.light-theme .extensions-activity-button.active {
+    color: #4f46d7;
+}
+
+body.light-theme .extensions-activity-button.active::before {
+    background: #635bff;
+}
+
+/* Desktop */
+@media (min-width: 1101px) {
+    .extensions-activity-button {
+        width: 54px;
+        height: 54px;
+        font-size: 26px;
+    }
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    .extensions-activity-button {
+        width: 45px;
+        height: 48px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .extensions-activity-button {
+        width: 45px;
+        height: 48px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 560px) {
+    .extensions-activity-button {
+        width: 40px;
+        height: 48px;
+        font-size: 21px;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .extensions-activity-button {
+        height: 40px;
+    }
+}
+
+
 .side-panel { min-width: 0; background: #181818; border-right: 1px solid #2b2b2b; overflow: hidden; transition: visibility .15s; }
 .panel { display: none; height: 100%; }
 .panel.active { display: flex; flex-direction: column; }
