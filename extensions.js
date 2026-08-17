@@ -624,19 +624,19 @@
     }
 
 
-    /*
+   /*
  * =====================================================
  * MARKETPLACE
- * -----------------------------------------------------
- * Paid / PRO extensions are shown first.
- * Free extensions are shown after them.
+ * =====================================================
+ *
+ * Paid / PRO extensions ALWAYS appear first.
  *
  * Existing:
  * - Search
  * - Category filter
  * - Sort
- * - Extension cards
- * - Install / Unlock
+ * - Install
+ * - Unlock
  * - Details
  *
  * are preserved.
@@ -656,8 +656,11 @@ function renderMarketplace() {
 
 
     /*
-     * Get extensions using the existing
-     * marketplace store/search system.
+     * Get the existing marketplace results.
+     *
+     * We keep the existing store.search()
+     * so search, category and selected sort
+     * continue working normally.
      */
     const extensions =
         store.search({
@@ -673,45 +676,7 @@ function renderMarketplace() {
 
 
     /*
-     * Keep the existing search/category/sort
-     * results, but move paid extensions to
-     * the top of the marketplace.
-     *
-     * Paid = price greater than 0
-     * Free = price is 0 or missing
-     */
-    const paidExtensions =
-        extensions.filter(
-            extension =>
-                Number(
-                    extension.price
-                ) > 0
-        );
-
-
-    const freeExtensions =
-        extensions.filter(
-            extension =>
-                Number(
-                    extension.price
-                ) <= 0
-        );
-
-
-    /*
-     * Paid extensions first.
-     * Free extensions after them.
-     */
-    const orderedExtensions =
-        [
-            ...paidExtensions,
-            ...freeExtensions
-        ];
-
-
-    /*
-     * Clear existing cards before
-     * rendering the new order.
+     * Clear the current marketplace cards.
      */
     clear(
         container
@@ -719,11 +684,9 @@ function renderMarketplace() {
 
 
     /*
-     * Empty marketplace state.
+     * Empty state.
      */
-    if (
-        !orderedExtensions.length
-    ) {
+    if (!extensions.length) {
 
         renderEmptyState(
             container,
@@ -736,20 +699,106 @@ function renderMarketplace() {
 
 
     /*
-     * Render cards in the new order.
+     * =====================================================
+     * PAID FIRST
+     * =====================================================
+     *
+     * Any extension with price > 0
+     * is treated as PRO / Paid.
+     */
+    const paidExtensions =
+        [];
+
+    const freeExtensions =
+        [];
+
+
+    extensions.forEach(
+        extension => {
+
+            const price =
+                Number(
+                    extension.price
+                ) || 0;
+
+
+            if (price > 0) {
+
+                paidExtensions.push(
+                    extension
+                );
+
+            } else {
+
+                freeExtensions.push(
+                    extension
+                );
+
+            }
+
+        }
+    );
+
+
+    /*
+     * =====================================================
+     * FINAL ORDER
+     * =====================================================
+     *
+     * PRO / Paid first
+     * FREE afterwards
+     */
+    const orderedExtensions =
+        paidExtensions.concat(
+            freeExtensions
+        );
+
+
+    /*
+     * Render the final ordered list.
      */
     orderedExtensions.forEach(
         extension => {
 
-            container.appendChild(
+            const card =
                 createExtensionCard(
                     extension
-                )
+                );
+
+
+            /*
+             * Add an explicit class to paid cards.
+             *
+             * This does NOT change payment logic.
+             * It only identifies the card visually.
+             */
+            if (
+                Number(
+                    extension.price
+                ) > 0
+            ) {
+
+                card.classList.add(
+                    "extension-card-paid"
+                );
+
+            } else {
+
+                card.classList.add(
+                    "extension-card-free"
+                );
+
+            }
+
+
+            container.appendChild(
+                card
             );
 
         }
     );
 
+}
 }
 
 
