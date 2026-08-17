@@ -708,20 +708,6 @@ a {
 
 
 /* =========================================
-   MARKETPLACE ORDER
-   Paid / PRO extensions first
-========================================= */
-
-.extensions-grid > .extension-card-paid {
-    order: -1;
-}
-
-.extensions-grid > .extension-card-free {
-    order: 0;
-}
-
-
-/* =========================================
    EXTENSION CARD
 ========================================= */
 
@@ -1770,4 +1756,23 @@ a {
         padding: 13px;
     }
 
+}
+
+/* =========================================================
+   J-SYRO MARKETPLACE
+   PAID / PRO EXTENSIONS FIRST
+   ========================================================= */
+
+/*
+ * Keep the existing grid and card layout.
+ * Only change visual ordering:
+ * Paid cards first, free cards afterwards.
+ */
+
+.extensions-grid > .extension-card-paid {
+    order: -1;
+}
+
+.extensions-grid > .extension-card-free {
+    order: 0;
 }
