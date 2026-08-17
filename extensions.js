@@ -677,36 +677,7 @@
         }
 
 
-        /*
-         * Keep the existing search/category/sort result intact,
-         * but show paid/PRO extensions before free extensions.
-         * No install, unlock, or payment logic is changed here.
-         */
-        const paidExtensions =
-            extensions.filter(
-                extension =>
-                    Number(
-                        extension.price
-                    ) > 0
-            );
-
-
-        const freeExtensions =
-            extensions.filter(
-                extension =>
-                    Number(
-                        extension.price
-                    ) <= 0
-            );
-
-
-        const orderedExtensions =
-            paidExtensions.concat(
-                freeExtensions
-            );
-
-
-        orderedExtensions.forEach(
+        extensions.forEach(
             extension => {
 
                 container.appendChild(
@@ -898,9 +869,8 @@
 
 
         /*
-         * Mark the card so the marketplace CSS can also
-         * recognize paid/free cards without touching
-         * the existing payment or install flow.
+         * Mark paid/free cards for marketplace ordering.
+         * Existing install, unlock and payment logic remains unchanged.
          */
         card.classList.add(
             paid
