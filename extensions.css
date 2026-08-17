@@ -708,6 +708,20 @@ a {
 
 
 /* =========================================
+   MARKETPLACE ORDER
+   Paid / PRO extensions first
+========================================= */
+
+.extensions-grid > .extension-card-paid {
+    order: -1;
+}
+
+.extensions-grid > .extension-card-free {
+    order: 0;
+}
+
+
+/* =========================================
    EXTENSION CARD
 ========================================= */
 
@@ -1759,575 +1773,157 @@ a {
 }
 
 /* =========================================================
-   J-SYRO EXTENSIONS - FINAL MARKETPLACE CARD DESIGN
-   Uses the ACTUAL classes from extensions.js
+   J-SYRO MARKETPLACE - FINAL CARD DESIGN
+   Clean replacement for previous experimental overrides.
    ========================================================= */
 
-
-/* =========================================================
-   BASE CARD
-   ========================================================= */
-
-.extensions-grid .extension-card {
-    position: relative;
-    overflow: hidden;
-
-    padding: 16px;
-
-    min-height: 185px;
-
-    border-radius: 12px;
-
+/* Paid cards get the J-SYRO purple premium treatment. */
+.extensions-grid > .extension-card-paid {
+    border-color: rgba(99, 91, 255, .55);
     background:
-        linear-gradient(
-            145deg,
-            #1b1f2b 0%,
-            #151923 55%,
-            #11141d 100%
-        );
-
-    border:
-        1px solid
-        rgba(255, 255, 255, 0.08);
-
+        linear-gradient(145deg,
+            rgba(35, 32, 58, .98),
+            rgba(19, 22, 31, .98));
     box-shadow:
-        0 8px 24px
-        rgba(0, 0, 0, 0.18);
-
-    transition:
-        transform .18s ease,
-        border-color .18s ease,
-        box-shadow .18s ease;
+        0 0 0 1px rgba(99, 91, 255, .07),
+        0 12px 30px rgba(70, 60, 180, .10);
 }
 
-
-.extensions-grid .extension-card:hover {
-    transform:
-        translateY(-3px);
-
-    border-color:
-        rgba(99, 91, 255, 0.45);
-
+.extensions-grid > .extension-card-paid:hover {
+    border-color: rgba(130, 120, 255, .82);
     box-shadow:
-        0 14px 34px
-        rgba(0, 0, 0, 0.30);
+        0 0 0 1px rgba(99, 91, 255, .12),
+        0 16px 36px rgba(70, 60, 180, .18);
 }
 
-
-/* =========================================================
-   PRO / PAID CARD
-   ========================================================= */
-
-.extensions-grid .extension-card-paid {
-    border:
-        1px solid
-        rgba(124, 92, 255, 0.70);
-
-    background:
-        linear-gradient(
-            145deg,
-            #211d35 0%,
-            #191827 50%,
-            #12141e 100%
-        );
-
-    box-shadow:
-        0 0 0 1px
-        rgba(124, 92, 255, 0.08),
-
-        0 12px 32px
-        rgba(99, 91, 255, 0.13);
+.extensions-grid > .extension-card-paid .extension-icon {
+    background: linear-gradient(145deg, #30294b, #232238);
+    border-color: rgba(125, 112, 255, .35);
+    color: #c9c3ff;
 }
 
+/* Small premium label in the top-right corner. */
+.extensions-grid > .extension-card-paid::before {
+    content: "PRO";
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
 
-.extensions-grid .extension-card-paid:hover {
-    border-color:
-        rgba(143, 124, 255, 0.95);
+    height: 20px;
+    padding: 0 7px;
 
-    box-shadow:
-        0 0 0 1px
-        rgba(124, 92, 255, 0.15),
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-        0 16px 40px
-        rgba(99, 91, 255, 0.24);
+    border-radius: 5px;
+    border: 1px solid rgba(151, 140, 255, .42);
+
+    background: rgba(99, 91, 255, .16);
+    color: #c8c2ff;
+
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .06em;
 }
 
-
-/* =========================================================
-   PRO LABEL
-   ========================================================= */
-
-.extensions-grid .extension-card-paid::before {
-    content:
-        "PRO";
-
-    position:
-        absolute;
-
-    top:
-        12px;
-
-    right:
-        12px;
-
-    z-index:
-        10;
-
-    height:
-        21px;
-
-    display:
-        inline-flex;
-
-    align-items:
-        center;
-
-    padding:
-        0 8px;
-
-    border-radius:
-        5px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #8b5cf6,
-            #635bff
-        );
-
-    border:
-        1px solid
-        rgba(167, 139, 250, 0.55);
-
-    color:
-        #ffffff;
-
-    font-size:
-        8px;
-
-    font-weight:
-        800;
-
-    letter-spacing:
-        .08em;
-
-    box-shadow:
-        0 5px 15px
-        rgba(99, 91, 255, 0.30);
+/* Free cards remain clean and neutral. */
+.extensions-grid > .extension-card-free {
+    border-color: rgba(255, 255, 255, .08);
 }
 
-
-/* =========================================================
-   ICON
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-icon {
-    width:
-        50px;
-
-    height:
-        50px;
-
-    border-radius:
-        10px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #252b3a,
-            #1c2130
-        );
-
-    border:
-        1px solid
-        rgba(255, 255, 255, 0.09);
-
-    color:
-        #e7e9f4;
-
-    box-shadow:
-        inset 0 1px 0
-        rgba(255,255,255,.04);
+.extensions-grid > .extension-card-free:hover {
+    border-color: rgba(99, 91, 255, .28);
 }
 
-
-/* PRO icon */
-
-.extensions-grid .extension-card-paid .extension-icon {
-    background:
-        linear-gradient(
-            145deg,
-            #3b2b61,
-            #27213f
-        );
-
-    border-color:
-        rgba(139, 92, 246, 0.48);
-
-    color:
-        #c4b5fd;
-
-    box-shadow:
-        0 0 20px
-        rgba(139, 92, 246, 0.12);
+/* Existing price badges. */
+.extensions-grid .price-badge.paid {
+    color: #c8c2ff;
+    background: rgba(99, 91, 255, .14);
+    border-color: rgba(99, 91, 255, .30);
 }
 
-
-/* =========================================================
-   CARD HEADER
-   ========================================================= */
-
-.extensions-grid .extension-card-header {
-    align-items:
-        center;
-
-    gap:
-        12px;
+.extensions-grid .price-badge.free {
+    color: #69d9a2;
+    background: rgba(72, 199, 142, .10);
+    border-color: rgba(72, 199, 142, .20);
 }
 
+/* IMPORTANT: extensions.js actually creates .extension-button.
+   These rules replace the browser's white default buttons. */
+.extension-card .extension-button {
+    height: 31px;
+    min-width: 68px;
 
-/* =========================================================
-   EXTENSION NAME
-   ========================================================= */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-.extensions-grid .extension-card h3 {
-    color:
-        #f5f6fb;
+    padding: 0 11px;
+    border-radius: 6px;
 
-    font-size:
-        14px;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
 
-    font-weight:
-        700;
-
-    line-height:
-        1.25;
+    cursor: pointer;
+    transition: .12s ease;
 }
 
-
-/* =========================================================
-   PUBLISHER
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-publisher {
-    color:
-        #788196;
-
-    font-size:
-        9px;
+/* Main action: Install / Unlock. */
+.extension-card .extension-button.primary {
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
 }
 
-
-/* =========================================================
-   VERIFIED
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-verified {
-    color:
-        #9b8cff;
-
-    font-size:
-        9px;
-
-    font-weight:
-        600;
+.extension-card .extension-button.primary:hover {
+    border-color: var(--accent-hover);
+    background: var(--accent-hover);
+    transform: translateY(-1px);
 }
 
-
-/* =========================================================
-   DESCRIPTION
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-description {
-    margin-top:
-        14px;
-
-    color:
-        #9da5b7;
-
-    font-size:
-        10px;
-
-    line-height:
-        1.6;
+/* Secondary action: Details / Manage. */
+.extension-card .extension-button.secondary {
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--muted);
 }
 
-
-/* =========================================================
-   STATS
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-stats {
-    margin-top:
-        13px;
-
-    color:
-        #d4d8e3;
-
-    font-size:
-        9px;
+.extension-card .extension-button.secondary:hover {
+    background: var(--surface-3);
+    color: var(--text);
 }
 
-
-.extensions-grid .extension-card .extension-rating {
-    color:
-        #f1c75b;
+/* Danger action: Disable / Uninstall. */
+.extension-card .extension-button.danger {
+    border: 1px solid rgba(239, 115, 115, .24);
+    background: rgba(239, 115, 115, .08);
+    color: #ef8585;
 }
 
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-card-footer {
-    margin-top:
-        15px;
-
-    padding-top:
-        12px;
-
-    border-top:
-        1px solid
-        rgba(255, 255, 255, 0.07);
+.extension-card .extension-button.danger:hover {
+    background: rgba(239, 115, 115, .14);
+    border-color: rgba(239, 115, 115, .38);
 }
 
-
-/* =========================================================
-   PRICE
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-price {
-    font-size:
-        11px;
-
-    font-weight:
-        700;
+.extension-card .extension-button:focus-visible {
+    outline: 2px solid rgba(139, 124, 255, .72);
+    outline-offset: 2px;
 }
 
-
-/* FREE */
-
-.extensions-grid .extension-card .extension-price.free {
-    color:
-        #67dca4;
+/* Slightly stronger PRO price. */
+.extensions-grid .extension-card-paid .extension-price strong {
+    color: #e0dcff;
 }
 
-
-/* PRO */
-
-.extensions-grid .extension-card .extension-price.paid {
-    color:
-        #b9a7ff;
-
-    font-size:
-        12px;
-
-    font-weight:
-        800;
-}
-
-
-/* =========================================================
-   ACTION AREA
-   ========================================================= */
-
-.extensions-grid .extension-card .extension-card-actions {
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        6px;
-}
-
-
-/* =========================================================
-   FREE INSTALL
-   ========================================================= */
-
-.extensions-grid .extension-card-free .install-button {
-    min-width:
-        76px;
-
-    height:
-        32px;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, 0.10);
-
-    border-radius:
-        7px;
-
-    background:
-        #252b3a;
-
-    color:
-        #e8ebf3;
-
-    box-shadow:
-        none;
-}
-
-
-.extensions-grid .extension-card-free .install-button:hover {
-    background:
-        #30384a;
-
-    border-color:
-        rgba(255, 255, 255, 0.18);
-}
-
-
-/* =========================================================
-   PRO UNLOCK BUTTON
-   ========================================================= */
-
-.extensions-grid .extension-card-paid .unlock-button {
-    min-width:
-        88px;
-
-    height:
-        32px;
-
-    border:
-        1px solid
-        rgba(155, 137, 255, 0.60);
-
-    border-radius:
-        7px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #8b5cf6,
-            #635bff
-        );
-
-    color:
-        #ffffff;
-
-    font-weight:
-        700;
-
-    box-shadow:
-        0 6px 16px
-        rgba(99, 91, 255, 0.24);
-}
-
-
-.extensions-grid .extension-card-paid .unlock-button:hover {
-    background:
-        linear-gradient(
-            135deg,
-            #9b72ff,
-            #746cff
-        );
-
-    border-color:
-        rgba(190, 177, 255, 0.80);
-
-    box-shadow:
-        0 8px 22px
-        rgba(99, 91, 255, 0.36);
-
-    transform:
-        translateY(-1px);
-}
-
-
-/* =========================================================
-   SECONDARY / DETAILS BUTTON
-   ========================================================= */
-
-.extensions-grid .extension-card .secondary-button {
-    height:
-        32px;
-
-    border-radius:
-        7px;
-
-    background:
-        #202532;
-
-    border:
-        1px solid
-        rgba(255, 255, 255, 0.08);
-
-    color:
-        #aeb5c5;
-}
-
-
-.extensions-grid .extension-card .secondary-button:hover {
-    background:
-        #2a3040;
-
-    color:
-        #f1f3f8;
-
-    border-color:
-        rgba(255, 255, 255, 0.15);
-}
-
-
-/* =========================================================
-   SUBTLE PRO GLOW
-   ========================================================= */
-
-.extensions-grid .extension-card-paid::after {
-    content:
-        "";
-
-    position:
-        absolute;
-
-    right:
-        -90px;
-
-    bottom:
-        -100px;
-
-    width:
-        220px;
-
-    height:
-        220px;
-
-    pointer-events:
-        none;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(124, 92, 255, 0.16),
-            transparent 68%
-        );
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-    .extensions-grid .extension-card {
-        min-height:
-            175px;
-
-        padding:
-            14px;
+/* Keep mobile cards clean. */
+@media (max-width: 560px) {
+    .extension-grid .extension-button,
+    .extension-card .extension-button {
+        min-width: 60px;
+        padding: 0 9px;
     }
-
-    .extensions-grid .extension-card-paid::before {
-        top:
-            10px;
-
-        right:
-            10px;
-    }
-
 }
