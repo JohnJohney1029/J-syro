@@ -625,71 +625,132 @@
 
 
     /*
-     * =====================================================
-     * MARKETPLACE
-     * =====================================================
-     */
+ * =====================================================
+ * MARKETPLACE
+ * -----------------------------------------------------
+ * Paid / PRO extensions are shown first.
+ * Free extensions are shown after them.
+ *
+ * Existing:
+ * - Search
+ * - Category filter
+ * - Sort
+ * - Extension cards
+ * - Install / Unlock
+ * - Details
+ *
+ * are preserved.
+ * =====================================================
+ */
 
-    function renderMarketplace() {
+function renderMarketplace() {
 
-        const container =
-            $(
-                "#extensionsGrid"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        const extensions =
-            store.search({
-
-                query:
-                    state.query,
-
-                category:
-                    state.category,
-
-                sort:
-                    state.sort
-
-            });
-
-
-        clear(
-            container
+    const container =
+        $(
+            "#extensionsGrid"
         );
 
-
-        if (!extensions.length) {
-
-            renderEmptyState(
-                container,
-                "No extensions found.",
-                "Try another search or category."
-            );
-
-
-            return;
-
-        }
-
-
-        extensions.forEach(
-            extension => {
-
-                container.appendChild(
-                    createExtensionCard(
-                        extension
-                    )
-                );
-
-            }
-        );
-
+    if (!container) {
+        return;
     }
+
+
+    /*
+     * Get extensions using the existing
+     * marketplace store/search system.
+     */
+    const extensions =
+        store.search({
+            query:
+                state.query,
+
+            category:
+                state.category,
+
+            sort:
+                state.sort
+        });
+
+
+    /*
+     * Keep the existing search/category/sort
+     * results, but move paid extensions to
+     * the top of the marketplace.
+     *
+     * Paid = price greater than 0
+     * Free = price is 0 or missing
+     */
+    const paidExtensions =
+        extensions.filter(
+            extension =>
+                Number(
+                    extension.price
+                ) > 0
+        );
+
+
+    const freeExtensions =
+        extensions.filter(
+            extension =>
+                Number(
+                    extension.price
+                ) <= 0
+        );
+
+
+    /*
+     * Paid extensions first.
+     * Free extensions after them.
+     */
+    const orderedExtensions =
+        [
+            ...paidExtensions,
+            ...freeExtensions
+        ];
+
+
+    /*
+     * Clear existing cards before
+     * rendering the new order.
+     */
+    clear(
+        container
+    );
+
+
+    /*
+     * Empty marketplace state.
+     */
+    if (
+        !orderedExtensions.length
+    ) {
+
+        renderEmptyState(
+            container,
+            "No extensions found.",
+            "Try another search or category."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Render cards in the new order.
+     */
+    orderedExtensions.forEach(
+        extension => {
+
+            container.appendChild(
+                createExtensionCard(
+                    extension
+                )
+            );
+
+        }
+    );
+
+}
 
 
     /*
