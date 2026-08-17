@@ -2465,5 +2465,28 @@
     </div>
 </div>
 
+    <script>
+    /* =========================================================
+       J-SYRO Extensions Activity Button
+       Opens the Extensions Marketplace without modifying
+       the existing workspace.js controller.
+       ========================================================= */
+
+    (function () {
+        "use strict";
+
+        const extensionsButton = document.getElementById("extensionsBtn");
+
+        if (!extensionsButton) {
+            console.warn("J-SYRO: #extensionsBtn was not found.");
+            return;
+        }
+
+        extensionsButton.addEventListener("click", function () {
+            window.location.href = "extensions.html";
+        });
+    })();
+</script>
+
 </body>
 </html>
