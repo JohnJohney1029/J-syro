@@ -708,6 +708,20 @@ a {
 
 
 /* =========================================
+   MARKETPLACE ORDER
+   Paid / PRO extensions first
+========================================= */
+
+.extensions-grid > .extension-card-paid {
+    order: -1;
+}
+
+.extensions-grid > .extension-card-free {
+    order: 0;
+}
+
+
+/* =========================================
    EXTENSION CARD
 ========================================= */
 
@@ -1756,24 +1770,4 @@ a {
         padding: 13px;
     }
 
-}
-
-/* =========================================================
-   MARKETPLACE ORDER — PAID / PRO EXTENSIONS FIRST
-   ---------------------------------------------------------
-   The extension card uses .extension-price.paid and
-   .extension-price.free. Paid cards are therefore detected
-   using those existing classes without changing card markup.
-   ========================================================= */
-
-.extensions-grid > .extension-card {
-    order: 0;
-}
-
-.extensions-grid > .extension-card:has(.extension-price.paid) {
-    order: -1 !important;
-}
-
-.extensions-grid > .extension-card:has(.extension-price.free) {
-    order: 0 !important;
 }
