@@ -7276,74 +7276,170 @@ border:
 
 
 /* =========================================================
-   J-SYRO MOBILE HEADER — TRUE NO-OVERLAP FIX
-   Applied after all existing workspace rules.
+   J-SYRO — FINAL MOBILE HEADER LAYOUT
+   This is the final override for the mobile toolbar.
+   It prevents PROJECT / TEMPLATE LIBRARIES /
+   TOOLS & ACTIONS from shrinking into each other.
 ========================================================= */
 
 @media (max-width: 900px) {
 
+    :root {
+        --title-height: 190px !important;
+    }
+
+    .app-shell {
+        grid-template-rows:
+            var(--title-height)
+            minmax(0, 1fr)
+            var(--status-height) !important;
+    }
+
     .titlebar {
         position: relative !important;
         width: 100% !important;
-        min-width: 0 !important;
-        height: 190px !important;
-        min-height: 190px !important;
+        height: var(--title-height) !important;
+        min-height: var(--title-height) !important;
+
+        display: block !important;
+
+        padding: 0 !important;
         overflow: hidden !important;
     }
 
-    .titlebar-right {
-        position: static !important;
-        width: 100% !important;
-        max-width: none !important;
-        min-width: 0 !important;
-        height: 100% !important;
-        min-height: 0 !important;
+    /* -------------------------
+       TOP: LOGO / MENU
+    ------------------------- */
+
+    .titlebar-left {
+        position: absolute !important;
+
+        top: 7px !important;
+        left: 8px !important;
+
+        width: auto !important;
+        height: 38px !important;
+
+        display: flex !important;
+        align-items: center !important;
+
         margin: 0 !important;
-        flex: 1 1 auto !important;
+        padding: 0 !important;
+
+        z-index: 20 !important;
     }
+
+    .project-title,
+    .workspace-label {
+        display: none !important;
+    }
+
+
+    /* -------------------------
+       ACCOUNT ROW
+    ------------------------- */
+
+    .titlebar-right {
+        position: absolute !important;
+
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+
+        width: 100% !important;
+        height: 100% !important;
+
+        display: block !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: hidden !important;
+    }
+
+    .account-bar {
+        position: absolute !important;
+
+        top: 48px !important;
+        left: 8px !important;
+        right: 8px !important;
+
+        width: auto !important;
+        height: 32px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+
+        gap: 7px !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        z-index: 30 !important;
+    }
+
+    #userIdentity {
+        display: none !important;
+    }
+
+    #userPlanBadge,
+    #adminDashboardBtn,
+    #logoutBtn {
+        flex: 0 0 auto !important;
+    }
+
+
+    /* -------------------------
+       TOOLBAR SCROLLER
+    ------------------------- */
 
     .titlebar-actions,
     .titlebar-right .titlebar-actions {
         position: absolute !important;
 
-        left: 7px !important;
-        right: 7px !important;
+        top: auto !important;
+        left: 8px !important;
+        right: 8px !important;
         bottom: 7px !important;
 
         width: auto !important;
         max-width: none !important;
-        min-width: 0 !important;
 
-        height: 73px !important;
-        min-height: 73px !important;
-
-        margin: 0 !important;
-        padding: 0 0 4px 0 !important;
+        height: 86px !important;
+        min-height: 86px !important;
 
         display: flex !important;
         flex-direction: row !important;
-        align-items: flex-start !important;
+        align-items: stretch !important;
         justify-content: flex-start !important;
+
         flex-wrap: nowrap !important;
 
-        gap: 8px !important;
+        gap: 10px !important;
+
+        margin: 0 !important;
+        padding: 0 2px 4px !important;
 
         overflow-x: auto !important;
         overflow-y: hidden !important;
 
         scrollbar-width: none !important;
         -webkit-overflow-scrolling: touch !important;
+
+        z-index: 25 !important;
     }
 
     .titlebar-actions::-webkit-scrollbar {
         display: none !important;
     }
 
-    /*
-       CRITICAL:
-       Each group keeps its REAL content width.
-       No group is allowed to shrink.
-    */
+
+    /* -------------------------
+       GROUPS
+       NEVER SHRINK
+    ------------------------- */
 
     .titlebar-actions > .toolbar-group,
     .titlebar-actions > .project-toolbar-group,
@@ -7356,45 +7452,33 @@ border:
         min-width: max-content !important;
         max-width: none !important;
 
-        height: 72px !important;
-        min-height: 72px !important;
-
-        margin: 0 !important;
+        height: 76px !important;
+        min-height: 76px !important;
 
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
+
+        align-self: flex-start !important;
+
+        display: flex !important;
+        align-items: flex-start !important;
+
+        padding: 7px 10px 22px !important;
 
         overflow: visible !important;
     }
 
-    /*
-       Never let the action group consume the remaining viewport.
-    */
 
-    .titlebar-actions > .actions-toolbar-group {
-        width: max-content !important;
-        min-width: max-content !important;
-        max-width: none !important;
+    /* -------------------------
+       BUTTON CONTAINER
+    ------------------------- */
 
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
-    }
+    .titlebar-actions
+    .toolbar-group-buttons,
 
-    /*
-       Inner button rows must also use their natural width.
-    */
-
-    .titlebar-actions > .toolbar-group
-    > .toolbar-group-buttons,
-
-    .titlebar-actions > .project-toolbar-group
-    > .toolbar-group-buttons,
-
-    .titlebar-actions > .product-toolbar-group
-    > .toolbar-group-buttons,
-
-    .titlebar-actions > .actions-toolbar-group
-    > .toolbar-group-buttons {
+    .titlebar-actions
+    .actions-toolbar-group
+    .toolbar-group-buttons {
 
         width: max-content !important;
         min-width: max-content !important;
@@ -7409,119 +7493,131 @@ border:
         justify-content: flex-start !important;
 
         flex-wrap: nowrap !important;
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
 
         gap: 8px !important;
+
+        flex: 0 0 auto !important;
 
         overflow: visible !important;
     }
 
-    /*
-       Buttons NEVER shrink.
-    */
 
-    .titlebar-actions .toolbar-button,
-    .titlebar-actions .run-button {
+    /* -------------------------
+       BUTTONS
+       NEVER SHRINK
+    ------------------------- */
 
-        width: max-content !important;
+    .titlebar-actions
+    .toolbar-button,
+
+    .titlebar-actions
+    .run-button {
+
+        width: auto !important;
         min-width: max-content !important;
         max-width: none !important;
 
         height: 41px !important;
         min-height: 41px !important;
 
-        margin: 0 !important;
-
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
 
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
         white-space: nowrap !important;
+
+        padding: 0 10px !important;
 
         overflow: visible !important;
     }
 
-    /*
-       Remove desktop "push to right" behavior.
-    */
 
-    .titlebar-actions .project-toolbar-group {
-        margin-left: 0 !important;
-    }
-
-    /*
-       Action buttons keep their own natural widths.
-    */
+    /* Never let the action buttons share
+       the same flex space. */
 
     .actions-toolbar-group
-    .toolbar-group-buttons > button {
+    .toolbar-group-buttons
+    > button {
 
-        width: max-content !important;
+        width: auto !important;
         min-width: max-content !important;
 
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
     }
 
-    .actions-toolbar-group #projectHistoryBtn {
-        width: max-content !important;
+
+    #projectHistoryBtn {
         min-width: 108px !important;
         flex: 0 0 auto !important;
     }
 
-    .actions-toolbar-group #runBtn {
-        width: max-content !important;
+    #runBtn {
         min-width: 78px !important;
         flex: 0 0 auto !important;
     }
 
-    .actions-toolbar-group #downloadBtn {
-        width: max-content !important;
-        min-width: 72px !important;
-        flex: 0 0 auto !important;
-    }
 
-    /*
-       Keep the labels visible and prevent text from
-       forcing a button to overlap another button.
-    */
+    /* Labels are allowed on normal mobile.
+       They stay inside their own buttons. */
 
     .titlebar-actions .action-label {
-        width: auto !important;
-        min-width: max-content !important;
-        max-width: none !important;
-
         display: inline !important;
 
-        white-space: nowrap !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+
         overflow: visible !important;
         text-overflow: clip !important;
+
+        white-space: nowrap !important;
+    }
+
+
+    /* -------------------------
+       GROUP LABELS
+    ------------------------- */
+
+    .titlebar-actions .toolbar-group-label {
+
+        position: absolute !important;
+
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 4px !important;
+
+        width: auto !important;
+        height: 13px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        white-space: nowrap !important;
+
+        pointer-events: none !important;
     }
 }
 
 
 /* =========================================================
-   VERY SMALL PHONES
+   SMALL PHONES
 ========================================================= */
 
 @media (max-width: 480px) {
 
-    .titlebar {
-        height: 185px !important;
-        min-height: 185px !important;
+    :root {
+        --title-height: 190px !important;
     }
 
     .titlebar-actions,
     .titlebar-right .titlebar-actions {
-        left: 7px !important;
-        right: 7px !important;
-        bottom: 7px !important;
-
-        height: 73px !important;
-        min-height: 73px !important;
+        left: 6px !important;
+        right: 6px !important;
 
         gap: 8px !important;
     }
@@ -7530,23 +7626,61 @@ border:
     .titlebar-actions > .project-toolbar-group,
     .titlebar-actions > .product-toolbar-group,
     .titlebar-actions > .actions-toolbar-group {
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
 
     .titlebar-actions .toolbar-button,
     .titlebar-actions .run-button {
-        height: 40px !important;
-        min-height: 40px !important;
+        height: 39px !important;
+        min-height: 39px !important;
 
-        padding-left: 9px !important;
-        padding-right: 9px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
 
         font-size: 9px !important;
     }
 
-    .toolbar-group {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+    #projectHistoryBtn {
+        min-width: 104px !important;
+    }
+
+    #runBtn {
+        min-width: 74px !important;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .titlebar-actions,
+    .titlebar-right .titlebar-actions {
+        left: 5px !important;
+        right: 5px !important;
+
+        gap: 7px !important;
+    }
+
+    .titlebar-actions > .toolbar-group,
+    .titlebar-actions > .project-toolbar-group,
+    .titlebar-actions > .product-toolbar-group,
+    .titlebar-actions > .actions-toolbar-group {
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+    }
+
+    .titlebar-actions .toolbar-button,
+    .titlebar-actions .run-button {
+        height: 38px !important;
+        min-height: 38px !important;
+
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+
+        font-size: 8px !important;
     }
 }
