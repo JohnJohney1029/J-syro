@@ -7276,31 +7276,60 @@ border:
 
 
 /* =========================================================
-   J-SYRO MOBILE TOOLBAR — FINAL NO-OVERLAP OVERRIDE
-   Added at the very end so it overrides the older mobile
-   flex rules without deleting any existing workspace CSS.
+   J-SYRO MOBILE HEADER — TRUE NO-OVERLAP FIX
+   Applied after all existing workspace rules.
 ========================================================= */
 
 @media (max-width: 900px) {
 
+    .titlebar {
+        position: relative !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 190px !important;
+        min-height: 190px !important;
+        overflow: hidden !important;
+    }
+
+    .titlebar-right {
+        position: static !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
     .titlebar-actions,
     .titlebar-right .titlebar-actions {
+        position: absolute !important;
+
+        left: 7px !important;
+        right: 7px !important;
+        bottom: 7px !important;
+
         width: auto !important;
         max-width: none !important;
         min-width: 0 !important;
 
+        height: 73px !important;
+        min-height: 73px !important;
+
+        margin: 0 !important;
+        padding: 0 0 4px 0 !important;
+
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: stretch !important;
+        align-items: flex-start !important;
         justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
 
-        gap: 10px !important;
+        gap: 8px !important;
 
         overflow-x: auto !important;
         overflow-y: hidden !important;
-
-        padding: 0 2px 5px !important;
 
         scrollbar-width: none !important;
         -webkit-overflow-scrolling: touch !important;
@@ -7310,13 +7339,27 @@ border:
         display: none !important;
     }
 
-    /* Every library section keeps its own width. */
+    /*
+       CRITICAL:
+       Each group keeps its REAL content width.
+       No group is allowed to shrink.
+    */
+
+    .titlebar-actions > .toolbar-group,
     .titlebar-actions > .project-toolbar-group,
     .titlebar-actions > .product-toolbar-group,
     .titlebar-actions > .actions-toolbar-group {
+
+        position: relative !important;
+
         width: max-content !important;
-        max-width: none !important;
         min-width: max-content !important;
+        max-width: none !important;
+
+        height: 72px !important;
+        min-height: 72px !important;
+
+        margin: 0 !important;
 
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
@@ -7324,82 +7367,186 @@ border:
         overflow: visible !important;
     }
 
-    .titlebar-actions > .project-toolbar-group {
-        min-width: 190px !important;
-    }
-
-    .titlebar-actions > .product-toolbar-group {
-        min-width: 330px !important;
-    }
+    /*
+       Never let the action group consume the remaining viewport.
+    */
 
     .titlebar-actions > .actions-toolbar-group {
-        min-width: 360px !important;
+        width: max-content !important;
+        min-width: max-content !important;
+        max-width: none !important;
+
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
     }
 
-    /* Never squeeze the buttons inside a group. */
-    .titlebar-actions .toolbar-group-buttons {
+    /*
+       Inner button rows must also use their natural width.
+    */
+
+    .titlebar-actions > .toolbar-group
+    > .toolbar-group-buttons,
+
+    .titlebar-actions > .project-toolbar-group
+    > .toolbar-group-buttons,
+
+    .titlebar-actions > .product-toolbar-group
+    > .toolbar-group-buttons,
+
+    .titlebar-actions > .actions-toolbar-group
+    > .toolbar-group-buttons {
+
         width: max-content !important;
-        max-width: none !important;
         min-width: max-content !important;
+        max-width: none !important;
+
+        height: 41px !important;
+        min-height: 41px !important;
 
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: nowrap !important;
         align-items: center !important;
         justify-content: flex-start !important;
 
+        flex-wrap: nowrap !important;
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+
         gap: 8px !important;
+
         overflow: visible !important;
     }
 
-    .titlebar-actions .toolbar-group-buttons > button,
+    /*
+       Buttons NEVER shrink.
+    */
+
     .titlebar-actions .toolbar-button,
     .titlebar-actions .run-button {
-        width: auto !important;
-        max-width: none !important;
+
+        width: max-content !important;
         min-width: max-content !important;
+        max-width: none !important;
+
+        height: 41px !important;
+        min-height: 41px !important;
+
+        margin: 0 !important;
+
+        padding-left: 10px !important;
+        padding-right: 10px !important;
 
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
 
         white-space: nowrap !important;
+
         overflow: visible !important;
     }
 
-    #projectHistoryBtn {
+    /*
+       Remove desktop "push to right" behavior.
+    */
+
+    .titlebar-actions .project-toolbar-group {
+        margin-left: 0 !important;
+    }
+
+    /*
+       Action buttons keep their own natural widths.
+    */
+
+    .actions-toolbar-group
+    .toolbar-group-buttons > button {
+
+        width: max-content !important;
+        min-width: max-content !important;
+
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    .actions-toolbar-group #projectHistoryBtn {
+        width: max-content !important;
         min-width: 108px !important;
         flex: 0 0 auto !important;
     }
 
-    #runBtn {
+    .actions-toolbar-group #runBtn {
+        width: max-content !important;
         min-width: 78px !important;
         flex: 0 0 auto !important;
     }
+
+    .actions-toolbar-group #downloadBtn {
+        width: max-content !important;
+        min-width: 72px !important;
+        flex: 0 0 auto !important;
+    }
+
+    /*
+       Keep the labels visible and prevent text from
+       forcing a button to overlap another button.
+    */
+
+    .titlebar-actions .action-label {
+        width: auto !important;
+        min-width: max-content !important;
+        max-width: none !important;
+
+        display: inline !important;
+
+        white-space: nowrap !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
 }
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
 
 @media (max-width: 480px) {
 
-    .titlebar-actions {
+    .titlebar {
+        height: 185px !important;
+        min-height: 185px !important;
+    }
+
+    .titlebar-actions,
+    .titlebar-right .titlebar-actions {
+        left: 7px !important;
+        right: 7px !important;
+        bottom: 7px !important;
+
+        height: 73px !important;
+        min-height: 73px !important;
+
         gap: 8px !important;
     }
 
-    .titlebar-actions > .project-toolbar-group {
-        min-width: 190px !important;
-    }
-
-    .titlebar-actions > .product-toolbar-group {
-        min-width: 330px !important;
-    }
-
+    .titlebar-actions > .toolbar-group,
+    .titlebar-actions > .project-toolbar-group,
+    .titlebar-actions > .product-toolbar-group,
     .titlebar-actions > .actions-toolbar-group {
-        min-width: 360px !important;
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
     }
 
     .titlebar-actions .toolbar-button,
     .titlebar-actions .run-button {
-        min-width: max-content !important;
+        height: 40px !important;
+        min-height: 40px !important;
+
         padding-left: 9px !important;
         padding-right: 9px !important;
-        flex: 0 0 auto !important;
+
+        font-size: 9px !important;
+    }
+
+    .toolbar-group {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
 }
