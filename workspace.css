@@ -7276,109 +7276,31 @@ border:
 
 
 /* =========================================================
-   J-SYRO MOBILE HEADER — FINAL NO OVERLAP FIX
+   J-SYRO MOBILE TOOLBAR — FINAL NO-OVERLAP OVERRIDE
+   Added at the very end so it overrides the older mobile
+   flex rules without deleting any existing workspace CSS.
 ========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
 
-    html,
-    body {
-        width: 100% !important;
-        max-width: 100% !important;
+    .titlebar-actions,
+    .titlebar-right .titlebar-actions {
+        width: auto !important;
+        max-width: none !important;
         min-width: 0 !important;
-        overflow-x: hidden !important;
-    }
-
-    .app-shell {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        overflow-x: hidden !important;
-    }
-
-    .titlebar {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-
-        height: auto !important;
-        min-height: 0 !important;
-
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-
-        padding: 8px 10px 10px !important;
-        gap: 8px !important;
-
-        overflow: hidden !important;
-    }
-
-    .titlebar-left {
-        width: 100% !important;
-        min-width: 0 !important;
-
-        display: flex !important;
-        align-items: center !important;
-
-        flex: 0 0 auto !important;
-    }
-
-    .titlebar-right {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-
-        gap: 8px !important;
-
-        flex: 0 0 auto !important;
-    }
-
-    .account-bar {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-
-        flex: 0 0 auto !important;
-
-        overflow: hidden !important;
-    }
-
-    /*
-       IMPORTANT:
-       Buttons are now in one horizontal row.
-       They will NOT overlap.
-       On small screens the row can scroll sideways.
-    */
-
-    .titlebar-actions {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-
-        height: 88px !important;
-        min-height: 88px !important;
 
         display: flex !important;
         flex-direction: row !important;
-        align-items: stretch !important;
-
         flex-wrap: nowrap !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
 
         gap: 10px !important;
 
-        padding: 0 2px 5px !important;
-
         overflow-x: auto !important;
         overflow-y: hidden !important;
+
+        padding: 0 2px 5px !important;
 
         scrollbar-width: none !important;
         -webkit-overflow-scrolling: touch !important;
@@ -7388,238 +7310,96 @@ border:
         display: none !important;
     }
 
-    /*
-       Every button group gets its own fixed space.
-    */
-
-    .titlebar-actions > * {
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
-
-        min-width: max-content !important;
-        width: max-content !important;
-        max-width: none !important;
-    }
-
-    /*
-       Project group
-    */
-
-    .titlebar-actions > .project-toolbar-group {
-        width: max-content !important;
-        min-width: 190px !important;
-
-        flex: 0 0 190px !important;
-        flex-shrink: 0 !important;
-    }
-
-    /*
-       Template libraries group
-    */
-
-    .titlebar-actions > .product-toolbar-group {
-        width: max-content !important;
-        min-width: 330px !important;
-
-        flex: 0 0 330px !important;
-        flex-shrink: 0 !important;
-    }
-
-    /*
-       Tools & Actions group
-    */
-
+    /* Every library section keeps its own width. */
+    .titlebar-actions > .project-toolbar-group,
+    .titlebar-actions > .product-toolbar-group,
     .titlebar-actions > .actions-toolbar-group {
         width: max-content !important;
-        min-width: 360px !important;
-
-        flex: 0 0 360px !important;
-        flex-shrink: 0 !important;
-    }
-
-    /*
-       Buttons inside groups
-    */
-
-    .toolbar-group-buttons {
-        width: max-content !important;
-        min-width: max-content !important;
         max-width: none !important;
+        min-width: max-content !important;
 
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-
-        flex-wrap: nowrap !important;
-
-        gap: 8px !important;
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
 
         overflow: visible !important;
     }
 
-    .toolbar-group-buttons > *,
-    .toolbar-group-buttons button,
-    .toolbar-group-buttons a {
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
-
-        width: auto !important;
-        min-width: max-content !important;
-        max-width: none !important;
-
-        white-space: nowrap !important;
-
-        position: relative !important;
-        transform: none !important;
-    }
-
-    /*
-       Normal mobile button size
-    */
-
-    .titlebar-actions button,
-    .titlebar-actions .toolbar-button,
-    .titlebar-actions .run-button {
-        height: 42px !important;
-        min-height: 42px !important;
-
-        width: auto !important;
-        min-width: max-content !important;
-
-        padding-left: 11px !important;
-        padding-right: 11px !important;
-
-        font-size: 11px !important;
-
-        white-space: nowrap !important;
-
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
-    }
-
-    /*
-       History button
-    */
-
-    #projectHistoryBtn {
-        width: auto !important;
-        min-width: 112px !important;
-        max-width: none !important;
-
-        flex: 0 0 auto !important;
-    }
-
-    /*
-       Run button
-    */
-
-    #runBtn {
-        width: auto !important;
-        min-width: 78px !important;
-        max-width: none !important;
-
-        flex: 0 0 auto !important;
-    }
-
-    /*
-       Prevent project title from covering buttons.
-    */
-
-    .project-title {
-        position: static !important;
-        transform: none !important;
-
-        width: 0 !important;
-        height: 0 !important;
-
-        min-width: 0 !important;
-        max-width: 0 !important;
-
-        margin: 0 !important;
-        padding: 0 !important;
-
-        overflow: hidden !important;
-
-        pointer-events: none !important;
-    }
-
-    /*
-       Editor remains inside mobile screen.
-    */
-
-    .workbench,
-    .editor-pane,
-    .editor-container,
-    .code-wrapper {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-    }
-
-    .editor-toolbar,
-    .tabs {
-        max-width: 100% !important;
-        min-width: 0 !important;
-
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-
-        scrollbar-width: none !important;
-    }
-
-    .editor-toolbar::-webkit-scrollbar,
-    .tabs::-webkit-scrollbar {
-        display: none !important;
-    }
-
-    .tab {
-        flex: 0 0 auto !important;
-        flex-shrink: 0 !important;
-    }
-}
-
-
-/* =========================================================
-   VERY SMALL PHONES
-========================================================= */
-
-@media (max-width: 390px) {
-
-    .titlebar {
-        padding-left: 7px !important;
-        padding-right: 7px !important;
-    }
-
-    .titlebar-actions {
-        gap: 8px !important;
-        height: 86px !important;
-        min-height: 86px !important;
-    }
-
     .titlebar-actions > .project-toolbar-group {
-        min-width: 185px !important;
-        flex-basis: 185px !important;
+        min-width: 190px !important;
     }
 
     .titlebar-actions > .product-toolbar-group {
-        min-width: 320px !important;
-        flex-basis: 320px !important;
+        min-width: 330px !important;
     }
 
     .titlebar-actions > .actions-toolbar-group {
-        min-width: 350px !important;
-        flex-basis: 350px !important;
+        min-width: 360px !important;
     }
 
-    .titlebar-actions button,
+    /* Never squeeze the buttons inside a group. */
+    .titlebar-actions .toolbar-group-buttons {
+        width: max-content !important;
+        max-width: none !important;
+        min-width: max-content !important;
+
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 8px !important;
+        overflow: visible !important;
+    }
+
+    .titlebar-actions .toolbar-group-buttons > button,
     .titlebar-actions .toolbar-button,
     .titlebar-actions .run-button {
-        height: 40px !important;
-        min-height: 40px !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: max-content !important;
 
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+
+        white-space: nowrap !important;
+        overflow: visible !important;
+    }
+
+    #projectHistoryBtn {
+        min-width: 108px !important;
+        flex: 0 0 auto !important;
+    }
+
+    #runBtn {
+        min-width: 78px !important;
+        flex: 0 0 auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .titlebar-actions {
+        gap: 8px !important;
+    }
+
+    .titlebar-actions > .project-toolbar-group {
+        min-width: 190px !important;
+    }
+
+    .titlebar-actions > .product-toolbar-group {
+        min-width: 330px !important;
+    }
+
+    .titlebar-actions > .actions-toolbar-group {
+        min-width: 360px !important;
+    }
+
+    .titlebar-actions .toolbar-button,
+    .titlebar-actions .run-button {
+        min-width: max-content !important;
         padding-left: 9px !important;
         padding-right: 9px !important;
-
-        font-size: 10px !important;
+        flex: 0 0 auto !important;
     }
 }
