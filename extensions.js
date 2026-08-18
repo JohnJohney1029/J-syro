@@ -4,52 +4,7 @@
 ========================================= */
 
 (() => {
-    function ensurePaymentStyles() {
-        if (document.getElementById("jsyroExtensionPaymentStyles")) return;
-        const style = document.createElement("style");
-        style.id = "jsyroExtensionPaymentStyles";
-        style.textContent = `
-            #jsyroExtensionPaymentPopup{position:fixed;inset:0;z-index:9999999;display:none;align-items:center;justify-content:center;padding:0;background:rgba(8,11,20,.78);backdrop-filter:blur(10px)}
-            #jsyroExtensionPaymentPopup.open{display:flex}
-            #jsyroExtensionPaymentPopup .subscription-card{position:relative;width:min(780px,100vw);max-height:calc(100vh - 24px);overflow:auto;background:#fff;color:#2f3340;border-radius:22px;box-shadow:0 35px 100px rgba(0,0,0,.45);font-family:Inter,Arial,sans-serif}
-            #jsyroExtensionPaymentPopup .subscription-logo{position:relative;width:116px;height:116px;margin:-58px auto 0;border:8px solid #fff;border-radius:50%;background:#0e1018;display:grid;place-items:center;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:2}
-            #jsyroExtensionPaymentPopup .subscription-logo-mark{font-size:45px;font-weight:900;font-style:italic;letter-spacing:-8px;color:#fff;transform:skew(-8deg);text-shadow:8px 3px 0 #635bff}
-            #jsyroExtensionPaymentPopup .subscription-close{position:absolute;right:22px;top:22px;width:54px;height:54px;border:1px solid #dfe3eb;border-radius:50%;background:#f8f9fb;color:#6d7481;font-size:31px;line-height:1;cursor:pointer}
-            #jsyroExtensionPaymentPopup .subscription-head{text-align:center;padding:0 42px 32px}
-            #jsyroExtensionPaymentPopup .subscription-head h2{margin:30px 0 8px;color:#121521;font-size:38px;letter-spacing:-.035em}
-            #jsyroExtensionPaymentPopup .subscription-head p{margin:0;color:#7c8290;font-size:20px}
-            #jsyroExtensionPaymentPopup .subscription-body{border-top:1px solid #e7e9ee}
-            #jsyroExtensionPaymentPopup .subscription-plans{padding:30px 43px 25px;display:grid;gap:7px}
-            #jsyroExtensionPaymentPopup .subscription-plan{min-height:72px;display:flex;align-items:center;gap:16px;padding:0 20px;border:0;border-radius:16px;background:#fff;color:#707681;font-size:20px;font-weight:700;cursor:pointer;text-align:left}
-            #jsyroExtensionPaymentPopup .subscription-plan.selected{background:#f3f1ff;border:1px solid #ddd7ff;color:#303341}
-            #jsyroExtensionPaymentPopup .subscription-radio{width:27px;height:27px;flex:0 0 27px;border:2px solid #9299a6;border-radius:50%;display:grid;place-items:center}
-            #jsyroExtensionPaymentPopup .subscription-plan.selected .subscription-radio{border-color:#735cff}
-            #jsyroExtensionPaymentPopup .subscription-plan.selected .subscription-radio::after{content:"";width:13px;height:13px;border-radius:50%;background:#735cff}
-            #jsyroExtensionPaymentPopup .subscription-plan-price{margin-left:auto;color:#3c404c;white-space:nowrap}
-            #jsyroExtensionPaymentPopup .subscription-account{border-top:1px solid #e7e9ee;padding:34px 43px 30px}
-            #jsyroExtensionPaymentPopup .subscription-account label{display:block;margin-bottom:12px;color:#333743;font-size:18px;font-weight:800}
-            #jsyroExtensionPaymentPopup .subscription-email{width:100%;height:72px;padding:0 22px;border:1px solid #d5dae3;border-radius:14px;background:#fff;color:#3d414d;font-size:20px;outline:none}
-            #jsyroExtensionPaymentPopup .subscription-secure{margin-top:26px;padding:23px;border:1px solid #ded8ff;border-radius:15px;background:#faf9ff;display:flex;align-items:center;gap:20px}
-            #jsyroExtensionPaymentPopup .subscription-secure-icon{width:64px;height:64px;flex:0 0 64px;border-radius:15px;background:#eeeaff;color:#6b5cff;display:grid;place-items:center;font-size:29px}
-            #jsyroExtensionPaymentPopup .subscription-secure strong{display:block;color:#303441;font-size:19px}
-            #jsyroExtensionPaymentPopup .subscription-secure span{display:block;margin-top:7px;color:#858b98;font-size:16px;line-height:1.4}
-            #jsyroExtensionPaymentPopup .subscription-note{margin:30px 3px 0;color:#818793;font-size:16px;line-height:1.5}
-            #jsyroExtensionPaymentPopup .subscription-actions{padding:0 43px 28px}
-            #jsyroExtensionPaymentPopup .subscription-pay{width:100%;height:78px;border:0;border-radius:14px;background:linear-gradient(135deg,#6858ff,#745dff);color:#fff;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 13px 30px rgba(99,91,255,.24)}
-            #jsyroExtensionPaymentPopup .subscription-pay:hover{filter:brightness(1.05)}
-            #jsyroExtensionPaymentPopup .subscription-footer{text-align:center;padding:0 20px 20px;color:#a2a7b2;font-size:14px}
-            @media(max-width:650px){#jsyroExtensionPaymentPopup .subscription-card{width:100%;height:100%;max-height:none;border-radius:0}#jsyroExtensionPaymentPopup .subscription-logo{margin:-20px auto 0;width:92px;height:92px}#jsyroExtensionPaymentPopup .subscription-head{padding:0 20px 25px}#jsyroExtensionPaymentPopup .subscription-head h2{font-size:29px}#jsyroExtensionPaymentPopup .subscription-head p{font-size:16px}#jsyroExtensionPaymentPopup .subscription-plans,#jsyroExtensionPaymentPopup .subscription-account,#jsyroExtensionPaymentPopup .subscription-actions{padding-left:20px;padding-right:20px}#jsyroExtensionPaymentPopup .subscription-plan{font-size:17px}#jsyroExtensionPaymentPopup .subscription-secure span{font-size:14px}}
-        `;
-        document.head.appendChild(style);
-    }
-
     "use strict";
-
-    // Use the actual J-SYRO extension manager names used by the app.
-    const extensionManager =
-        window.jSyroExtensionManager || window.manager || null;
-    const extensionStore =
-        window.jSyroExtensionStore || window.store || null;
 
     const extensions = [
         {
@@ -142,7 +97,7 @@
             version: "2.0.0",
             price: 4.99,
             verified: true,
-            featured: false,
+            featured: true,
             updated: "2026-08-08",
             features: [
                 "Low-contrast dark interface",
@@ -242,7 +197,7 @@
             version: "1.0.0",
             price: 4.99,
             verified: true,
-            featured: false,
+            featured: true,
             updated: "2026-08-13",
             features: [
                 "Quick Git status",
@@ -264,7 +219,7 @@
         search: "",
         sort: "popular",
         installed: new Set(),
-        unlocked: new Set()
+        unlockedPaid: new Set()
     };
 
     const $ = (selector) => document.querySelector(selector);
@@ -351,19 +306,10 @@
         }
     }
 
-    const EXTENSION_UNLOCK_KEY = "jsyro-paid-extension-unlocks-v3";
-
-    function isExtensionUnlocked(id) {
-        // IMPORTANT: extension unlocks are separate from the account/subscription
-        // entitlement used elsewhere in J-SYRO. A PRO account must not silently
-        // unlock these marketplace extensions.
-        return state.unlocked.has(id);
-    }
-
     function buttonMarkup(extension) {
         const installed = state.installed.has(extension.id);
-        const paid = Number(extension.price) > 0;
-        const unlocked = !paid || isExtensionUnlocked(extension.id);
+        const paid = extension.price > 0;
+        const unlocked = state.unlockedPaid.has(extension.id);
 
         if (installed) {
             return `
@@ -374,19 +320,14 @@
             `;
         }
 
-        if (paid && !unlocked) {
-            return `
-                <div class="extension-actions">
-                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
-                    <button class="extension-button primary" data-action="unlock" data-id="${extension.id}" type="button">🔒 Lock $${extension.price.toFixed(2)}</button>
-                </div>
-            `;
-        }
+        const actionLabel = paid && !unlocked
+            ? `🔒 Lock $${extension.price.toFixed(2)}`
+            : "Install";
 
         return `
             <div class="extension-actions">
                 <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
-                <button class="extension-button primary" data-action="install" data-id="${extension.id}" type="button">Install</button>
+                <button class="extension-button primary" data-action="install" data-id="${extension.id}" type="button">${actionLabel}</button>
             </div>
         `;
     }
@@ -448,32 +389,31 @@
     }
 
     function renderMarketplace() {
-        const filtered = sortExtensions(extensions.filter(matches));
-
-        // The count beside “All extensions” is for the marketplace row (free items).
-
-        // Paid/PRO extensions appear ONLY in the top Recommended row.
-        // The marketplace grid below contains FREE extensions only.
-        const featured = sortExtensions(filtered.filter(extension =>
-            Number(extension.price) > 0
-        ));
-
-        const marketplaceOnly = filtered.filter(extension =>
-            Number(extension.price) <= 0
+        // Paid extensions live only in the Recommended/Featured row.
+        // The Marketplace list contains free extensions only, so paid cards
+        // are never duplicated lower down.
+        const filtered = sortExtensions(
+            extensions.filter(extension => extension.price === 0 && matches(extension))
         );
 
         if (resultsCount) {
-            resultsCount.textContent = `${marketplaceOnly.length} extension${marketplaceOnly.length === 1 ? "" : "s"}`;
+            resultsCount.textContent = `${filtered.length} extension${filtered.length === 1 ? "" : "s"}`;
         }
 
         if (marketplaceGrid) {
-            marketplaceGrid.innerHTML = marketplaceOnly.map(extension => cardMarkup(extension)).join("");
+            marketplaceGrid.innerHTML = filtered.map(extension => cardMarkup(extension)).join("");
         }
 
         if (marketplaceEmpty) {
-            marketplaceEmpty.hidden = marketplaceOnly.length !== 0;
+            marketplaceEmpty.hidden = filtered.length !== 0;
         }
 
+        const featured = extensions.filter(extension =>
+            extension.featured &&
+            extension.price > 0 &&
+            (state.category === "all" || extension.category === state.category) &&
+            (!state.search.trim() || matches(extension))
+        );
 
         if (featuredGrid) {
             featuredGrid.innerHTML = featured.map(extension =>
@@ -607,8 +547,8 @@
         }
 
         const installed = state.installed.has(extension.id);
-        const paid = Number(extension.price) > 0;
-        const unlocked = !paid || isExtensionUnlocked(extension.id);
+        const paid = extension.price > 0;
+        const unlocked = state.unlockedPaid.has(extension.id);
 
         if (installed) {
             modalPrimary.textContent = "Uninstall";
@@ -646,219 +586,13 @@
         currentModalId = null;
     }
 
-    function saveUnlocked() {
-        try {
-            localStorage.setItem(
-                EXTENSION_UNLOCK_KEY,
-                JSON.stringify([...state.unlocked])
-            );
-        } catch (_) {}
-    }
-
-    function loadUnlocked() {
-        try {
-            const saved = JSON.parse(
-                localStorage.getItem(EXTENSION_UNLOCK_KEY) || "[]"
-            );
-
-            if (Array.isArray(saved)) {
-                saved.forEach(id => {
-                    if (extensions.some(extension => extension.id === id && Number(extension.price) > 0)) {
-                        state.unlocked.add(id);
-                    }
-                });
-            }
-        } catch (_) {}
-    }
-
-    function completeExtensionUnlock(extension) {
-        try {
-            if (extensionManager && typeof extensionManager.markUnlocked === "function") {
-                extensionManager.markUnlocked(extension.id);
-            }
-        } catch (_) {}
-
-        state.unlocked.add(extension.id);
-        saveUnlocked();
-        renderAll();
-        showToast(`${extension.name} unlocked`);
-    }
-
-    function openPaymentForExtension(extension) {
-        // IMPORTANT: Do not call the old generic payment callbacks here.
-        // Some older handlers invoke onSuccess as soon as the popup opens,
-        // which incorrectly unlocks/installs the extension without payment.
-        // The extension lock flow owns this popup and unlocks only after the
-        // user explicitly confirms the payment action.
-        ensurePaymentStyles();
-
-        let payment = document.getElementById("jsyroExtensionPaymentPopup");
-        if (!payment) {
-            payment = document.createElement("div");
-            payment.id = "jsyroExtensionPaymentPopup";
-            payment.innerHTML = `
-                <div class="subscription-card" role="dialog" aria-modal="true" aria-labelledby="extensionSubscriptionTitle">
-                    <button type="button" class="subscription-close" aria-label="Close">×</button>
-                    <div class="subscription-logo"><div class="subscription-logo-mark">JS</div></div>
-                    <div class="subscription-head">
-                        <h2 id="extensionSubscriptionTitle">J-SYRO Subscription</h2>
-                        <p>Choose your plan and continue to secure payment.</p>
-                    </div>
-                    <div class="subscription-body">
-                        <div class="subscription-plans">
-                            <button type="button" class="subscription-plan selected" data-extension-plan="selected">
-                                <span class="subscription-radio"></span>
-                                <span class="subscription-plan-name"></span>
-                                <span class="subscription-plan-price"></span>
-                            </button>
-                            <button type="button" class="subscription-plan" disabled>
-                                <span class="subscription-radio"></span>
-                                <span>Work Apps</span>
-                                <span class="subscription-plan-price">$7.99</span>
-                            </button>
-                            <button type="button" class="subscription-plan" disabled>
-                                <span class="subscription-radio"></span>
-                                <span>Business Templates</span>
-                                <span class="subscription-plan-price">$9.99</span>
-                            </button>
-                            <button type="button" class="subscription-plan" disabled>
-                                <span class="subscription-radio"></span>
-                                <span>All Access</span>
-                                <span class="subscription-plan-price">$17.99</span>
-                            </button>
-                        </div>
-                        <div class="subscription-account">
-                            <label>Account Email</label>
-                            <input class="subscription-email" type="email" autocomplete="email" readonly>
-                            <div class="subscription-secure">
-                                <div class="subscription-secure-icon">▣</div>
-                                <div>
-                                    <strong>Secure Payment</strong>
-                                    <span>Your payment will be processed securely by our payment provider.</span>
-                                </div>
-                            </div>
-                            <p class="subscription-note">This is a monthly subscription. Your selected plan renews automatically each month until cancelled.</p>
-                        </div>
-                        <div class="subscription-actions">
-                            <button type="button" class="subscription-pay">Continue with Extension — $0.00/month →</button>
-                        </div>
-                        <div class="subscription-footer">J-SYRO does not store your card details.</div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(payment);
-
-            payment.querySelector(".subscription-close").addEventListener("click", closeExtensionPaymentPopup);
-            payment.addEventListener("click", event => {
-                if (event.target === payment) closeExtensionPaymentPopup();
-            });
-        }
-
-        const email = getAccountEmail();
-        payment.querySelector(".subscription-plan-name").textContent = extension.name;
-        payment.querySelector(".subscription-plan-price").textContent = `$${Number(extension.price).toFixed(2)}`;
-        payment.querySelector(".subscription-email").value = email;
-
-        const payButton = payment.querySelector(".subscription-pay");
-        payButton.textContent = `Continue with ${extension.name} — $${Number(extension.price).toFixed(2)}/month →`;
-        payButton.disabled = false;
-        payButton.onclick = event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            // This is the single success point for the extension demo flow.
-            // No unlock/install happens merely by opening the popup.
-            completeExtensionUnlock(extension);
-            closeExtensionPaymentPopup();
-        };
-
-        payment.classList.add("open");
-        payment.setAttribute("aria-hidden", "false");
-        document.body.style.overflow = "hidden";
-    }
-
-    function getAccountEmail() {
-        const selectors = [
-            "#userEmail", "#accountEmail", "[data-user-email]", "[data-account-email]",
-            ".account-email", ".user-email", "#userIdentity"
-        ];
-        for (const selector of selectors) {
-            const element = document.querySelector(selector);
-            if (!element) continue;
-            const value = element.value || element.dataset.userEmail || element.dataset.accountEmail || element.textContent;
-            if (value && String(value).includes("@")) return String(value).trim();
-        }
-        return "";
-    }
-
-    function closeExtensionPaymentPopup() {
-        const payment = document.getElementById("jsyroExtensionPaymentPopup");
-        if (payment) payment.classList.remove("open");
-        document.body.style.overflow = "";
-    }
-
-    function findExistingSubscriptionModal() {
-        const candidates = Array.from(document.querySelectorAll("[role=dialog], .modal, [class*=modal], [id*=modal], [class*=popup], [id*=popup]"));
-        return candidates.find(element => {
-            const text = (element.textContent || "").toLowerCase();
-            return text.includes("j-syro subscription") && text.includes("secure payment");
-        }) || null;
-    }
-
-    function prepareExistingSubscriptionModal(modalElement, extension) {
-        const email = getAccountEmail();
-        const price = `$${Number(extension.price).toFixed(2)}`;
-
-        // Preserve the existing Templates payment design; only retarget the
-        // selected plan and CTA to this extension.
-        const title = modalElement.querySelector("h1,h2,[data-payment-title]");
-        if (title) title.textContent = "J-SYRO Subscription";
-
-        const emailInput = modalElement.querySelector('input[type="email"], input[name*="email" i]');
-        if (emailInput && email) emailInput.value = email;
-
-        const buttons = Array.from(modalElement.querySelectorAll("button"));
-        const cta = buttons.find(button => /continue with/i.test(button.textContent || ""));
-        if (cta) {
-            cta.textContent = `Continue with ${extension.name} — ${price}/month →`;
-            cta.onclick = event => {
-                event.preventDefault();
-                event.stopPropagation();
-                completeExtensionUnlock(extension);
-                closeAnyModalElement(modalElement);
-            };
-        }
-
-        modalElement.hidden = false;
-        modalElement.classList.add("open");
-        modalElement.setAttribute("aria-hidden", "false");
-        modalElement.style.display = "flex";
-        document.body.style.overflow = "hidden";
-    }
-
-    function closeAnyModalElement(element) {
-        element.classList.remove("open");
-        element.setAttribute("aria-hidden", "true");
-        element.style.display = "none";
-        document.body.style.overflow = "";
-    }
-
     function installExtension(id) {
         const extension = extensions.find(item => item.id === id);
         if (!extension) return;
 
-        if (Number(extension.price) > 0 && !isExtensionUnlocked(id)) {
-            openPaymentForExtension(extension);
-            return;
-        }
-
-        try {
-            if (extensionManager && typeof extensionManager.install === "function") {
-                extensionManager.install(id);
-            }
-        } catch (error) {
-            console.error(error);
-            showToast(error.message || "Extension could not be installed", "!");
+        // Hard gate: paid extensions can NEVER be installed before payment.
+        if (extension.price > 0 && !state.unlockedPaid.has(extension.id)) {
+            openExtensionPayment(extension);
             return;
         }
 
@@ -875,16 +609,6 @@
     function uninstallExtension(id) {
         const extension = extensions.find(item => item.id === id);
         if (!extension) return;
-
-        try {
-            if (extensionManager && typeof extensionManager.uninstall === "function") {
-                extensionManager.uninstall(id);
-            }
-        } catch (error) {
-            console.error(error);
-            showToast(error.message || "Extension could not be uninstalled", "!");
-            return;
-        }
 
         state.installed.delete(id);
         saveInstalled();
@@ -907,19 +631,258 @@
 
     function loadInstalled() {
         try {
-            const saved = JSON.parse(
+            const savedInstalled = JSON.parse(
                 localStorage.getItem("jsyro-installed-extensions") || "[]"
             );
+            const savedUnlocked = JSON.parse(
+                localStorage.getItem("jsyro-paid-extensions") || "[]"
+            );
 
-            if (Array.isArray(saved)) {
-                saved.forEach(id => {
-                    if (extensions.some(extension => extension.id === id)) {
-                        state.installed.add(id);
+            if (Array.isArray(savedUnlocked)) {
+                savedUnlocked.forEach(id => {
+                    const extension = extensions.find(item => item.id === id);
+                    if (extension && extension.price > 0) {
+                        state.unlockedPaid.add(id);
                     }
+                });
+            }
+
+            if (Array.isArray(savedInstalled)) {
+                savedInstalled.forEach(id => {
+                    const extension = extensions.find(item => item.id === id);
+                    if (!extension) return;
+
+                    // Remove any paid extension that was installed by the old
+                    // broken flow without a recorded payment.
+                    if (extension.price > 0 && !state.unlockedPaid.has(id)) return;
+
+                    state.installed.add(id);
                 });
             }
         } catch (_) {}
     }
+
+    function saveUnlockedPaid() {
+        try {
+            localStorage.setItem(
+                "jsyro-paid-extensions",
+                JSON.stringify([...state.unlockedPaid])
+            );
+        } catch (_) {}
+    }
+
+    function getAccountEmail() {
+        const candidates = [
+            window.currentUser?.email,
+            window.user?.email,
+            window.jSyroUser?.email,
+            window.jsyroUser?.email
+        ];
+
+        for (const value of candidates) {
+            if (typeof value === "string" && value.includes("@")) return value;
+        }
+
+        for (const key of ["jsyro-user", "jsyroUser", "currentUser", "user"]) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) continue;
+                const parsed = JSON.parse(raw);
+                if (typeof parsed?.email === "string" && parsed.email.includes("@")) {
+                    return parsed.email;
+                }
+            } catch (_) {}
+        }
+
+        const identity = $("#userIdentity")?.textContent?.trim() || "";
+        return identity.includes("@") ? identity : "";
+    }
+
+    function ensureExtensionPaymentStyles() {
+        if ($("#extensionPaymentStyles")) return;
+
+        const style = document.createElement("style");
+        style.id = "extensionPaymentStyles";
+        style.textContent = `
+            #extensionPaymentModal {
+                position: fixed;
+                inset: 0;
+                z-index: 10000000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(3, 6, 11, .72);
+                backdrop-filter: blur(8px);
+            }
+            #extensionPaymentModal.open { display: flex; }
+            .extension-payment-card {
+                width: min(775px, calc(100vw - 28px));
+                max-height: calc(100vh - 28px);
+                overflow-y: auto;
+                position: relative;
+                background: #fff;
+                color: #343744;
+                border-radius: 20px;
+                box-shadow: 0 30px 90px rgba(0,0,0,.48);
+            }
+            .extension-payment-logo {
+                width: 88px; height: 88px; border-radius: 50%;
+                display: grid; place-items: center;
+                position: relative; margin: -58px auto 28px;
+                background: #0f1117; border: 7px solid #fff;
+                color: #fff; font-size: 34px; font-weight: 800;
+                box-shadow: 0 8px 24px rgba(0,0,0,.22);
+            }
+            .extension-payment-inner { padding: 58px 44px 28px; }
+            .extension-payment-close {
+                position:absolute; right:20px; top:20px; width:54px; height:54px;
+                border:1px solid #dfe2e8; border-radius:50%; background:#f8f9fb;
+                color:#6f7480; font-size:28px; cursor:pointer;
+            }
+            .extension-payment-title { text-align:center; font-size:34px; font-weight:800; margin:0 0 10px; }
+            .extension-payment-subtitle { text-align:center; color:#8a8f9b; font-size:18px; margin-bottom:42px; }
+            .extension-payment-plans { display:grid; gap:14px; }
+            .extension-payment-plan {
+                display:flex; align-items:center; gap:18px; padding:18px 22px;
+                border:1px solid #e1ddff; border-radius:15px; background:#faf9ff;
+                font-size:19px; font-weight:700; cursor:default;
+            }
+            .extension-payment-radio {
+                width:27px; height:27px; border:2px solid #9297a2; border-radius:50%;
+                display:grid; place-items:center; flex:0 0 27px;
+            }
+            .extension-payment-plan.selected .extension-payment-radio { border-color:#705dff; }
+            .extension-payment-plan.selected .extension-payment-radio::after {
+                content:""; width:13px; height:13px; border-radius:50%; background:#705dff;
+            }
+            .extension-payment-price { margin-left:auto; font-weight:800; }
+            .extension-payment-divider { height:1px; background:#e4e6eb; margin:34px -44px 30px; }
+            .extension-payment-label { display:block; font-size:17px; font-weight:700; margin-bottom:12px; }
+            .extension-payment-email {
+                width:100%; height:56px; padding:0 18px; border:1px solid #d7dae1;
+                border-radius:12px; background:#fff; color:#555a66; font-size:18px; outline:none;
+            }
+            .extension-payment-secure {
+                display:flex; align-items:center; gap:16px; margin-top:26px; padding:20px 22px;
+                border:1px solid #e2ddff; border-radius:15px; background:#fbfaff;
+            }
+            .extension-payment-secure-icon {
+                width:62px; height:62px; border-radius:13px; background:#eeeaff;
+                display:grid; place-items:center; color:#6758ff; font-size:26px;
+            }
+            .extension-payment-secure strong { display:block; font-size:18px; margin-bottom:5px; }
+            .extension-payment-secure span { color:#8c919d; font-size:15px; }
+            .extension-payment-note { color:#858a96; font-size:16px; line-height:1.55; margin:30px 4px 26px; }
+            .extension-payment-continue {
+                width:100%; height:78px; border:0; border-radius:15px; cursor:pointer;
+                color:#fff; background:linear-gradient(135deg,#6b59ff,#775fff);
+                font-size:21px; font-weight:800; box-shadow:0 12px 28px rgba(102,84,255,.24);
+            }
+            .extension-payment-footer { text-align:center; color:#a0a4ad; font-size:14px; margin:24px 0 2px; }
+            @media (max-width: 650px) {
+                .extension-payment-inner { padding:52px 22px 24px; }
+                .extension-payment-divider { margin-left:-22px; margin-right:-22px; }
+                .extension-payment-title { font-size:28px; }
+                .extension-payment-subtitle { font-size:15px; margin-bottom:28px; }
+                .extension-payment-plan { font-size:15px; padding:15px; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function openExtensionPayment(extension) {
+        ensureExtensionPaymentStyles();
+
+        let paymentModal = $("#extensionPaymentModal");
+        if (!paymentModal) {
+            paymentModal = document.createElement("div");
+            paymentModal.id = "extensionPaymentModal";
+            paymentModal.setAttribute("aria-hidden", "true");
+            paymentModal.innerHTML = `
+                <div class="extension-payment-card" role="dialog" aria-modal="true" aria-labelledby="extensionPaymentTitle">
+                    <button class="extension-payment-close" type="button" aria-label="Close">×</button>
+                    <div class="extension-payment-inner">
+                        <div class="extension-payment-logo">JS</div>
+                        <h2 id="extensionPaymentTitle" class="extension-payment-title">J-SYRO Subscription</h2>
+                        <p class="extension-payment-subtitle">Choose your plan and continue to secure payment.</p>
+                        <div class="extension-payment-plans">
+                            <div class="extension-payment-plan selected">
+                                <span class="extension-payment-radio"></span>
+                                <span class="extension-payment-plan-name">PRO Templates</span>
+                                <span class="extension-payment-price">$5.99</span>
+                            </div>
+                            <div class="extension-payment-plan">
+                                <span class="extension-payment-radio"></span>
+                                <span class="extension-payment-plan-name">Work Apps</span>
+                                <span class="extension-payment-price">$7.99</span>
+                            </div>
+                            <div class="extension-payment-plan">
+                                <span class="extension-payment-radio"></span>
+                                <span class="extension-payment-plan-name">Business Templates</span>
+                                <span class="extension-payment-price">$9.99</span>
+                            </div>
+                            <div class="extension-payment-plan">
+                                <span class="extension-payment-radio"></span>
+                                <span class="extension-payment-plan-name">All Access</span>
+                                <span class="extension-payment-price">$17.99</span>
+                            </div>
+                        </div>
+                        <div class="extension-payment-divider"></div>
+                        <label class="extension-payment-label" for="extensionPaymentEmail">Account Email</label>
+                        <input id="extensionPaymentEmail" class="extension-payment-email" type="email" readonly>
+                        <div class="extension-payment-secure">
+                            <div class="extension-payment-secure-icon">▣</div>
+                            <div><strong>Secure Payment</strong><span>Your payment will be processed securely by your payment provider.</span></div>
+                        </div>
+                        <p class="extension-payment-note">This is a monthly subscription. Your selected plan renews automatically each month until cancelled.</p>
+                        <button class="extension-payment-continue" type="button">Continue with PRO Templates — $5.99/month →</button>
+                        <div class="extension-payment-footer">J-SYRO does not store your card details.</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(paymentModal);
+
+            const close = () => closeExtensionPayment();
+            paymentModal.querySelector(".extension-payment-close").addEventListener("click", close);
+            paymentModal.addEventListener("click", event => {
+                if (event.target === paymentModal) close();
+            });
+            paymentModal.querySelector(".extension-payment-continue").addEventListener("click", () => {
+                completeExtensionPayment();
+            });
+        }
+
+        paymentModal.dataset.extensionId = extension.id;
+        const email = $("#extensionPaymentEmail");
+        if (email) email.value = getAccountEmail();
+        paymentModal.classList.add("open");
+        paymentModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeExtensionPayment() {
+        const paymentModal = $("#extensionPaymentModal");
+        if (!paymentModal) return;
+        paymentModal.classList.remove("open");
+        paymentModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+    }
+
+    function completeExtensionPayment() {
+        const paymentModal = $("#extensionPaymentModal");
+        const id = paymentModal?.dataset.extensionId;
+        const extension = extensions.find(item => item.id === id);
+        if (!extension || extension.price <= 0) return;
+
+        // Payment success unlocks the extension only. It deliberately does NOT install it.
+        state.unlockedPaid.add(extension.id);
+        saveUnlockedPaid();
+        closeExtensionPayment();
+        renderAll();
+        showToast(`${extension.name} unlocked — press Install to install it.`);
+    }
+
 
     function bindEvents() {
         $$(".sidebar-item").forEach(item => {
@@ -970,10 +933,6 @@
             const action = actionButton.dataset.action;
 
             if (action === "details") openDetails(id);
-            if (action === "unlock") {
-                const extension = extensions.find(item => item.id === id);
-                if (extension) openPaymentForExtension(extension);
-            }
             if (action === "install") installExtension(id);
             if (action === "uninstall") uninstallExtension(id);
         });
@@ -991,8 +950,8 @@
 
             if (state.installed.has(currentModalId)) {
                 uninstallExtension(currentModalId);
-            } else if (Number(extension.price) > 0 && !isExtensionUnlocked(currentModalId)) {
-                openPaymentForExtension(extension);
+            } else if (extension.price > 0 && !state.unlockedPaid.has(currentModalId)) {
+                openExtensionPayment(extension);
             } else {
                 installExtension(currentModalId);
             }
@@ -1041,9 +1000,7 @@
     }
 
     function init() {
-        ensurePaymentStyles();
         loadInstalled();
-        loadUnlocked();
         bindEvents();
         renderAll();
     }
