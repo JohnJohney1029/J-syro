@@ -372,84 +372,95 @@
         `;
     }
 
-   function renderMarketplace() {
-    /*
-     * PAID / PRO EXTENSIONS
-     * Sirf paid extensions Recommended section mein jayengi.
-     */
-    const paidExtensions = sortExtensions(
-        extensions.filter(extension =>
-            matches(extension) &&
-            extension.price > 0
-        )
-    );
-
-    /*
-     * FREE EXTENSIONS
-     * Marketplace mein sirf FREE extensions jayengi.
-     * Paid extensions dobara neeche nahi aayengi.
-     */
-    const freeExtensions = sortExtensions(
-        extensions.filter(extension =>
-            matches(extension) &&
-            extension.price <= 0
-        )
-    );
-
-    /*
-     * Marketplace count = FREE extensions only
-     */
-    if (resultsCount) {
-        resultsCount.textContent =
-            `${freeExtensions.length} extension${freeExtensions.length === 1 ? "" : "s"}`;
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
     }
 
-    /*
-     * TOP / FEATURED = PAID ONLY
-     */
-    if (featuredGrid) {
-        featuredGrid.innerHTML = paidExtensions
-            .map(extension =>
-                cardMarkup(extension, { featured: true })
+    function renderMarketplace() {
+        // Recommended section: paid / PRO extensions only.
+        const paidExtensions = sortExtensions(
+            extensions.filter(extension =>
+                matches(extension) && extension.price > 0
             )
-            .join("");
-    }
+        );
 
-    /*
-     * ALL EXTENSIONS = FREE ONLY
-     */
-    if (marketplaceGrid) {
-        marketplaceGrid.innerHTML = freeExtensions
-            .map(extension =>
-                cardMarkup(extension)
+        // Marketplace section: free extensions only.
+        // This prevents paid cards from appearing a second time below.
+        const freeExtensions = sortExtensions(
+            extensions.filter(extension =>
+                matches(extension) && extension.price <= 0
             )
-            .join("");
+        );
+
+        if (resultsCount) {
+            resultsCount.textContent =
+                `${freeExtensions.length} extension${freeExtensions.length === 1 ? "" : "s"}`;
+        }
+
+        if (featuredGrid) {
+            featuredGrid.innerHTML = paidExtensions
+                .map(extension => cardMarkup(extension, { featured: true }))
+                .join("");
+        }
+
+        if (marketplaceGrid) {
+            marketplaceGrid.innerHTML = freeExtensions
+                .map(extension => cardMarkup(extension))
+                .join("");
+        }
+
+        if (marketplaceEmpty) {
+            marketplaceEmpty.hidden = freeExtensions.length !== 0;
+        }
+
+        const featuredSection = $("#featuredSection");
+        if (featuredSection) {
+            featuredSection.hidden = paidExtensions.length === 0;
+        }
     }
 
-    if (marketplaceEmpty) {
-        marketplaceEmpty.hidden = freeExtensions.length !== 0;
+    function renderInstalled() {
+        const installed = extensions.filter(extension => state.installed.has(extension.id));
+
+        if (installedGrid) {
+            installedGrid.innerHTML = installed.map(extension => cardMarkup(extension)).join("");
+        }
+
+        if (installedEmpty) {
+            installedEmpty.hidden = installed.length !== 0;
+        }
     }
 
-    const featuredSection = $("#featuredSection");
+    function renderUpdates() {
+        // In this local marketplace, installed extensions with a newer catalog
+        // version are treated as available updates.
+        const updates = extensions.filter(extension =>
+            state.installed.has(extension.id) && extension.id.endsWith("-update")
+        );
 
-    if (featuredSection) {
-        featuredSection.hidden = paidExtensions.length === 0;
+        if (updatesGrid) {
+            updatesGrid.innerHTML = updates.map(extension => cardMarkup(extension)).join("");
+        }
+
+        if (updatesEmpty) {
+            updatesEmpty.hidden = updates.length !== 0;
+        }
     }
-}
-    const featuredSection = $("#featuredSection");
 
-    if (featuredSection) {
-        featuredSection.hidden = featured.length === 0;
+    function renderCounts() {
+        if (installedCount) {
+            installedCount.textContent = String(state.installed.size);
+        }
+
+        if (updatesCount) {
+            updatesCount.textContent = "0";
+        }
     }
-}
-
-    const featuredSection = $("#featuredSection");
-
-    if (featuredSection) {
-        featuredSection.hidden =
-            featured.length === 0;
-    }
-}
 
     function renderAll() {
         renderMarketplace();
