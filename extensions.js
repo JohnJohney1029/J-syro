@@ -373,51 +373,69 @@
     }
 
    function renderMarketplace() {
-    const allMatching = extensions.filter(matches);
-
     /*
-     * TOP ROW:
-     * Sirf PAID / PRO extensions.
+     * PAID / PRO EXTENSIONS
+     * Sirf paid extensions Recommended section mein jayengi.
      */
-    const featured = allMatching.filter(extension =>
-        Number(extension.price) > 0
+    const paidExtensions = sortExtensions(
+        extensions.filter(extension =>
+            matches(extension) &&
+            extension.price > 0
+        )
     );
 
     /*
-     * MARKETPLACE:
-     * Paid/PRO extensions ko neeche dobara mat dikhana.
-     * Yahan sirf FREE extensions rahengi.
+     * FREE EXTENSIONS
+     * Marketplace mein sirf FREE extensions jayengi.
+     * Paid extensions dobara neeche nahi aayengi.
      */
-    const filtered = allMatching.filter(extension =>
-        Number(extension.price) <= 0
+    const freeExtensions = sortExtensions(
+        extensions.filter(extension =>
+            matches(extension) &&
+            extension.price <= 0
+        )
     );
 
+    /*
+     * Marketplace count = FREE extensions only
+     */
     if (resultsCount) {
         resultsCount.textContent =
-            `${extensions.length} extension${extensions.length === 1 ? "" : "s"}`;
-    }
-
-    if (marketplaceGrid) {
-        marketplaceGrid.innerHTML = sortExtensions(filtered)
-            .map(extension => cardMarkup(extension))
-            .join("");
-    }
-
-    if (marketplaceEmpty) {
-        marketplaceEmpty.hidden = filtered.length !== 0;
+            `${freeExtensions.length} extension${freeExtensions.length === 1 ? "" : "s"}`;
     }
 
     /*
-     * Paid extensions ko FEATURED/top row mein show karo.
+     * TOP / FEATURED = PAID ONLY
      */
     if (featuredGrid) {
-        featuredGrid.innerHTML = sortExtensions(featured)
+        featuredGrid.innerHTML = paidExtensions
             .map(extension =>
                 cardMarkup(extension, { featured: true })
             )
             .join("");
     }
 
+    /*
+     * ALL EXTENSIONS = FREE ONLY
+     */
+    if (marketplaceGrid) {
+        marketplaceGrid.innerHTML = freeExtensions
+            .map(extension =>
+                cardMarkup(extension)
+            )
+            .join("");
+    }
+
+    if (marketplaceEmpty) {
+        marketplaceEmpty.hidden = freeExtensions.length !== 0;
+    }
+
+    const featuredSection = $("#featuredSection");
+
+    if (featuredSection) {
+        featuredSection.hidden = paidExtensions.length === 0;
+    }
+}
     const featuredSection = $("#featuredSection");
 
     if (featuredSection) {
