@@ -928,98 +928,101 @@ a {
     font-size: 10px;
 }
 
-.extension-card-actions {
-    display: flex;
-    gap: 5px;
-}
 
 
 /* =========================================
-   BUTTONS
+   BUTTONS — J-SYRO EXTENSIONS
 ========================================= */
 
-.primary-button,
-.secondary-button,
-.unlock-button,
-.install-button,
-.manage-button,
-.update-button {
+.extension-button {
     height: 31px;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    padding:
-        0 11px;
+    padding: 0 11px;
 
     border-radius: 6px;
+    border: 1px solid transparent;
 
+    font: inherit;
     font-size: 9px;
     font-weight: 600;
+    line-height: 1;
 
     cursor: pointer;
+    white-space: nowrap;
+
+    appearance: none;
+    -webkit-appearance: none;
 
     transition:
-        .12s ease;
+        background .12s ease,
+        border-color .12s ease,
+        color .12s ease,
+        box-shadow .12s ease,
+        transform .12s ease;
 }
 
-.primary-button,
-.install-button,
-.update-button {
-    border:
-        1px solid
-        var(--accent);
-
-    background:
-        var(--accent);
-
+.extension-button.primary {
+    border-color: var(--accent);
+    background: var(--accent);
     color: #fff;
+    box-shadow: 0 5px 14px rgba(99, 91, 255, .18);
 }
 
-.primary-button:hover,
-.install-button:hover,
-.update-button:hover {
-    background:
-        var(--accent-hover);
-
-    border-color:
-        var(--accent-hover);
+.extension-button.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    box-shadow: 0 7px 18px rgba(99, 91, 255, .25);
+    transform: translateY(-1px);
 }
 
-.secondary-button,
-.manage-button {
-    border:
-        1px solid var(--border);
-
-    background:
-        var(--surface-2);
-
+.extension-button.secondary {
+    border-color: var(--border);
+    background: var(--surface-2);
     color: var(--muted);
 }
 
-.secondary-button:hover,
-.manage-button:hover {
+.extension-button.secondary:hover {
     color: var(--text);
     background: var(--surface-3);
+    border-color: rgba(255,255,255,.14);
 }
 
-.unlock-button {
-    border:
-        1px solid
-        rgba(99,91,255,.4);
-
-    background:
-        rgba(99,91,255,.13);
-
-    color: #b8b3ff;
+.extension-button.danger {
+    border-color: rgba(239, 115, 115, .28);
+    background: rgba(239, 115, 115, .10);
+    color: #f08d8d;
 }
 
-.unlock-button:hover {
-    background:
-        rgba(99,91,255,.22);
+.extension-button.danger:hover {
+    border-color: rgba(239, 115, 115, .42);
+    background: rgba(239, 115, 115, .17);
+    color: #ffaaaa;
 }
 
+.extension-button:focus-visible {
+    outline: 2px solid rgba(139, 124, 255, .75);
+    outline-offset: 2px;
+}
+
+.extension-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
+.extension-card .extension-actions .extension-button {
+    min-width: 68px;
+}
+
+.extension-card .extension-actions .extension-button.primary {
+    min-width: 82px;
+}
 
 /* =========================================
    INSTALLED STATES
@@ -1756,4 +1759,132 @@ a {
         padding: 13px;
     }
 
+}
+/* =========================================================
+   FINAL BUTTON OVERRIDE
+   Ensures marketplace action buttons never fall back to
+   browser-default white buttons.
+========================================================= */
+
+button.extension-button {
+    height: 31px !important;
+    min-height: 31px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 11px !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important;
+    font-family: inherit !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-shadow: none;
+}
+
+button.extension-button.primary {
+    border-color: #635bff !important;
+    background: #635bff !important;
+    color: #fff !important;
+    box-shadow: 0 5px 14px rgba(99,91,255,.18) !important;
+}
+
+button.extension-button.primary:hover {
+    border-color: #756eff !important;
+    background: #756eff !important;
+    color: #fff !important;
+}
+
+button.extension-button.secondary {
+    border-color: #2b3140 !important;
+    background: #1b1f2a !important;
+    color: #9aa2b3 !important;
+}
+
+button.extension-button.secondary:hover {
+    border-color: rgba(255,255,255,.14) !important;
+    background: #222735 !important;
+    color: #edf0f7 !important;
+}
+
+button.extension-button.danger {
+    border-color: rgba(239,115,115,.28) !important;
+    background: rgba(239,115,115,.10) !important;
+    color: #f08d8d !important;
+}
+
+button.extension-button.danger:hover {
+    border-color: rgba(239,115,115,.42) !important;
+    background: rgba(239,115,115,.17) !important;
+    color: #ffaaaa !important;
+}
+
+.extension-card .extension-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 5px !important;
+    flex-wrap: nowrap !important;
+}
+
+.extension-card .extension-actions button.extension-button {
+    min-width: 68px !important;
+    width: auto !important;
+}
+
+.extension-card .extension-actions button.extension-button.primary {
+    min-width: 82px !important;
+}
+
+/* The static modal buttons use these classes in the supplied HTML. */
+button.primary-button {
+    height: 31px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 12px !important;
+    border: 1px solid #635bff !important;
+    border-radius: 6px !important;
+    background: #635bff !important;
+    color: #fff !important;
+    font-family: inherit !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    cursor: pointer !important;
+}
+
+button.primary-button:hover {
+    background: #756eff !important;
+    border-color: #756eff !important;
+}
+
+button.secondary-button {
+    height: 31px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 12px !important;
+    border: 1px solid #2b3140 !important;
+    border-radius: 6px !important;
+    background: #1b1f2a !important;
+    color: #9aa2b3 !important;
+    font-family: inherit !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    cursor: pointer !important;
+}
+
+button.secondary-button:hover {
+    background: #222735 !important;
+    color: #edf0f7 !important;
 }
