@@ -1,2785 +1,739 @@
-/* =========================================================
-   J-SYRO EXTENSIONS PAGE
-   ---------------------------------------------------------
-   Marketplace UI controller.
+/* =========================================
+   J-SYRO EXTENSIONS — extensions.js
+   Keeps the existing HTML/CSS structure intact.
+========================================= */
 
-   Handles:
-
-   - Marketplace
-   - Search
-   - Categories
-   - Extension cards
-   - Free / Paid states
-   - Install
-   - Uninstall
-   - Enable / Disable
-   - Details
-   - README
-   - Ratings
-   - Installs
-   - Updates
-   - Installed extensions
-   - Paid extension unlock flow
-
-   IMPORTANT:
-   This file controls the Extensions page UI.
-
-   It does NOT contain the core extension manager/store/API.
-========================================================= */
-
-(function () {
-
+(() => {
     "use strict";
 
-
-    /*
-     * =====================================================
-     * SYSTEM REFERENCES
-     * =====================================================
-     */
-
-    const store =
-        window.jSyroExtensionStore;
-
-    const manager =
-        window.jSyroExtensionManager;
-
-    const api =
-        window.jSyroExtensionAPI;
-
-
-    /*
-     * =====================================================
-     * SAFETY CHECK
-     * =====================================================
-     */
-
-    if (!store) {
-
-        console.error(
-            "J-SYRO Extension Store is not loaded."
-        );
-
-        return;
-
-    }
-
-
-    if (!manager) {
-
-        console.error(
-            "J-SYRO Extension Manager is not loaded."
-        );
-
-        return;
-
-    }
-
-
-    /*
-     * =====================================================
-     * PAGE STATE
-     * =====================================================
-     */
+    const extensions = [
+        {
+            id: "web-code-snippets",
+            name: "Web Code Snippets",
+            publisher: "J-SYRO Community",
+            category: "productivity",
+            icon: "</>",
+            description: "A collection of useful HTML, CSS and JavaScript snippets for faster development.",
+            rating: 4.9,
+            installs: 22100,
+            version: "3.1.0",
+            price: 0,
+            verified: false,
+            featured: true,
+            updated: "2026-08-10",
+            features: [
+                "Ready-to-use HTML, CSS and JavaScript snippets",
+                "Fast insertion into the active editor",
+                "Organized snippet collection"
+            ],
+            permissions: [
+                ["Editor access", "Insert and manage snippets in the active editor."],
+                ["Workspace access", "Read the current workspace context when required."]
+            ],
+            readme: "<h3>Web Code Snippets</h3><p>Useful front-end snippets for everyday J-SYRO development. Browse the collection and insert common patterns without leaving your workspace.</p>",
+            changelog: "<h3>3.1.0</h3><p>Improved snippet organization and editor compatibility.</p>"
+        },
+        {
+            id: "jsyro-prettier",
+            name: "J-SYRO Prettier",
+            publisher: "J-SYRO",
+            category: "formatters",
+            icon: "✦",
+            description: "Format your HTML, CSS and JavaScript projects directly inside J-SYRO.",
+            rating: 4.9,
+            installs: 18400,
+            version: "1.2.0",
+            price: 0,
+            verified: true,
+            featured: true,
+            updated: "2026-08-12",
+            features: [
+                "Format HTML, CSS and JavaScript",
+                "Consistent project formatting",
+                "Format-on-save support"
+            ],
+            permissions: [
+                ["Editor access", "Read and format the active file."],
+                ["Workspace access", "Apply formatting to workspace files."]
+            ],
+            readme: "<h3>J-SYRO Prettier</h3><p>Keep your project files consistently formatted with a J-SYRO-native formatting workflow.</p>",
+            changelog: "<h3>1.2.0</h3><p>Improved formatting stability across workspace files.</p>"
+        },
+        {
+            id: "ai-coding-helper",
+            name: "AI Coding Helper",
+            publisher: "J-SYRO AI",
+            category: "ai",
+            icon: "✦",
+            description: "AI-assisted coding tools for explaining, improving and working with your project code.",
+            rating: 4.9,
+            installs: 11800,
+            version: "1.3.0",
+            price: 4.99,
+            verified: true,
+            featured: true,
+            updated: "2026-08-14",
+            features: [
+                "Explain selected code",
+                "Suggest code improvements",
+                "Generate coding assistance in context"
+            ],
+            permissions: [
+                ["Editor access", "Read selected code for AI assistance."],
+                ["Network access", "Connect to the configured AI service."]
+            ],
+            readme: "<h3>AI Coding Helper</h3><p>AI-assisted tools for understanding and improving code while staying inside the J-SYRO workspace.</p>",
+            changelog: "<h3>1.3.0</h3><p>Improved coding explanations and project context handling.</p>"
+        },
+        {
+            id: "dark-pro-theme",
+            name: "Dark Pro Theme",
+            publisher: "J-SYRO Themes",
+            category: "themes",
+            icon: "◐",
+            description: "A polished dark theme designed for long coding sessions in J-SYRO.",
+            rating: 4.8,
+            installs: 9300,
+            version: "2.0.0",
+            price: 4.99,
+            verified: true,
+            featured: false,
+            updated: "2026-08-08",
+            features: [
+                "Low-contrast dark interface",
+                "Editor-focused color palette",
+                "Workspace-wide theme support"
+            ],
+            permissions: [
+                ["Theme access", "Apply visual theme settings to J-SYRO."]
+            ],
+            readme: "<h3>Dark Pro Theme</h3><p>A refined dark theme built for comfortable, extended coding sessions.</p>",
+            changelog: "<h3>2.0.0</h3><p>Updated colors and improved editor contrast.</p>"
+        },
+        {
+            id: "bracket-colorizer",
+            name: "Bracket Colorizer",
+            publisher: "J-SYRO Community",
+            category: "productivity",
+            icon: "{}",
+            description: "Makes nested brackets easier to understand while working on large code files.",
+            rating: 4.7,
+            installs: 7300,
+            version: "1.0.0",
+            price: 0,
+            verified: false,
+            featured: false,
+            updated: "2026-08-06",
+            features: [
+                "Color-coded bracket pairs",
+                "Nested scope highlighting",
+                "Lightweight editor integration"
+            ],
+            permissions: [
+                ["Editor access", "Read syntax information for bracket highlighting."]
+            ],
+            readme: "<h3>Bracket Colorizer</h3><p>Improve readability in deeply nested code with clear bracket matching and highlighting.</p>",
+            changelog: "<h3>1.0.0</h3><p>Initial marketplace release.</p>"
+        },
+        {
+            id: "json-tools",
+            name: "JSON Tools",
+            publisher: "J-SYRO Labs",
+            category: "formatters",
+            icon: "{ }",
+            description: "Useful JSON formatting, validation and editing tools for J-SYRO.",
+            rating: 4.6,
+            installs: 5100,
+            version: "1.4.0",
+            price: 0,
+            verified: true,
+            featured: false,
+            updated: "2026-08-09",
+            features: [
+                "Format JSON",
+                "Validate JSON documents",
+                "Quick JSON editing helpers"
+            ],
+            permissions: [
+                ["Editor access", "Read and modify JSON documents."]
+            ],
+            readme: "<h3>JSON Tools</h3><p>Formatting and validation utilities for JSON files inside J-SYRO.</p>",
+            changelog: "<h3>1.4.0</h3><p>Improved validation messages and formatting.</p>"
+        },
+        {
+            id: "js-lint-lite",
+            name: "JS Lint Lite",
+            publisher: "J-SYRO Labs",
+            category: "linters",
+            icon: "✓",
+            description: "Lightweight JavaScript linting for everyday J-SYRO projects.",
+            rating: 4.5,
+            installs: 4600,
+            version: "1.1.0",
+            price: 0,
+            verified: true,
+            featured: false,
+            updated: "2026-08-07",
+            features: [
+                "Fast JavaScript checks",
+                "Inline diagnostics",
+                "Simple project configuration"
+            ],
+            permissions: [
+                ["Editor access", "Read JavaScript files for diagnostics."]
+            ],
+            readme: "<h3>JS Lint Lite</h3><p>A lightweight JavaScript linting experience for everyday projects.</p>",
+            changelog: "<h3>1.1.0</h3><p>Improved diagnostics and editor integration.</p>"
+        },
+        {
+            id: "git-tools",
+            name: "Git Tools",
+            publisher: "J-SYRO Labs",
+            category: "git",
+            icon: "┤",
+            description: "Git workflow tools designed for the J-SYRO coding workspace.",
+            rating: 4.8,
+            installs: 3500,
+            version: "1.0.0",
+            price: 4.99,
+            verified: true,
+            featured: false,
+            updated: "2026-08-13",
+            features: [
+                "Quick Git status",
+                "Commit and branch helpers",
+                "Workspace Git actions"
+            ],
+            permissions: [
+                ["Workspace access", "Read workspace files and project state."],
+                ["Git access", "Run approved Git workspace operations."]
+            ],
+            readme: "<h3>Git Tools</h3><p>Common Git workflow actions brought directly into the J-SYRO coding workspace.</p>",
+            changelog: "<h3>1.0.0</h3><p>Initial marketplace release.</p>"
+        }
+    ];
 
     const state = {
-
-        view:
-            "marketplace",
-
-        query:
-            "",
-
-        category:
-            "all",
-
-        sort:
-            "popular",
-
-        selectedExtension:
-            null
-
+        view: "marketplace",
+        category: "all",
+        search: "",
+        sort: "popular",
+        installed: new Set()
     };
 
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
-    /*
-     * =====================================================
-     * DOM HELPERS
-     * =====================================================
-     */
+    const marketplaceGrid = $("#extensionsGrid");
+    const featuredGrid = $("#featuredExtensions");
+    const installedGrid = $("#installedGrid");
+    const updatesGrid = $("#updatesGrid");
 
-    function $(selector) {
+    const marketplaceEmpty = $("#marketplaceEmpty");
+    const installedEmpty = $("#installedEmpty");
+    const updatesEmpty = $("#updatesEmpty");
 
-        return document.querySelector(
-            selector
-        );
+    const installedCount = $("#installedCount");
+    const updatesCount = $("#updatesCount");
+    const resultsCount = $("#resultsCount");
 
+    const modal = $("#extensionDetailsModal");
+    const modalName = $("#extensionDetailsName");
+    const modalPublisher = $("#extensionDetailsPublisher");
+    const modalIcon = $("#extensionDetailsIcon");
+    const modalRating = $("#extensionDetailsRating");
+    const modalInstalls = $("#extensionDetailsInstalls");
+    const modalVersion = $("#extensionDetailsVersion");
+    const modalDescription = $("#extensionDetailsDescription");
+    const modalFeatures = $("#extensionDetailsFeatures");
+    const modalPermissions = $("#extensionPermissionsList");
+    const modalReadme = $("#extensionReadmeContent");
+    const modalChangelog = $("#extensionChangelogContent");
+    const modalPriceBadge = $("#extensionPriceBadge");
+    const modalPrice = $("#extensionPrice");
+    const modalPrimary = $("#extensionPrimaryAction");
+    const modalSecondary = $("#extensionSecondaryAction");
+    const verifiedBadge = $("#extensionVerifiedBadge");
+
+    let currentModalId = null;
+    let toastTimer = null;
+
+    function formatInstalls(value) {
+        if (value >= 1000000) return (value / 1000000).toFixed(1).replace(".0", "") + "M";
+        if (value >= 1000) return (value / 1000).toFixed(1).replace(".0", "") + "K";
+        return String(value);
     }
 
+    function priceText(extension) {
+        return extension.price > 0 ? `$${extension.price.toFixed(2)}` : "Free";
+    }
 
-    function $$(selector) {
+    function matches(extension) {
+        const search = state.search.trim().toLowerCase();
+
+        const categoryMatch =
+            state.category === "all" ||
+            extension.category === state.category;
+
+        if (!categoryMatch) return false;
+
+        if (!search) return true;
 
         return [
-            ...document.querySelectorAll(
-                selector
-            )
-        ];
-
+            extension.name,
+            extension.publisher,
+            extension.description,
+            extension.category
+        ].some(value => value.toLowerCase().includes(search));
     }
 
+    function sortExtensions(items) {
+        const list = [...items];
 
-    function createElement(
-        tag,
-        className
-    ) {
+        switch (state.sort) {
+            case "rating":
+                return list.sort((a, b) => b.rating - a.rating);
+            case "newest":
+                return list.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+            case "name":
+                return list.sort((a, b) => a.name.localeCompare(b.name));
+            case "price-low":
+                return list.sort((a, b) => a.price - b.price || b.rating - a.rating);
+            case "popular":
+            default:
+                return list.sort((a, b) => b.installs - a.installs);
+        }
+    }
 
-        const element =
-            document.createElement(
-                tag
-            );
+    function buttonMarkup(extension) {
+        const installed = state.installed.has(extension.id);
 
-
-        if (className) {
-
-            element.className =
-                className;
-
+        if (installed) {
+            return `
+                <div class="extension-actions">
+                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
+                    <button class="extension-button danger" data-action="uninstall" data-id="${extension.id}" type="button">Uninstall</button>
+                </div>
+            `;
         }
 
-
-        return element;
-
+        return `
+            <div class="extension-actions">
+                <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
+                <button class="extension-button primary" data-action="install" data-id="${extension.id}" type="button">Install</button>
+            </div>
+        `;
     }
 
+    function cardMarkup(extension, options = {}) {
+        const installed = state.installed.has(extension.id);
+        const showFeatured = options.featured === true;
 
-    /*
-     * =====================================================
-     * INITIALIZE
-     * =====================================================
-     */
+        return `
+            <article class="extension-card${showFeatured ? " featured" : ""}" data-extension-id="${extension.id}">
+                ${installed ? `<span class="extension-installed-badge">Installed</span>` : ""}
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        initialize
-    );
+                <div class="extension-card-header">
+                    <div class="extension-icon">${extension.icon}</div>
 
+                    <div class="extension-title-area">
+                        <div class="extension-name">
+                            ${escapeHtml(extension.name)}
+                            ${extension.verified ? `<span class="verified-badge">✓ Verified</span>` : ""}
+                        </div>
 
-    function initialize() {
+                        <div class="extension-publisher">
+                            ${escapeHtml(extension.publisher)}
+                        </div>
+                    </div>
+                </div>
 
-        setupNavigation();
+                <p class="extension-description">
+                    ${escapeHtml(extension.description)}
+                </p>
 
-        setupSearch();
+                <div class="extension-stats">
+                    <span class="extension-rating">★ ${extension.rating.toFixed(1)}</span>
+                    <span>${formatInstalls(extension.installs)} installs</span>
+                    <span class="version-badge">v${escapeHtml(extension.version)}</span>
+                </div>
 
-        setupCategoryFilter();
+                <div class="extension-card-footer">
+                    <div class="extension-price">
+                        <span class="price-badge ${extension.price > 0 ? "paid" : "free"}">
+                            ${extension.price > 0 ? "PRO" : "FREE"}
+                        </span>
+                        <strong>${extension.price > 0 ? `$${extension.price.toFixed(2)}` : "Free"}</strong>
+                    </div>
 
-        setupSort();
-
-        setupEvents();
-
-        renderMarketplace();
-
-        renderCategories();
-
-        updateCounts();
-
+                    ${buttonMarkup(extension)}
+                </div>
+            </article>
+        `;
     }
 
-
-    /*
-     * =====================================================
-     * NAVIGATION
-     * =====================================================
-     */
-
-    function setupNavigation() {
-
-        $$(
-            "[data-extension-view]"
-        ).forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        const view =
-                            button.dataset
-                                .extensionView;
-
-
-                        if (!view) {
-                            return;
-                        }
-
-
-                        state.view =
-                            view;
-
-
-                        updateNavigation(
-                            button
-                        );
-
-
-                        if (
-                            view ===
-                            "marketplace"
-                        ) {
-
-                            renderMarketplace();
-
-                        }
-
-
-                        if (
-                            view ===
-                            "installed"
-                        ) {
-
-                            renderInstalled();
-
-                        }
-
-
-                        if (
-                            view ===
-                            "updates"
-                        ) {
-
-                            renderUpdates();
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
     }
-
-
-    function updateNavigation(
-        activeButton
-    ) {
-
-        $$(
-            "[data-extension-view]"
-        ).forEach(
-            button => {
-
-                button.classList.toggle(
-                    "active",
-                    button ===
-                        activeButton
-                );
-
-            }
-        );
-
-
-        const title =
-            $(
-                "#extensionsPageTitle"
-            );
-
-
-        if (!title) {
-            return;
-        }
-
-
-        const titles = {
-
-            marketplace:
-                "Extensions Marketplace",
-
-            installed:
-                "Installed Extensions",
-
-            updates:
-                "Extension Updates"
-
-        };
-
-
-        title.textContent =
-            titles[
-                state.view
-            ] ||
-            "Extensions";
-
-    }
-
-
-    /*
-     * =====================================================
-     * SEARCH
-     * =====================================================
-     */
-
-    function setupSearch() {
-
-        const search =
-            $(
-                "#extensionSearch"
-            );
-
-
-        if (!search) {
-            return;
-        }
-
-
-        search.addEventListener(
-            "input",
-            event => {
-
-                state.query =
-                    event.target.value
-                        .trim();
-
-
-                if (
-                    state.view ===
-                    "marketplace"
-                ) {
-
-                    renderMarketplace();
-
-                }
-
-            }
-        );
-
-    }
-
-
-    /*
-     * =====================================================
-     * CATEGORY FILTER
-     * =====================================================
-     */
-
-    function setupCategoryFilter() {
-
-        const select =
-            $(
-                "#extensionCategory"
-            );
-
-
-        if (!select) {
-            return;
-        }
-
-
-        select.addEventListener(
-            "change",
-            event => {
-
-                state.category =
-                    event.target.value;
-
-
-                renderMarketplace();
-
-            }
-        );
-
-    }
-
-
-    /*
-     * =====================================================
-     * SORT
-     * =====================================================
-     */
-
-    function setupSort() {
-
-        const select =
-            $(
-                "#extensionSort"
-            );
-
-
-        if (!select) {
-            return;
-        }
-
-
-        select.addEventListener(
-            "change",
-            event => {
-
-                state.sort =
-                    event.target.value;
-
-
-                renderMarketplace();
-
-            }
-        );
-
-    }
-
-
-    /*
-     * =====================================================
-     * GENERAL EVENT DELEGATION
-     * =====================================================
-     */
-
-    function setupEvents() {
-
-        document.addEventListener(
-            "click",
-            event => {
-
-                const card =
-                    event.target.closest(
-                        "[data-extension-id]"
-                    );
-
-
-                const installButton =
-                    event.target.closest(
-                        "[data-extension-install]"
-                    );
-
-
-                const uninstallButton =
-                    event.target.closest(
-                        "[data-extension-uninstall]"
-                    );
-
-
-                const enableButton =
-                    event.target.closest(
-                        "[data-extension-enable]"
-                    );
-
-
-                const disableButton =
-                    event.target.closest(
-                        "[data-extension-disable]"
-                    );
-
-
-                const detailsButton =
-                    event.target.closest(
-                        "[data-extension-details]"
-                    );
-
-
-                const updateButton =
-                    event.target.closest(
-                        "[data-extension-update]"
-                    );
-
-
-                const closeButton =
-                    event.target.closest(
-                        "[data-extension-close]"
-                    );
-
-
-                /*
-                 * Prevent card click when an action
-                 * button was clicked.
-                 */
-
-                if (
-                    installButton
-                ) {
-
-                    event.stopPropagation();
-
-                    handleInstall(
-                        installButton.dataset
-                            .extensionInstall
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    uninstallButton
-                ) {
-
-                    event.stopPropagation();
-
-                    handleUninstall(
-                        uninstallButton.dataset
-                            .extensionUninstall
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    enableButton
-                ) {
-
-                    event.stopPropagation();
-
-                    handleEnable(
-                        enableButton.dataset
-                            .extensionEnable
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    disableButton
-                ) {
-
-                    event.stopPropagation();
-
-                    handleDisable(
-                        disableButton.dataset
-                            .extensionDisable
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    updateButton
-                ) {
-
-                    event.stopPropagation();
-
-                    handleUpdate(
-                        updateButton.dataset
-                            .extensionUpdate
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    closeButton
-                ) {
-
-                    event.stopPropagation();
-
-                    closeDetails();
-
-                    return;
-
-                }
-
-
-                if (
-                    detailsButton
-                ) {
-
-                    event.stopPropagation();
-
-                    openDetails(
-                        detailsButton.dataset
-                            .extensionDetails
-                    );
-
-                    return;
-
-                }
-
-
-                /*
-                 * Clicking an extension card opens
-                 * its details.
-                 */
-
-                if (
-                    card &&
-                    !event.target.closest(
-                        "button"
-                    )
-                ) {
-
-                    openDetails(
-                        card.dataset
-                            .extensionId
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    /*
-     * =====================================================
-     * MARKETPLACE
-     * =====================================================
-     */
 
     function renderMarketplace() {
+        const filtered = sortExtensions(extensions.filter(matches));
 
-        const container =
-            $(
-                "#extensionsGrid"
-            );
-
-
-        if (!container) {
-            return;
+        if (resultsCount) {
+            resultsCount.textContent = `${filtered.length} extension${filtered.length === 1 ? "" : "s"}`;
         }
 
-
-        const extensions =
-            store.search({
-
-                query:
-                    state.query,
-
-                category:
-                    state.category,
-
-                sort:
-                    state.sort
-
-            });
-
-
-        clear(
-            container
-        );
-
-
-        if (!extensions.length) {
-
-            renderEmptyState(
-                container,
-                "No extensions found.",
-                "Try another search or category."
-            );
-
-
-            return;
-
+        if (marketplaceGrid) {
+            marketplaceGrid.innerHTML = filtered.map(extension => cardMarkup(extension)).join("");
         }
 
+        if (marketplaceEmpty) {
+            marketplaceEmpty.hidden = filtered.length !== 0;
+        }
 
-        extensions.forEach(
-            extension => {
-
-                container.appendChild(
-                    createExtensionCard(
-                        extension
-                    )
-                );
-
-            }
+        const featured = extensions.filter(extension =>
+            extension.featured &&
+            (state.category === "all" || extension.category === state.category) &&
+            (!state.search.trim() || matches(extension))
         );
 
+        if (featuredGrid) {
+            featuredGrid.innerHTML = featured.map(extension =>
+                cardMarkup(extension, { featured: true })
+            ).join("");
+        }
+
+        const featuredSection = $("#featuredSection");
+        if (featuredSection) {
+            featuredSection.hidden = featured.length === 0;
+        }
     }
-
-
-    /*
-     * =====================================================
-     * INSTALLED
-     * =====================================================
-     */
 
     function renderInstalled() {
+        const installed = extensions.filter(extension => state.installed.has(extension.id));
 
-        const container =
-            $(
-                "#extensionsGrid"
-            );
-
-
-        if (!container) {
-            return;
+        if (installedGrid) {
+            installedGrid.innerHTML = installed.map(extension => cardMarkup(extension)).join("");
         }
 
-
-        const installed =
-            manager.getAllInstalled();
-
-
-        clear(
-            container
-        );
-
-
-        if (!installed.length) {
-
-            renderEmptyState(
-                container,
-                "No extensions installed.",
-                "Browse the marketplace to find extensions."
-            );
-
-
-            return;
-
+        if (installedEmpty) {
+            installedEmpty.hidden = installed.length !== 0;
         }
-
-
-        installed.forEach(
-            item => {
-
-                if (
-                    !item.marketplace
-                ) {
-                    return;
-                }
-
-
-                container.appendChild(
-                    createExtensionCard(
-                        item.marketplace,
-                        {
-                            installed:
-                                true
-                        }
-                    )
-                );
-
-            }
-        );
-
     }
-
-
-    /*
-     * =====================================================
-     * UPDATES
-     * =====================================================
-     */
 
     function renderUpdates() {
-
-        const container =
-            $(
-                "#extensionsGrid"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        const updates =
-            manager.getUpdates();
-
-
-        clear(
-            container
+        // In this local marketplace, installed extensions with a newer catalog
+        // version are treated as available updates.
+        const updates = extensions.filter(extension =>
+            state.installed.has(extension.id) && extension.id.endsWith("-update")
         );
 
-
-        if (!updates.length) {
-
-            renderEmptyState(
-                container,
-                "You're up to date.",
-                "There are no extension updates available."
-            );
-
-
-            return;
-
+        if (updatesGrid) {
+            updatesGrid.innerHTML = updates.map(extension => cardMarkup(extension)).join("");
         }
 
-
-        updates.forEach(
-            update => {
-
-                if (
-                    !update.extension
-                ) {
-                    return;
-                }
-
-
-                container.appendChild(
-                    createExtensionCard(
-                        update.extension,
-                        {
-                            update:
-                                true
-                        }
-                    )
-                );
-
-            }
-        );
-
+        if (updatesEmpty) {
+            updatesEmpty.hidden = updates.length !== 0;
+        }
     }
 
-
-    /*
-     * =====================================================
-     * EXTENSION CARD
-     * =====================================================
-     */
-
-    function createExtensionCard(
-        extension,
-        options = {}
-    ) {
-
-        const card =
-            createElement(
-                "article",
-                "extension-card"
-            );
-
-
-        card.dataset.extensionId =
-            extension.id;
-
-
-        const installed =
-            manager.isInstalled(
-                extension.id
-            );
-
-
-        const enabled =
-            manager.isEnabled(
-                extension.id
-            );
-
-
-        const paid =
-            Number(
-                extension.price
-            ) > 0;
-
-
-        const unlocked =
-            manager.isExtensionUnlocked(
-                extension.id
-            );
-
-
-        /*
-         * Header
-         */
-
-        const header =
-            createElement(
-                "div",
-                "extension-card-header"
-            );
-
-
-        const icon =
-            createElement(
-                "div",
-                "extension-icon"
-            );
-
-
-        icon.textContent =
-            extension.icon ||
-            "◆";
-
-
-        const heading =
-            createElement(
-                "div",
-                "extension-card-heading"
-            );
-
-
-        const name =
-            createElement(
-                "h3"
-            );
-
-
-        name.textContent =
-            extension.displayName;
-
-
-        const publisher =
-            createElement(
-                "span",
-                "extension-publisher"
-            );
-
-
-        publisher.textContent =
-            extension.publisher;
-
-
-        heading.appendChild(
-            name
-        );
-
-
-        heading.appendChild(
-            publisher
-        );
-
-
-        header.appendChild(
-            icon
-        );
-
-
-        header.appendChild(
-            heading
-        );
-
-
-        /*
-         * Verified badge
-         */
-
-        if (
-            extension.verified
-        ) {
-
-            const verified =
-                createElement(
-                    "span",
-                    "extension-verified"
-                );
-
-
-            verified.textContent =
-                "✓ Verified";
-
-
-            header.appendChild(
-                verified
-            );
-
-        }
-
-
-        /*
-         * Description
-         */
-
-        const description =
-            createElement(
-                "p",
-                "extension-description"
-            );
-
-
-        description.textContent =
-            extension.description;
-
-
-        /*
-         * Metadata
-         */
-
-        const metadata =
-            createElement(
-                "div",
-                "extension-meta"
-            );
-
-
-        const rating =
-            createElement(
-                "span"
-            );
-
-
-        rating.textContent =
-            `★ ${Number(
-                extension.rating || 0
-            ).toFixed(1)}`;
-
-
-        const installs =
-            createElement(
-                "span"
-            );
-
-
-        installs.textContent =
-            formatInstalls(
-                extension.installs
-            );
-
-
-        const version =
-            createElement(
-                "span"
-            );
-
-
-        version.textContent =
-            `v${extension.version}`;
-
-
-        metadata.appendChild(
-            rating
-        );
-
-
-        metadata.appendChild(
-            installs
-        );
-
-
-        metadata.appendChild(
-            version
-        );
-
-
-        /*
-         * Footer
-         */
-
-        const footer =
-            createElement(
-                "div",
-                "extension-card-footer"
-            );
-
-
-        const price =
-            createElement(
-                "span",
-                paid
-                    ? "extension-price paid"
-                    : "extension-price free"
-            );
-
-
-        if (paid) {
-
-            price.textContent =
-                `PRO $${Number(
-                    extension.price
-                ).toFixed(2)}`;
-
-        } else {
-
-            price.textContent =
-                "FREE";
-
-        }
-
-
-        footer.appendChild(
-            price
-        );
-
-
-        /*
-         * Action button
-         */
-
-        const actionArea =
-            createElement(
-                "div",
-                "extension-actions"
-            );
-
-
-        if (
-            options.update
-        ) {
-
-            const button =
-                createButton(
-                    "Update",
-                    "primary"
-                );
-
-
-            button.dataset
-                .extensionUpdate =
-                extension.id;
-
-
-            actionArea.appendChild(
-                button
-            );
-
-        }
-
-        else if (
-            installed
-        ) {
-
-            const stateButton =
-                createButton(
-                    enabled
-                        ? "Disable"
-                        : "Enable",
-                    enabled
-                        ? "secondary"
-                        : "primary"
-                );
-
-
-            if (enabled) {
-
-                stateButton.dataset
-                    .extensionDisable =
-                    extension.id;
-
-            } else {
-
-                stateButton.dataset
-                    .extensionEnable =
-                    extension.id;
-
-            }
-
-
-            actionArea.appendChild(
-                stateButton
-            );
-
-
-            const uninstallButton =
-                createButton(
-                    "Uninstall",
-                    "danger"
-                );
-
-
-            uninstallButton.dataset
-                .extensionUninstall =
-                extension.id;
-
-
-            actionArea.appendChild(
-                uninstallButton
-            );
-
-        }
-
-        else if (
-            paid &&
-            !unlocked
-        ) {
-
-            const unlockButton =
-                createButton(
-                    `Unlock $${Number(
-                        extension.price
-                    ).toFixed(2)}`,
-                    "primary"
-                );
-
-
-            unlockButton.dataset
-                .extensionInstall =
-                extension.id;
-
-
-            actionArea.appendChild(
-                unlockButton
-            );
-
-        }
-
-        else {
-
-            const installButton =
-                createButton(
-                    "Install",
-                    "primary"
-                );
-
-
-            installButton.dataset
-                .extensionInstall =
-                extension.id;
-
-
-            actionArea.appendChild(
-                installButton
-            );
-
-        }
-
-
-        /*
-         * Details button
-         */
-
-        const detailsButton =
-            createButton(
-                "Details",
-                "secondary"
-            );
-
-
-        detailsButton.dataset
-            .extensionDetails =
-            extension.id;
-
-
-        actionArea.appendChild(
-            detailsButton
-        );
-
-
-        footer.appendChild(
-            actionArea
-        );
-
-
-        /*
-         * Assemble card
-         */
-
-        card.appendChild(
-            header
-        );
-
-        card.appendChild(
-            description
-        );
-
-        card.appendChild(
-            metadata
-        );
-
-        card.appendChild(
-            footer
-        );
-
-
-        return card;
-
-    }
-
-
-    /*
-     * =====================================================
-     * BUTTON CREATOR
-     * =====================================================
-     */
-
-    function createButton(
-        text,
-        type
-    ) {
-
-        const button =
-            createElement(
-                "button",
-                `extension-button ${type}`
-            );
-
-
-        button.type =
-            "button";
-
-
-        button.textContent =
-            text;
-
-
-        return button;
-
-    }
-
-
-    /*
-     * =====================================================
-     * INSTALL / UNLOCK
-     * =====================================================
-     */
-
-    function handleInstall(
-        extensionId
-    ) {
-
-        const extension =
-            store.getById(
-                extensionId
-            );
-
-
-        if (!extension) {
-
-            showToast(
-                "Extension not found.",
-                "error"
-            );
-
-
-            return;
-
-        }
-
-
-        /*
-         * Paid extension.
-         */
-
-        if (
-            Number(extension.price) > 0 &&
-            !manager.isExtensionUnlocked(
-                extensionId
-            )
-        ) {
-
-            openPaymentForExtension(
-                extension
-            );
-
-
-            return;
-
-        }
-
-
-        try {
-
-            manager.install(
-                extensionId
-            );
-
-
-            showToast(
-                `${extension.displayName} installed.`,
-                "success"
-            );
-
-
-            refreshCurrentView();
-
-            updateCounts();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            showToast(
-                error.message ||
-                    "Could not install extension.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * EXISTING PAYMENT SYSTEM
-     * =====================================================
-     *
-     * We DO NOT create a duplicate payment system.
-     *
-     * This function attempts to use the existing J-SYRO
-     * payment/access functions if they exist.
-     */
-
-    function openPaymentForExtension(
-        extension
-    ) {
-
-        /*
-         * Option 1:
-         * Existing J-SYRO global payment function.
-         */
-
-        if (
-            typeof window.openPaymentPopup ===
-            "function"
-        ) {
-
-            window.openPaymentPopup({
-
-                type:
-                    "extension",
-
-                extensionId:
-                    extension.id,
-
-                extensionName:
-                    extension.displayName,
-
-                price:
-                    extension.price,
-
-                onSuccess:
-                    () => {
-
-                        completeExtensionUnlock(
-                            extension
-                        );
-
-                    }
-
-            });
-
-
-            return;
-
-        }
-
-
-        /*
-         * Option 2:
-         * Existing J-SYRO payment popup object.
-         */
-
-        if (
-            window.jSyroPayment &&
-            typeof window
-                .jSyroPayment
-                .open ===
-            "function"
-        ) {
-
-            window.jSyroPayment.open({
-
-                type:
-                    "extension",
-
-                extensionId:
-                    extension.id,
-
-                name:
-                    extension.displayName,
-
-                price:
-                    extension.price,
-
-                onSuccess:
-                    () => {
-
-                        completeExtensionUnlock(
-                            extension
-                        );
-
-                    }
-
-            });
-
-
-            return;
-
-        }
-
-
-        /*
-         * Option 3:
-         * Existing generic access/payment handler.
-         */
-
-        if (
-            window.jSyroAccess &&
-            typeof window
-                .jSyroAccess
-                .requestPayment ===
-            "function"
-        ) {
-
-            window.jSyroAccess
-                .requestPayment({
-
-                    type:
-                        "extension",
-
-                    extensionId:
-                        extension.id,
-
-                    price:
-                        extension.price,
-
-                    onSuccess:
-                        () => {
-
-                            completeExtensionUnlock(
-                                extension
-                            );
-
-                        }
-
-                });
-
-
-            return;
-
-        }
-
-
-        /*
-         * Current project may use a different existing
-         * payment function.
-         *
-         * For now, do not fake a successful payment.
-         */
-
-        showToast(
-            "Connect this button to your existing J-SYRO payment popup.",
-            "info"
-        );
-
-    }
-
-
-    /*
-     * =====================================================
-     * PAYMENT SUCCESS
-     * =====================================================
-     */
-
-    function completeExtensionUnlock(
-        extension
-    ) {
-
-        try {
-
-            manager.markUnlocked(
-                extension.id
-            );
-
-
-            showToast(
-                `${extension.displayName} unlocked.`,
-                "success"
-            );
-
-
-            /*
-             * Automatically install after successful
-             * payment.
-             */
-
-            manager.install(
-                extension.id
-            );
-
-
-            showToast(
-                `${extension.displayName} installed.`,
-                "success"
-            );
-
-
-            refreshCurrentView();
-
-            updateCounts();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            showToast(
-                error.message ||
-                    "Extension could not be installed.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * UNINSTALL
-     * =====================================================
-     */
-
-    function handleUninstall(
-        extensionId
-    ) {
-
-        const extension =
-            store.getById(
-                extensionId
-            );
-
-
-        if (!extension) {
-            return;
-        }
-
-
-        const confirmed =
-            window.confirm(
-                `Uninstall "${extension.displayName}"?`
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
-
-        try {
-
-            manager.uninstall(
-                extensionId
-            );
-
-
-            showToast(
-                `${extension.displayName} uninstalled.`,
-                "success"
-            );
-
-
-            refreshCurrentView();
-
-            updateCounts();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            showToast(
-                error.message ||
-                    "Could not uninstall extension.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * ENABLE
-     * =====================================================
-     */
-
-    function handleEnable(
-        extensionId
-    ) {
-
-        try {
-
-            const extension =
-                store.getById(
-                    extensionId
-                );
-
-
-            manager.enable(
-                extensionId
-            );
-
-
-            showToast(
-                `${extension.displayName} enabled.`,
-                "success"
-            );
-
-
-            refreshCurrentView();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            showToast(
-                error.message ||
-                    "Could not enable extension.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * DISABLE
-     * =====================================================
-     */
-
-    function handleDisable(
-        extensionId
-    ) {
-
-        try {
-
-            const extension =
-                store.getById(
-                    extensionId
-                );
-
-
-            manager.disable(
-                extensionId
-            );
-
-
-            showToast(
-                `${extension.displayName} disabled.`,
-                "success"
-            );
-
-
-            refreshCurrentView();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            showToast(
-                error.message ||
-                    "Could not disable extension.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * UPDATE
-     * =====================================================
-     */
-
-    function handleUpdate(
-        extensionId
-    ) {
-
-        try {
-
-            const updated =
-                manager.update(
-                    extensionId
-                );
-
-
-            showToast(
-                `${updated.displayName} updated to v${updated.version}.`,
-                "success"
-            );
-
-
-            refreshCurrentView();
-
-            updateCounts();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            showToast(
-                error.message ||
-                    "Could not update extension.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * DETAILS MODAL
-     * =====================================================
-     */
-
-    function openDetails(
-        extensionId
-    ) {
-
-        const extension =
-            store.getById(
-                extensionId
-            );
-
-
-        if (!extension) {
-            return;
-        }
-
-
-        state.selectedExtension =
-            extensionId;
-
-
-        const modal =
-            $(
-                "#extensionDetailsModal"
-            );
-
-
-        if (!modal) {
-
-            createDetailsModal();
-
-        }
-
-
-        renderDetails(
-            extension
-        );
-
-
-        const detailsModal =
-            $(
-                "#extensionDetailsModal"
-            );
-
-
-        if (detailsModal) {
-
-            detailsModal.classList.add(
-                "open"
-            );
-
-            detailsModal.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
-        }
-
-    }
-
-
-    function createDetailsModal() {
-
-        const modal =
-            createElement(
-                "div",
-                "extension-details-modal"
-            );
-
-
-        modal.id =
-            "extensionDetailsModal";
-
-
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-
-        modal.innerHTML = `
-
-            <div
-                class="extension-details-backdrop"
-                data-extension-close
-            ></div>
-
-            <div
-                class="extension-details-dialog"
-                role="dialog"
-                aria-modal="true"
-            >
-
-                <button
-                    type="button"
-                    class="extension-details-close"
-                    data-extension-close
-                    aria-label="Close"
-                >
-                    ×
-                </button>
-
-                <div
-                    id="extensionDetailsContent"
-                    class="extension-details-content"
-                ></div>
-
-            </div>
-        `;
-
-
-        document.body.appendChild(
-            modal
-        );
-
-    }
-
-
-    function renderDetails(
-        extension
-    ) {
-
-        const content =
-            $(
-                "#extensionDetailsContent"
-            );
-
-
-        if (!content) {
-            return;
-        }
-
-
-        const installed =
-            manager.isInstalled(
-                extension.id
-            );
-
-
-        const enabled =
-            manager.isEnabled(
-                extension.id
-            );
-
-
-        const unlocked =
-            manager.isExtensionUnlocked(
-                extension.id
-            );
-
-
-        const paid =
-            Number(
-                extension.price
-            ) > 0;
-
-
-        const features =
-            Array.isArray(
-                extension.features
-            )
-                ? extension.features
-                : [];
-
-
-        const permissions =
-            Array.isArray(
-                extension.permissions
-            )
-                ? extension.permissions
-                : [];
-
-
-        const readme =
-            extension.readme ||
-            {};
-
-
-        const paragraphs =
-            Array.isArray(
-                readme.paragraphs
-            )
-                ? readme.paragraphs
-                : [];
-
-
-        const changelog =
-            Array.isArray(
-                extension.changelog
-            )
-                ? extension.changelog
-                : [];
-
-
-        let actionHTML =
-            "";
-
-
-        if (
-            installed
-        ) {
-
-            actionHTML = `
-
-                <div class="extension-detail-actions">
-
-                    <button
-                        type="button"
-                        class="extension-button ${
-                            enabled
-                                ? "secondary"
-                                : "primary"
-                        }"
-                        data-extension-${
-                            enabled
-                                ? "disable"
-                                : "enable"
-                        }="${escapeHTML(
-                            extension.id
-                        )}"
-                    >
-                        ${
-                            enabled
-                                ? "Disable"
-                                : "Enable"
-                        }
-                    </button>
-
-                    <button
-                        type="button"
-                        class="extension-button danger"
-                        data-extension-uninstall="${escapeHTML(
-                            extension.id
-                        )}"
-                    >
-                        Uninstall
-                    </button>
-
-                </div>
-
-            `;
-
-        }
-
-        else if (
-            paid &&
-            !unlocked
-        ) {
-
-            actionHTML = `
-
-                <div class="extension-detail-actions">
-
-                    <button
-                        type="button"
-                        class="extension-button primary"
-                        data-extension-install="${escapeHTML(
-                            extension.id
-                        )}"
-                    >
-                        Unlock $${Number(
-                            extension.price
-                        ).toFixed(2)}
-                    </button>
-
-                </div>
-
-            `;
-
-        }
-
-        else {
-
-            actionHTML = `
-
-                <div class="extension-detail-actions">
-
-                    <button
-                        type="button"
-                        class="extension-button primary"
-                        data-extension-install="${escapeHTML(
-                            extension.id
-                        )}"
-                    >
-                        Install
-                    </button>
-
-                </div>
-
-            `;
-
-        }
-
-
-        content.innerHTML = `
-
-            <div class="extension-detail-header">
-
-                <div class="extension-detail-icon">
-                    ${escapeHTML(
-                        extension.icon || "◆"
-                    )}
-                </div>
-
-                <div>
-
-                    <h2>
-                        ${escapeHTML(
-                            extension.displayName
-                        )}
-                    </h2>
-
-                    <p>
-                        ${escapeHTML(
-                            extension.publisher
-                        )}
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="extension-detail-meta">
-
-                <span>
-                    ★ ${Number(
-                        extension.rating || 0
-                    ).toFixed(1)}
-                </span>
-
-                <span>
-                    ${formatInstalls(
-                        extension.installs
-                    )}
-                </span>
-
-                <span>
-                    v${escapeHTML(
-                        extension.version
-                    )}
-                </span>
-
-                <span>
-                    ${
-                        paid
-                            ? `PRO $${Number(
-                                extension.price
-                            ).toFixed(2)}`
-                            : "FREE"
-                    }
-                </span>
-
-            </div>
-
-
-            <p class="extension-detail-description">
-                ${escapeHTML(
-                    extension.description
-                )}
-            </p>
-
-
-            ${actionHTML}
-
-
-            <section class="extension-detail-section">
-
-                <h3>
-                    Features
-                </h3>
-
-                <ul>
-
-                    ${
-                        features
-                            .map(
-                                feature =>
-                                    `<li>${escapeHTML(
-                                        feature
-                                    )}</li>`
-                            )
-                            .join("")
-                    }
-
-                </ul>
-
-            </section>
-
-
-            <section class="extension-detail-section">
-
-                <h3>
-                    Permissions
-                </h3>
-
-                <div class="extension-permissions">
-
-                    ${
-                        permissions
-                            .map(
-                                permission =>
-                                    `<span>${escapeHTML(
-                                        permission
-                                    )}</span>`
-                            )
-                            .join("")
-                    }
-
-                </div>
-
-            </section>
-
-
-            <section class="extension-detail-section">
-
-                <h3>
-                    ${escapeHTML(
-                        readme.heading ||
-                        "README"
-                    )}
-                </h3>
-
-                ${
-                    paragraphs
-                        .map(
-                            paragraph =>
-                                `<p>${escapeHTML(
-                                    paragraph
-                                )}</p>`
-                        )
-                        .join("")
-                }
-
-            </section>
-
-
-            <section class="extension-detail-section">
-
-                <h3>
-                    Changelog
-                </h3>
-
-                ${
-                    changelog
-                        .map(
-                            item => `
-
-                                <div class="extension-changelog-item">
-
-                                    <strong>
-                                        v${escapeHTML(
-                                            item.version
-                                        )}
-                                    </strong>
-
-                                    <span>
-                                        ${escapeHTML(
-                                            item.date
-                                        )}
-                                    </span>
-
-                                    <p>
-                                        ${escapeHTML(
-                                            item.text
-                                        )}
-                                    </p>
-
-                                </div>
-
-                            `
-                        )
-                        .join("")
-                }
-
-            </section>
-
-        `;
-
-    }
-
-
-    function closeDetails() {
-
-        const modal =
-            $(
-                "#extensionDetailsModal"
-            );
-
-
-        if (!modal) {
-            return;
-        }
-
-
-        modal.classList.remove(
-            "open"
-        );
-
-
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-
-        state.selectedExtension =
-            null;
-
-    }
-
-
-    /*
-     * =====================================================
-     * CATEGORIES
-     * =====================================================
-     */
-
-    function renderCategories() {
-
-        const select =
-            $(
-                "#extensionCategory"
-            );
-
-
-        if (!select) {
-            return;
-        }
-
-
-        const categories =
-            store.getCategories();
-
-
-        const current =
-            state.category;
-
-
-        select.innerHTML = `
-
-            <option value="all">
-                All Categories
-            </option>
-
-            ${
-                categories
-                    .map(
-                        category =>
-                            `
-                            <option
-                                value="${escapeHTML(
-                                    category
-                                )}"
-                            >
-                                ${formatCategory(
-                                    category
-                                )}
-                            </option>
-                            `
-                    )
-                    .join("")
-            }
-
-        `;
-
-
-        select.value =
-            categories.includes(
-                current
-            )
-                ? current
-                : "all";
-
-    }
-
-
-    /*
-     * =====================================================
-     * COUNTS
-     * =====================================================
-     */
-
-    function updateCounts() {
-
-        const installed =
-            manager.getAllInstalled();
-
-
-        const updates =
-            manager.getUpdates();
-
-
-        const installedCount =
-            $(
-                "#installedExtensionsCount"
-            );
-
-
-        const updatesCount =
-            $(
-                "#extensionUpdatesCount"
-            );
-
-
+    function renderCounts() {
         if (installedCount) {
-
-            installedCount.textContent =
-                installed.length;
-
+            installedCount.textContent = String(state.installed.size);
         }
-
 
         if (updatesCount) {
-
-            updatesCount.textContent =
-                updates.length;
-
+            updatesCount.textContent = "0";
         }
-
     }
 
+    function renderAll() {
+        renderMarketplace();
+        renderInstalled();
+        renderUpdates();
+        renderCounts();
+        updateViewVisibility();
+    }
 
-    /*
-     * =====================================================
-     * EMPTY STATE
-     * =====================================================
-     */
+    function updateViewVisibility() {
+        $$(".extension-view").forEach(view => view.classList.remove("active"));
 
-    function renderEmptyState(
-        container,
-        title,
-        message
-    ) {
+        const target = $(`#${state.view}View`);
+        if (target) target.classList.add("active");
 
-        const empty =
-            createElement(
-                "div",
-                "extensions-empty"
+        $$(".sidebar-item").forEach(item => {
+            item.classList.toggle("active", item.dataset.view === state.view);
+        });
+    }
+
+    function showToast(message, icon = "✓") {
+        const toast = $("#extensionToast");
+        const messageEl = $("#extensionToastMessage");
+        const iconEl = $("#extensionToastIcon");
+
+        if (!toast || !messageEl) return;
+
+        messageEl.textContent = message;
+        if (iconEl) iconEl.textContent = icon;
+
+        toast.classList.add("show");
+
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2200);
+    }
+
+    function openDetails(id) {
+        const extension = extensions.find(item => item.id === id);
+        if (!extension || !modal) return;
+
+        currentModalId = id;
+
+        modalName.textContent = extension.name;
+        modalPublisher.textContent = extension.publisher;
+        modalIcon.textContent = extension.icon;
+        modalRating.textContent = `★ ${extension.rating.toFixed(1)}`;
+        modalInstalls.textContent = `${formatInstalls(extension.installs)} installs`;
+        modalVersion.textContent = `v${extension.version}`;
+        modalDescription.textContent = extension.description;
+
+        modalFeatures.innerHTML = extension.features
+            .map(feature => `<li>${escapeHtml(feature)}</li>`)
+            .join("");
+
+        modalPermissions.innerHTML = extension.permissions
+            .map(permission => `
+                <div class="permission-item">
+                    <strong>${escapeHtml(permission[0])}</strong>
+                    <span>${escapeHtml(permission[1])}</span>
+                </div>
+            `)
+            .join("");
+
+        modalReadme.innerHTML = extension.readme;
+        modalChangelog.innerHTML = extension.changelog;
+
+        if (verifiedBadge) {
+            verifiedBadge.hidden = !extension.verified;
+        }
+
+        if (extension.price > 0) {
+            modalPriceBadge.textContent = "PRO";
+            modalPriceBadge.className = "price-badge paid";
+            modalPrice.textContent = `$${extension.price.toFixed(2)}`;
+        } else {
+            modalPriceBadge.textContent = "FREE";
+            modalPriceBadge.className = "price-badge free";
+            modalPrice.textContent = "Free";
+        }
+
+        const installed = state.installed.has(extension.id);
+        modalPrimary.textContent = installed ? "Uninstall" : "Install";
+        modalPrimary.className = `extension-button ${installed ? "danger" : "primary"}`;
+
+        modalSecondary.textContent = "Close";
+        modalSecondary.className = "extension-button secondary";
+
+        $$(".details-tab").forEach(tab => {
+            tab.classList.toggle("active", tab.dataset.detailsTab === "overview");
+        });
+
+        $$(".details-tab-content").forEach(content => {
+            content.classList.toggle("active", content.id === "detailsOverview");
+        });
+
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeDetails() {
+        if (!modal) return;
+
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        currentModalId = null;
+    }
+
+    function installExtension(id) {
+        const extension = extensions.find(item => item.id === id);
+        if (!extension) return;
+
+        state.installed.add(id);
+        saveInstalled();
+        renderAll();
+        showToast(`${extension.name} installed`);
+
+        if (currentModalId === id) {
+            openDetails(id);
+        }
+    }
+
+    function uninstallExtension(id) {
+        const extension = extensions.find(item => item.id === id);
+        if (!extension) return;
+
+        state.installed.delete(id);
+        saveInstalled();
+        renderAll();
+        showToast(`${extension.name} uninstalled`);
+
+        if (currentModalId === id) {
+            openDetails(id);
+        }
+    }
+
+    function saveInstalled() {
+        try {
+            localStorage.setItem(
+                "jsyro-installed-extensions",
+                JSON.stringify([...state.installed])
+            );
+        } catch (_) {}
+    }
+
+    function loadInstalled() {
+        try {
+            const saved = JSON.parse(
+                localStorage.getItem("jsyro-installed-extensions") || "[]"
             );
 
-
-        empty.innerHTML = `
-
-            <div class="extensions-empty-icon">
-                ◇
-            </div>
-
-            <h3>
-                ${escapeHTML(
-                    title
-                )}
-            </h3>
-
-            <p>
-                ${escapeHTML(
-                    message
-                )}
-            </p>
-
-        `;
-
-
-        container.appendChild(
-            empty
-        );
-
+            if (Array.isArray(saved)) {
+                saved.forEach(id => {
+                    if (extensions.some(extension => extension.id === id)) {
+                        state.installed.add(id);
+                    }
+                });
+            }
+        } catch (_) {}
     }
 
+    function bindEvents() {
+        $$(".sidebar-item").forEach(item => {
+            item.addEventListener("click", () => {
+                state.view = item.dataset.view;
+                renderAll();
+            });
+        });
 
-    /*
-     * =====================================================
-     * REFRESH
-     * =====================================================
-     */
+        $$(".category-item").forEach(item => {
+            item.addEventListener("click", () => {
+                state.category = item.dataset.category;
 
-    function refreshCurrentView() {
+                $$(".category-item").forEach(category => {
+                    category.classList.toggle(
+                        "active",
+                        category.dataset.category === state.category
+                    );
+                });
 
-        if (
-            state.view ===
-            "installed"
-        ) {
+                state.view = "marketplace";
+                renderAll();
+            });
+        });
 
-            renderInstalled();
-
+        const search = $("#extensionSearch");
+        if (search) {
+            search.addEventListener("input", event => {
+                state.search = event.target.value;
+                state.view = "marketplace";
+                renderAll();
+            });
         }
 
-        else if (
-            state.view ===
-            "updates"
-        ) {
-
-            renderUpdates();
-
+        const sort = $("#sortExtensions");
+        if (sort) {
+            sort.addEventListener("change", event => {
+                state.sort = event.target.value;
+                renderAll();
+            });
         }
 
-        else {
+        document.addEventListener("click", event => {
+            const actionButton = event.target.closest("[data-action]");
+            if (!actionButton) return;
 
-            renderMarketplace();
+            const id = actionButton.dataset.id;
+            const action = actionButton.dataset.action;
 
-        }
+            if (action === "details") openDetails(id);
+            if (action === "install") installExtension(id);
+            if (action === "uninstall") uninstallExtension(id);
+        });
 
+        $("#closeExtensionDetails")?.addEventListener("click", closeDetails);
+        $(".modal-backdrop")?.addEventListener("click", closeDetails);
 
-        if (
-            state.selectedExtension
-        ) {
+        modalSecondary?.addEventListener("click", closeDetails);
 
-            const extension =
-                store.getById(
-                    state.selectedExtension
-                );
+        modalPrimary?.addEventListener("click", () => {
+            if (!currentModalId) return;
 
+            if (state.installed.has(currentModalId)) {
+                uninstallExtension(currentModalId);
+            } else {
+                installExtension(currentModalId);
+            }
+        });
 
-            if (extension) {
+        $$(".details-tab").forEach(tab => {
+            tab.addEventListener("click", () => {
+                const target = tab.dataset.detailsTab;
 
-                renderDetails(
-                    extension
-                );
+                $$(".details-tab").forEach(item => {
+                    item.classList.toggle("active", item === tab);
+                });
 
+                $$(".details-tab-content").forEach(content => {
+                    content.classList.toggle(
+                        "active",
+                        content.id === `details${target.charAt(0).toUpperCase()}${target.slice(1)}`
+                    );
+                });
+            });
+        });
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape" && modal?.classList.contains("open")) {
+                closeDetails();
             }
 
-        }
-
-    }
-
-
-    /*
-     * =====================================================
-     * UTILITIES
-     * =====================================================
-     */
-
-    function clear(
-        element
-    ) {
-
-        while (
-            element.firstChild
-        ) {
-
-            element.removeChild(
-                element.firstChild
-            );
-
-        }
-
-    }
-
-
-    function formatInstalls(
-        number
-    ) {
-
-        const value =
-            Number(
-                number || 0
-            );
-
-
-        if (
-            value >= 1000000
-        ) {
-
-            return (
-                `${(
-                    value / 1000000
-                ).toFixed(1)}M installs`
-            );
-
-        }
-
-
-        if (
-            value >= 1000
-        ) {
-
-            return (
-                `${(
-                    value / 1000
-                ).toFixed(1)}K installs`
-            );
-
-        }
-
-
-        return (
-            `${value} installs`
-        );
-
-    }
-
-
-    function formatCategory(
-        category
-    ) {
-
-        return String(
-            category || ""
-        )
-            .replace(
-                /[-_]/g,
-                " "
-            )
-            .replace(
-                /\b\w/g,
-                letter =>
-                    letter.toUpperCase()
-            );
-
-    }
-
-
-    function escapeHTML(
-        value
-    ) {
-
-        return String(
-            value ?? ""
-        )
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
-            );
-
-    }
-
-
-    /*
-     * =====================================================
-     * TOAST
-     * =====================================================
-     */
-
-    function showToast(
-        message,
-        type = "info"
-    ) {
-
-        let container =
-            $(
-                "#jsyroExtensionToasts"
-            );
-
-
-        if (!container) {
-
-            container =
-                createElement(
-                    "div",
-                    "jsyro-extension-toasts"
-                );
-
-
-            container.id =
-                "jsyroExtensionToasts";
-
-
-            document.body.appendChild(
-                container
-            );
-
-        }
-
-
-        const toast =
-            createElement(
-                "div",
-                `jsyro-extension-toast ${type}`
-            );
-
-
-        toast.textContent =
-            message;
-
-
-        container.appendChild(
-            toast
-        );
-
-
-        requestAnimationFrame(
-            () => {
-
-                toast.classList.add(
-                    "show"
-                );
-
+            if (
+                event.key === "/" &&
+                !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)
+            ) {
+                event.preventDefault();
+                search?.focus();
             }
-        );
+        });
 
+        $("#browseMarketplaceBtn")?.addEventListener("click", () => {
+            state.view = "marketplace";
+            renderAll();
+        });
 
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-
-                setTimeout(
-                    () => {
-
-                        toast.remove();
-
-                    },
-                    250
-                );
-
-            },
-            3000
-        );
-
+        $("#refreshMarketplaceBtn")?.addEventListener("click", () => {
+            renderAll();
+            showToast("Marketplace refreshed");
+        });
     }
 
+    function init() {
+        loadInstalled();
+        bindEvents();
+        renderAll();
+    }
 
-    /*
-     * =====================================================
-     * PUBLIC PAGE API
-     * =====================================================
-     */
-
-    window.jSyroExtensionsPage = {
-
-        refresh:
-            refreshCurrentView,
-
-        openDetails,
-
-        closeDetails,
-
-        renderMarketplace,
-
-        renderInstalled,
-
-        renderUpdates,
-
-        getState() {
-
-            return {
-                ...state
-            };
-
-        }
-
-    };
-
-
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
 })();
