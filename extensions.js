@@ -381,76 +381,70 @@
             .replaceAll("'", "&#039;");
     }
 
-    function renderMarketplace() {
-        const filtered = sortExtensions(extensions.filter(matches));
+   function renderMarketplace() {
+    const filtered = sortExtensions(
+        extensions.filter(matches)
+    );
 
-        if (resultsCount) {
-            resultsCount.textContent = `${filtered.length} extension${filtered.length === 1 ? "" : "s"}`;
-        }
+    /*
+     * PAID EXTENSIONS
+     * Sirf Featured section mein.
+     */
+    const featured = filtered.filter(extension =>
+        Number(extension.price) > 0
+    );
 
-        if (marketplaceGrid) {
-            marketplaceGrid.innerHTML = filtered.map(extension => cardMarkup(extension)).join("");
-        }
+    /*
+     * FREE EXTENSIONS
+     * Neeche All Extensions mein.
+     */
+    const marketplaceItems = filtered.filter(extension =>
+        Number(extension.price) === 0
+    );
 
-        if (marketplaceEmpty) {
-            marketplaceEmpty.hidden = filtered.length !== 0;
-        }
-
-        const featured = extensions.filter(extension =>
-            extension.featured &&
-            (state.category === "all" || extension.category === state.category) &&
-            (!state.search.trim() || matches(extension))
-        );
-
-        if (featuredGrid) {
-            featuredGrid.innerHTML = featured.map(extension =>
-                cardMarkup(extension, { featured: true })
-            ).join("");
-        }
-
-        const featuredSection = $("#featuredSection");
-        if (featuredSection) {
-            featuredSection.hidden = featured.length === 0;
-        }
+    if (resultsCount) {
+        resultsCount.textContent =
+            `${marketplaceItems.length} extension${marketplaceItems.length === 1 ? "" : "s"}`;
     }
 
-    function renderInstalled() {
-        const installed = extensions.filter(extension => state.installed.has(extension.id));
-
-        if (installedGrid) {
-            installedGrid.innerHTML = installed.map(extension => cardMarkup(extension)).join("");
-        }
-
-        if (installedEmpty) {
-            installedEmpty.hidden = installed.length !== 0;
-        }
+    /*
+     * ALL EXTENSIONS
+     * Paid yahan nahi aayengi.
+     */
+    if (marketplaceGrid) {
+        marketplaceGrid.innerHTML =
+            marketplaceItems
+                .map(extension => cardMarkup(extension))
+                .join("");
     }
 
-    function renderUpdates() {
-        // In this local marketplace, installed extensions with a newer catalog
-        // version are treated as available updates.
-        const updates = extensions.filter(extension =>
-            state.installed.has(extension.id) && extension.id.endsWith("-update")
-        );
-
-        if (updatesGrid) {
-            updatesGrid.innerHTML = updates.map(extension => cardMarkup(extension)).join("");
-        }
-
-        if (updatesEmpty) {
-            updatesEmpty.hidden = updates.length !== 0;
-        }
+    if (marketplaceEmpty) {
+        marketplaceEmpty.hidden =
+            marketplaceItems.length !== 0;
     }
 
-    function renderCounts() {
-        if (installedCount) {
-            installedCount.textContent = String(state.installed.size);
-        }
-
-        if (updatesCount) {
-            updatesCount.textContent = "0";
-        }
+    /*
+     * FEATURED
+     * Paid extensions sirf yahan.
+     */
+    if (featuredGrid) {
+        featuredGrid.innerHTML =
+            featured
+                .map(extension =>
+                    cardMarkup(extension, {
+                        featured: true
+                    })
+                )
+                .join("");
     }
+
+    const featuredSection = $("#featuredSection");
+
+    if (featuredSection) {
+        featuredSection.hidden =
+            featured.length === 0;
+    }
+}
 
     function renderAll() {
         renderMarketplace();
