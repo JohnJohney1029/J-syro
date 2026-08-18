@@ -306,10 +306,21 @@
         }
     }
 
+    function isExtensionUnlocked(id) {
+        // Prefer the existing J-SYRO extension manager when available.
+        try {
+            if (window.manager && typeof window.manager.isExtensionUnlocked === "function") {
+                return !!window.manager.isExtensionUnlocked(id);
+            }
+        } catch (_) {}
+
+        return state.unlocked.has(id);
+    }
+
     function buttonMarkup(extension) {
         const installed = state.installed.has(extension.id);
-        const paid = extension.price > 0;
-        const unlocked = state.unlocked.has(extension.id);
+        const paid = Number(extension.price) > 0;
+        const unlocked = !paid || isExtensionUnlocked(extension.id);
 
         if (installed) {
             return `
@@ -320,15 +331,19 @@
             `;
         }
 
-        const action = paid && !unlocked ? "unlock" : "install";
-        const label = paid && !unlocked
-            ? `🔒 Unlock $${extension.price.toFixed(2)}`
-            : "Install";
+        if (paid && !unlocked) {
+            return `
+                <div class="extension-actions">
+                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
+                    <button class="extension-button primary" data-action="unlock" data-id="${extension.id}" type="button">🔒 Lock $${extension.price.toFixed(2)}</button>
+                </div>
+            `;
+        }
 
         return `
             <div class="extension-actions">
                 <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
-                <button class="extension-button primary" data-action="${action}" data-id="${extension.id}" type="button">${label}</button>
+                <button class="extension-button primary" data-action="install" data-id="${extension.id}" type="button">Install</button>
             </div>
         `;
     }
@@ -390,11 +405,7 @@
     }
 
     function renderMarketplace() {
-        // Featured extensions are shown in the Recommended section only.
-        // Keep them out of the All Extensions grid so each extension appears once.
-        const filtered = sortExtensions(
-            extensions.filter(extension => matches(extension) && !extension.featured)
-        );
+        const filtered = sortExtensions(extensions.filter(matches));
 
         if (resultsCount) {
             resultsCount.textContent = `${filtered.length} extension${filtered.length === 1 ? "" : "s"}`;
@@ -408,11 +419,11 @@
             marketplaceEmpty.hidden = filtered.length !== 0;
         }
 
-        const featured = extensions.filter(extension =>
-            extension.featured &&
-            (state.category === "all" || extension.category === state.category) &&
-            (!state.search.trim() || matches(extension))
-        );
+        // Paid/PRO extensions stay in the top Recommended row.
+        // The full marketplace list below still contains every extension.
+        const featured = sortExtensions(extensions.filter(extension =>
+            Number(extension.price) > 0 && matches(extension)
+        ));
 
         if (featuredGrid) {
             featuredGrid.innerHTML = featured.map(extension =>
@@ -546,14 +557,14 @@
         }
 
         const installed = state.installed.has(extension.id);
-        const paid = extension.price > 0;
-        const unlocked = state.unlocked.has(extension.id);
+        const paid = Number(extension.price) > 0;
+        const unlocked = !paid || isExtensionUnlocked(extension.id);
 
         if (installed) {
             modalPrimary.textContent = "Uninstall";
             modalPrimary.className = "extension-button danger";
         } else if (paid && !unlocked) {
-            modalPrimary.textContent = `🔒 Unlock $${extension.price.toFixed(2)}`;
+            modalPrimary.textContent = `🔒 Lock $${extension.price.toFixed(2)}`;
             modalPrimary.className = "extension-button primary";
         } else {
             modalPrimary.textContent = "Install";
@@ -585,13 +596,89 @@
         currentModalId = null;
     }
 
+    function saveUnlocked() {
+        try {
+            localStorage.setItem(
+                "jsyro-unlocked-extensions",
+                JSON.stringify([...state.unlocked])
+            );
+        } catch (_) {}
+    }
+
+    function loadUnlocked() {
+        try {
+            const saved = JSON.parse(
+                localStorage.getItem("jsyro-unlocked-extensions") || "[]"
+            );
+
+            if (Array.isArray(saved)) {
+                saved.forEach(id => {
+                    if (extensions.some(extension => extension.id === id && Number(extension.price) > 0)) {
+                        state.unlocked.add(id);
+                    }
+                });
+            }
+        } catch (_) {}
+    }
+
+    function completeExtensionUnlock(extension) {
+        try {
+            if (window.manager && typeof window.manager.markUnlocked === "function") {
+                window.manager.markUnlocked(extension.id);
+            }
+        } catch (_) {}
+
+        state.unlocked.add(extension.id);
+        saveUnlocked();
+        renderAll();
+        showToast(`${extension.name} unlocked`);
+    }
+
+    function openPaymentForExtension(extension) {
+        const onSuccess = () => completeExtensionUnlock(extension);
+
+        // Use the project's existing payment popup/system.
+        if (typeof window.openPaymentPopup === "function") {
+            window.openPaymentPopup({
+                type: "extension",
+                extensionId: extension.id,
+                extensionName: extension.name,
+                price: extension.price,
+                onSuccess
+            });
+            return;
+        }
+
+        if (window.jSyroPayment && typeof window.jSyroPayment.open === "function") {
+            window.jSyroPayment.open({
+                type: "extension",
+                extensionId: extension.id,
+                name: extension.name,
+                price: extension.price,
+                onSuccess
+            });
+            return;
+        }
+
+        if (window.jSyroAccess && typeof window.jSyroAccess.requestPayment === "function") {
+            window.jSyroAccess.requestPayment({
+                type: "extension",
+                extensionId: extension.id,
+                price: extension.price,
+                onSuccess
+            });
+            return;
+        }
+
+        showToast("Payment popup is not connected yet", "!");
+    }
+
     function installExtension(id) {
         const extension = extensions.find(item => item.id === id);
         if (!extension) return;
 
-        // Paid extensions must be unlocked before installation.
-        if (extension.price > 0 && !state.unlocked.has(id)) {
-            unlockExtension(id);
+        if (Number(extension.price) > 0 && !isExtensionUnlocked(id)) {
+            openPaymentForExtension(extension);
             return;
         }
 
@@ -599,26 +686,6 @@
         saveInstalled();
         renderAll();
         showToast(`${extension.name} installed`);
-
-        if (currentModalId === id) {
-            openDetails(id);
-        }
-    }
-
-    function unlockExtension(id) {
-        const extension = extensions.find(item => item.id === id);
-        if (!extension || extension.price <= 0) return;
-
-        const confirmed = window.confirm(
-            `Purchase ${extension.name} for $${extension.price.toFixed(2)}?\n\nThis demo will mark the extension as paid/unlocked.`
-        );
-
-        if (!confirmed) return;
-
-        state.unlocked.add(id);
-        saveUnlocked();
-        renderAll();
-        showToast(`${extension.name} unlocked`);
 
         if (currentModalId === id) {
             openDetails(id);
@@ -645,32 +712,6 @@
                 "jsyro-installed-extensions",
                 JSON.stringify([...state.installed])
             );
-        } catch (_) {}
-    }
-
-    function saveUnlocked() {
-        try {
-            localStorage.setItem(
-                "jsyro-unlocked-extensions",
-                JSON.stringify([...state.unlocked])
-            );
-        } catch (_) {}
-    }
-
-    function loadUnlocked() {
-        try {
-            const saved = JSON.parse(
-                localStorage.getItem("jsyro-unlocked-extensions") || "[]"
-            );
-
-            if (Array.isArray(saved)) {
-                saved.forEach(id => {
-                    const extension = extensions.find(item => item.id === id);
-                    if (extension && extension.price > 0) {
-                        state.unlocked.add(id);
-                    }
-                });
-            }
         } catch (_) {}
     }
 
@@ -739,7 +780,10 @@
             const action = actionButton.dataset.action;
 
             if (action === "details") openDetails(id);
-            if (action === "unlock") unlockExtension(id);
+            if (action === "unlock") {
+                const extension = extensions.find(item => item.id === id);
+                if (extension) openPaymentForExtension(extension);
+            }
             if (action === "install") installExtension(id);
             if (action === "uninstall") uninstallExtension(id);
         });
@@ -752,13 +796,13 @@
         modalPrimary?.addEventListener("click", () => {
             if (!currentModalId) return;
 
-            const currentExtension = extensions.find(item => item.id === currentModalId);
-            if (!currentExtension) return;
+            const extension = extensions.find(item => item.id === currentModalId);
+            if (!extension) return;
 
             if (state.installed.has(currentModalId)) {
                 uninstallExtension(currentModalId);
-            } else if (currentExtension.price > 0 && !state.unlocked.has(currentModalId)) {
-                unlockExtension(currentModalId);
+            } else if (Number(extension.price) > 0 && !isExtensionUnlocked(currentModalId)) {
+                openPaymentForExtension(extension);
             } else {
                 installExtension(currentModalId);
             }
