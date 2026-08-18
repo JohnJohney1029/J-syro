@@ -372,71 +372,58 @@
         `;
     }
 
-    function escapeHtml(value) {
-        return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
    function renderMarketplace() {
-    const filtered = sortExtensions(
-        extensions.filter(matches)
-    );
+    const allMatching = extensions.filter(matches);
 
     /*
-     * PAID EXTENSIONS
-     * Sirf Featured section mein.
+     * TOP ROW:
+     * Sirf PAID / PRO extensions.
      */
-    const featured = filtered.filter(extension =>
+    const featured = allMatching.filter(extension =>
         Number(extension.price) > 0
     );
 
     /*
-     * FREE EXTENSIONS
-     * Neeche All Extensions mein.
+     * MARKETPLACE:
+     * Paid/PRO extensions ko neeche dobara mat dikhana.
+     * Yahan sirf FREE extensions rahengi.
      */
-    const marketplaceItems = filtered.filter(extension =>
-        Number(extension.price) === 0
+    const filtered = allMatching.filter(extension =>
+        Number(extension.price) <= 0
     );
 
     if (resultsCount) {
         resultsCount.textContent =
-            `${marketplaceItems.length} extension${marketplaceItems.length === 1 ? "" : "s"}`;
+            `${extensions.length} extension${extensions.length === 1 ? "" : "s"}`;
     }
 
-    /*
-     * ALL EXTENSIONS
-     * Paid yahan nahi aayengi.
-     */
     if (marketplaceGrid) {
-        marketplaceGrid.innerHTML =
-            marketplaceItems
-                .map(extension => cardMarkup(extension))
-                .join("");
+        marketplaceGrid.innerHTML = sortExtensions(filtered)
+            .map(extension => cardMarkup(extension))
+            .join("");
     }
 
     if (marketplaceEmpty) {
-        marketplaceEmpty.hidden =
-            marketplaceItems.length !== 0;
+        marketplaceEmpty.hidden = filtered.length !== 0;
     }
 
     /*
-     * FEATURED
-     * Paid extensions sirf yahan.
+     * Paid extensions ko FEATURED/top row mein show karo.
      */
     if (featuredGrid) {
-        featuredGrid.innerHTML =
-            featured
-                .map(extension =>
-                    cardMarkup(extension, {
-                        featured: true
-                    })
-                )
-                .join("");
+        featuredGrid.innerHTML = sortExtensions(featured)
+            .map(extension =>
+                cardMarkup(extension, { featured: true })
+            )
+            .join("");
     }
+
+    const featuredSection = $("#featuredSection");
+
+    if (featuredSection) {
+        featuredSection.hidden = featured.length === 0;
+    }
+}
 
     const featuredSection = $("#featuredSection");
 
