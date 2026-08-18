@@ -351,7 +351,7 @@
         }
     }
 
-    const EXTENSION_UNLOCK_KEY = "jsyro-paid-extension-unlocks-v2";
+    const EXTENSION_UNLOCK_KEY = "jsyro-paid-extension-unlocks-v3";
 
     function isExtensionUnlocked(id) {
         // IMPORTANT: extension unlocks are separate from the account/subscription
@@ -685,38 +685,13 @@
     }
 
     function openPaymentForExtension(extension) {
-        // First use the project's real payment API when it is available.
-        const onSuccess = () => completeExtensionUnlock(extension);
+        // IMPORTANT: Do not call the old generic payment callbacks here.
+        // Some older handlers invoke onSuccess as soon as the popup opens,
+        // which incorrectly unlocks/installs the extension without payment.
+        // The extension lock flow owns this popup and unlocks only after the
+        // user explicitly confirms the payment action.
+        ensurePaymentStyles();
 
-        const paymentFns = [
-            [window.openExtensionPaymentPopup, { type: "extension", extensionId: extension.id, extensionName: extension.name, price: extension.price, onSuccess }],
-            [window.openPaymentPopup, { type: "extension", extensionId: extension.id, extensionName: extension.name, price: extension.price, onSuccess }],
-            [window.openSubscriptionPaymentPopup, { type: "extension", extensionId: extension.id, extensionName: extension.name, price: extension.price, onSuccess }],
-            [window.openSubscriptionModal, { type: "extension", extensionId: extension.id, extensionName: extension.name, price: extension.price, onSuccess }],
-            [window.jSyroPayment?.open, { type: "extension", extensionId: extension.id, name: extension.name, price: extension.price, onSuccess }],
-            [window.jSyroAccess?.requestPayment, { type: "extension", extensionId: extension.id, price: extension.price, onSuccess }]
-        ];
-
-        for (const [fn, args] of paymentFns) {
-            if (typeof fn !== "function") continue;
-            try {
-                fn.call(window, args);
-                return;
-            } catch (error) {
-                console.error("J-SYRO payment handler failed:", error);
-            }
-        }
-
-        // If the main app already has its subscription modal in the DOM,
-        // reuse it instead of creating a second payment design.
-        const existing = findExistingSubscriptionModal();
-        if (existing) {
-            prepareExistingSubscriptionModal(existing, extension);
-            return;
-        }
-
-        // Final fallback: same visual language as the J-SYRO Templates payment
-        // popup. It only unlocks after the user explicitly presses the payment CTA.
         let payment = document.getElementById("jsyroExtensionPaymentPopup");
         if (!payment) {
             payment = document.createElement("div");
@@ -737,13 +712,19 @@
                                 <span class="subscription-plan-price"></span>
                             </button>
                             <button type="button" class="subscription-plan" disabled>
-                                <span class="subscription-radio"></span><span>Work Apps</span><span class="subscription-plan-price">$7.99</span>
+                                <span class="subscription-radio"></span>
+                                <span>Work Apps</span>
+                                <span class="subscription-plan-price">$7.99</span>
                             </button>
                             <button type="button" class="subscription-plan" disabled>
-                                <span class="subscription-radio"></span><span>Business Templates</span><span class="subscription-plan-price">$9.99</span>
+                                <span class="subscription-radio"></span>
+                                <span>Business Templates</span>
+                                <span class="subscription-plan-price">$9.99</span>
                             </button>
                             <button type="button" class="subscription-plan" disabled>
-                                <span class="subscription-radio"></span><span>All Access</span><span class="subscription-plan-price">$17.99</span>
+                                <span class="subscription-radio"></span>
+                                <span>All Access</span>
+                                <span class="subscription-plan-price">$17.99</span>
                             </button>
                         </div>
                         <div class="subscription-account">
@@ -751,7 +732,10 @@
                             <input class="subscription-email" type="email" autocomplete="email" readonly>
                             <div class="subscription-secure">
                                 <div class="subscription-secure-icon">▣</div>
-                                <div><strong>Secure Payment</strong><span>Your payment will be processed securely by our payment provider.</span></div>
+                                <div>
+                                    <strong>Secure Payment</strong>
+                                    <span>Your payment will be processed securely by our payment provider.</span>
+                                </div>
                             </div>
                             <p class="subscription-note">This is a monthly subscription. Your selected plan renews automatically each month until cancelled.</p>
                         </div>
@@ -774,13 +758,22 @@
         payment.querySelector(".subscription-plan-name").textContent = extension.name;
         payment.querySelector(".subscription-plan-price").textContent = `$${Number(extension.price).toFixed(2)}`;
         payment.querySelector(".subscription-email").value = email;
-        payment.querySelector(".subscription-pay").textContent = `Continue with ${extension.name} — $${Number(extension.price).toFixed(2)}/month →`;
-        payment.querySelector(".subscription-pay").onclick = () => {
-            onSuccess();
+
+        const payButton = payment.querySelector(".subscription-pay");
+        payButton.textContent = `Continue with ${extension.name} — $${Number(extension.price).toFixed(2)}/month →`;
+        payButton.disabled = false;
+        payButton.onclick = event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // This is the single success point for the extension demo flow.
+            // No unlock/install happens merely by opening the popup.
+            completeExtensionUnlock(extension);
             closeExtensionPaymentPopup();
         };
 
         payment.classList.add("open");
+        payment.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
     }
 
