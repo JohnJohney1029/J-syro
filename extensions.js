@@ -691,10 +691,10 @@
         }
 
         // Fallback: render the same subscription-style popup locally.
-        createExtensionPaymentModal(extension, () => completeExtensionPayment(extension.id));
+        createExtensionPaymentModal(extension);
     }
 
-    function createExtensionPaymentModal(extension, onSuccess) {
+    function createExtensionPaymentModal(extension) {
         let modalEl = document.getElementById("extensionPaymentModal");
         if (modalEl) modalEl.remove();
 
@@ -765,8 +765,11 @@
         const close = () => modalEl.remove();
         modalEl.querySelectorAll("[data-payment-close]").forEach(button => button.addEventListener("click", close));
         modalEl.querySelector(".extension-payment-continue").addEventListener("click", () => {
-            close();
-            onSuccess();
+            // IMPORTANT: this local UI is only the payment screen.
+            // Opening/continuing it must NOT unlock or install the extension.
+            // The real payment provider must call the onSuccess callback passed
+            // through openExtensionPayment() after a verified successful charge.
+            showToast("Payment is not completed yet. Extension remains locked.");
         });
     }
 
@@ -786,15 +789,15 @@
 
     function saveState() {
         try {
-            localStorage.setItem("jsyro-installed-extensions-v2", JSON.stringify([...state.installed]));
-            localStorage.setItem("jsyro-unlocked-extensions-v2", JSON.stringify([...state.unlocked]));
+            localStorage.setItem("jsyro-installed-extensions-v3", JSON.stringify([...state.installed]));
+            localStorage.setItem("jsyro-unlocked-extensions-v3", JSON.stringify([...state.unlocked]));
         } catch (_) {}
     }
 
     function loadInstalled() {
         try {
-            const savedInstalled = JSON.parse(localStorage.getItem("jsyro-installed-extensions-v2") || "[]");
-            const savedUnlocked = JSON.parse(localStorage.getItem("jsyro-unlocked-extensions-v2") || "[]");
+            const savedInstalled = JSON.parse(localStorage.getItem("jsyro-installed-extensions-v3") || "[]");
+            const savedUnlocked = JSON.parse(localStorage.getItem("jsyro-unlocked-extensions-v3") || "[]");
 
             if (Array.isArray(savedUnlocked)) {
                 savedUnlocked.forEach(id => {
