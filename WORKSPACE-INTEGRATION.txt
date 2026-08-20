@@ -1,0 +1,20 @@
+J-SYRO REAL EXTENSION ACTIVATION
+
+The marketplace can install/uninstall extensions and saves the installed IDs in localStorage.
+To make the installed extensions actually operate inside workspace.html, load this file AFTER workspace.js:
+
+<script src="extension-system/workspace-extension-host.js"></script>
+
+Recommended location: immediately after <script src="workspace.js"></script>.
+
+Actual implemented tools:
+- Web Code Snippets: inserts useful starter snippets into the active .code-editor.
+- J-SYRO Prettier: formats HTML/CSS/JS/JSON in the active editor.
+- AI Coding Helper: opens an in-workspace helper panel with code-aware guidance (offline, no fake API).
+- Dark Pro Theme: toggles a dark professional editor theme.
+- Bracket Colorizer: analyzes bracket nesting and shows the active nesting depth.
+- JSON Tools: validates and pretty-prints JSON files.
+- JS Lint Lite: performs basic JavaScript diagnostics.
+- Git Tools: provides a local workspace status action; real Git commits/branches require a backend or Git API.
+
+Paid extensions still use the existing J-SYRO payment flow. No fake successful payment is performed.
