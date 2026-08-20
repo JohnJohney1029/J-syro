@@ -2661,10 +2661,7 @@ function initializeShareProjectModal() {
         "click",
         nativeShareProject
     );
-    disableShareButton?.addEventListener(
-    "click",
-    disableShareLink
-);
+
 
 
     linkInput?.addEventListener(
