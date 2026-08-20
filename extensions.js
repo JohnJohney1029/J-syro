@@ -213,13 +213,19 @@
         }
     ];
 
+    // The catalog stays owned by this UI file; persistent install/unlock state
+    // is owned by the real J-SYRO extension manager.
+    window.jSyroExtensionCatalog = extensions;
+
+    const store = window.jSyroExtensionStore;
+    const manager = window.jSyroExtensionManager;
+    const api = window.jSyroExtensionAPI;
+
     const state = {
         view: "marketplace",
         category: "all",
         search: "",
-        sort: "popular",
-        installed: new Set(),
-        unlocked: new Set()
+        sort: "popular"
     };
 
     const $ = (selector) => document.querySelector(selector);
@@ -311,18 +317,29 @@
     }
 
     function isUnlocked(id) {
-        return state.unlocked.has(id);
+        return !!manager && manager.isExtensionUnlocked(id);
     }
 
-    function buttonMarkup(extension) {
-        const installed = state.installed.has(extension.id);
+    function buttonMarkup(extension, options = {}) {
+        const installed = !!manager && manager.isInstalled(extension.id);
         const paid = isPaid(extension);
         const unlocked = isUnlocked(extension.id);
 
-        if (installed) {
+        if (options.update) {
             return `
                 <div class="extension-actions">
                     <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
+                    <button class="extension-button primary" data-action="update" data-id="${extension.id}" type="button">Update</button>
+                </div>
+            `;
+        }
+
+        if (installed) {
+            const enabled = manager.isEnabled(extension.id);
+            return `
+                <div class="extension-actions">
+                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
+                    <button class="extension-button ${enabled ? "secondary" : "primary"}" data-action="${enabled ? "disable" : "enable"}" data-id="${extension.id}" type="button">${enabled ? "Disable" : "Enable"}</button>
                     <button class="extension-button danger" data-action="uninstall" data-id="${extension.id}" type="button">Uninstall</button>
                 </div>
             `;
@@ -332,7 +349,7 @@
             return `
                 <div class="extension-actions">
                     <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
-                    <button class="extension-button primary" data-action="unlock" data-id="${extension.id}" type="button">🔒 Lock $${Number(extension.price).toFixed(2)}</button>
+                    <button class="extension-button primary" data-action="unlock" data-id="${extension.id}" type="button">🔒 Unlock $${Number(extension.price).toFixed(2)}</button>
                 </div>
             `;
         }
@@ -346,8 +363,9 @@
     }
 
     function cardMarkup(extension, options = {}) {
-        const installed = state.installed.has(extension.id);
+        const installed = !!manager && manager.isInstalled(extension.id);
         const showFeatured = options.featured === true;
+        const showUpdate = options.update === true;
 
         return `
             <article class="extension-card${showFeatured ? " featured" : ""}" data-extension-id="${extension.id}">
@@ -386,7 +404,7 @@
                         <strong>${extension.price > 0 ? `$${extension.price.toFixed(2)}` : "Free"}</strong>
                     </div>
 
-                    ${buttonMarkup(extension)}
+                    ${buttonMarkup(extension, { update: showUpdate })}
                 </div>
             </article>
         `;
@@ -436,40 +454,38 @@
     }
 
     function renderInstalled() {
-        const installed = extensions.filter(extension => state.installed.has(extension.id));
+        const installed = manager ? manager.getAllInstalled() : [];
+        const items = installed.map(item => item.marketplace || item).filter(Boolean);
 
         if (installedGrid) {
-            installedGrid.innerHTML = installed.map(extension => cardMarkup(extension)).join("");
+            installedGrid.innerHTML = items.map(extension => cardMarkup(extension)).join("");
         }
 
         if (installedEmpty) {
-            installedEmpty.hidden = installed.length !== 0;
+            installedEmpty.hidden = items.length !== 0;
         }
     }
 
     function renderUpdates() {
-        // In this local marketplace, installed extensions with a newer catalog
-        // version are treated as available updates.
-        const updates = extensions.filter(extension =>
-            state.installed.has(extension.id) && extension.id.endsWith("-update")
-        );
+        const updates = manager ? manager.getUpdates() : [];
+        const items = updates.map(item => item.extension || item.marketplace || item).filter(Boolean);
 
         if (updatesGrid) {
-            updatesGrid.innerHTML = updates.map(extension => cardMarkup(extension)).join("");
+            updatesGrid.innerHTML = items.map(extension => cardMarkup(extension)).join("");
         }
 
         if (updatesEmpty) {
-            updatesEmpty.hidden = updates.length !== 0;
+            updatesEmpty.hidden = items.length !== 0;
         }
     }
 
     function renderCounts() {
         if (installedCount) {
-            installedCount.textContent = String(state.installed.size);
+            installedCount.textContent = String(manager ? manager.getInstalledCount() : 0);
         }
 
         if (updatesCount) {
-            updatesCount.textContent = "0";
+            updatesCount.textContent = String(manager ? manager.getUpdates().length : 0);
         }
     }
 
@@ -554,13 +570,23 @@
             modalPrice.textContent = "Free";
         }
 
-        const installed = state.installed.has(extension.id);
+        const installed = !!manager && manager.isInstalled(extension.id);
         const paid = isPaid(extension);
         const unlocked = isUnlocked(extension.id);
 
+        if (options.update) {
+            return `
+                <div class="extension-actions">
+                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
+                    <button class="extension-button primary" data-action="update" data-id="${extension.id}" type="button">Update</button>
+                </div>
+            `;
+        }
+
         if (installed) {
-            modalPrimary.textContent = "Uninstall";
-            modalPrimary.className = "extension-button danger";
+            const enabled = manager.isEnabled(extension.id);
+            modalPrimary.textContent = enabled ? "Disable" : "Enable";
+            modalPrimary.className = enabled ? "extension-button secondary" : "extension-button primary";
         } else if (paid && !unlocked) {
             modalPrimary.textContent = `🔒 Lock $${Number(extension.price).toFixed(2)}`;
             modalPrimary.className = "extension-button primary";
@@ -595,65 +621,66 @@
     }
 
     function installExtension(id) {
-        const extension = extensions.find(item => item.id === id);
-        if (!extension) return;
+        const extension = store && store.getById(id);
+        if (!extension || !manager) return;
 
-        if (isPaid(extension) && !isUnlocked(id)) {
+        if (isPaid(extension) && !manager.isExtensionUnlocked(id)) {
             openExtensionPayment(extension);
             return;
         }
 
-        state.installed.add(id);
-        saveState();
-        renderAll();
-        showToast(`${extension.name} installed`);
-
-        if (currentModalId === id) {
-            openDetails(id);
+        try {
+            manager.install(id);
+            renderAll();
+            showToast(`${extension.name} installed`);
+            if (currentModalId === id) openDetails(id);
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || "Could not install extension", "!");
         }
     }
 
     function unlockExtension(id) {
-        const extension = extensions.find(item => item.id === id);
+        const extension = store && store.getById(id);
         if (!extension || !isPaid(extension)) return;
-
-        if (isUnlocked(id)) {
-            renderAll();
+        if (manager.isExtensionUnlocked(id)) {
+            installExtension(id);
             return;
         }
-
         openExtensionPayment(extension);
     }
 
     function completeExtensionPayment(id) {
-        const extension = extensions.find(item => item.id === id);
-        if (!extension || !isPaid(extension)) return;
+        const extension = store && store.getById(id);
+        if (!extension || !manager) return;
 
-        state.unlocked.add(id);
-        // Payment unlocks access only. It must NOT install automatically.
-        state.installed.delete(id);
-        saveState();
-        renderAll();
-        showToast(`${extension.name} unlocked`);
-
-        if (currentModalId === id) {
-            openDetails(id);
+        try {
+            manager.markUnlocked(id);
+            manager.install(id);
+            renderAll();
+            showToast(`${extension.name} unlocked and installed`);
+            if (currentModalId === id) openDetails(id);
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || "Extension could not be installed", "!");
         }
     }
 
     function openExtensionPayment(extension) {
-        // Reuse the project's existing payment popup when available.
+        const success = () => completeExtensionPayment(extension.id);
         const payload = {
             type: "extension",
             extensionId: extension.id,
             extensionName: extension.name,
             name: extension.name,
             price: extension.price,
-            onSuccess: () => completeExtensionPayment(extension.id),
-            success: () => completeExtensionPayment(extension.id),
-            onComplete: () => completeExtensionPayment(extension.id)
+            onSuccess: success,
+            success,
+            onComplete: success
         };
 
+        // IMPORTANT: never create a second payment UI here. The extension page
+        // only talks to the existing J-SYRO payment/access bridge.
         const candidates = [
             [window, "openPaymentPopup"],
             [window, "openSubscriptionPopup"],
@@ -690,135 +717,26 @@
             }
         }
 
-        // Fallback: render the same subscription-style popup locally.
-        createExtensionPaymentModal(extension);
-    }
-
-    function createExtensionPaymentModal(extension) {
-        let modalEl = document.getElementById("extensionPaymentModal");
-        if (modalEl) modalEl.remove();
-
-        modalEl = document.createElement("div");
-        modalEl.id = "extensionPaymentModal";
-        modalEl.innerHTML = `
-            <div class="extension-payment-backdrop" data-payment-close></div>
-            <div class="extension-payment-card" role="dialog" aria-modal="true" aria-labelledby="extensionPaymentTitle">
-                <button type="button" class="extension-payment-close" data-payment-close aria-label="Close">×</button>
-                <div class="extension-payment-logo">JS</div>
-                <h2 id="extensionPaymentTitle">J-SYRO Secure Payment</h2>
-                <p class="extension-payment-subtitle">Unlock this premium extension to install it in your workspace.</p>
-
-                <div class="extension-payment-selected">
-                    <div>
-                        <span class="extension-payment-kicker">PRO EXTENSION</span>
-                        <strong>${escapeHtml(extension.name)}</strong>
-                        <span>${escapeHtml(extension.publisher)}</span>
-                    </div>
-                    <b>$${Number(extension.price).toFixed(2)}</b>
-                </div>
-
-                <div class="extension-payment-divider"></div>
-                <label class="extension-payment-label">Account Email</label>
-                <input class="extension-payment-email" value="" readonly aria-label="Account Email">
-                <div class="extension-secure-box">
-                    <div class="extension-secure-icon">▣</div>
-                    <div><strong>Secure Payment</strong><span>Your payment will be processed securely by your payment provider.</span></div>
-                </div>
-                <p class="extension-payment-note">Payment unlocks ${escapeHtml(extension.name)} only. After successful payment, its button changes to <strong>Install</strong>.</p>
-                <button type="button" class="extension-payment-continue">Continue with $${Number(extension.price).toFixed(2)} →</button>
-                <small class="extension-payment-foot">J-SYRO does not store your card details.</small>
-            </div>
-        `;
-
-        const style = document.createElement("style");
-        style.id = "extensionPaymentModalStyles";
-        style.textContent = `
-            #extensionPaymentModal{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(4,7,12,.78);backdrop-filter:blur(9px);padding:16px}
-            #extensionPaymentModal .extension-payment-card{position:relative;width:min(720px,100%);max-height:calc(100vh - 32px);overflow:auto;background:#fff;color:#202331;border-radius:22px;box-shadow:0 30px 100px rgba(0,0,0,.55);padding:42px}
-            #extensionPaymentModal .extension-payment-close{position:absolute;right:22px;top:20px;width:54px;height:54px;border-radius:50%;border:1px solid #dce0e8;background:#f7f8fb;color:#687080;font-size:30px;cursor:pointer}
-            #extensionPaymentModal .extension-payment-logo{width:92px;height:92px;border-radius:50%;margin:-82px auto 30px;display:grid;place-items:center;background:#11131b;color:#fff;border:8px solid #fff;box-shadow:0 8px 28px rgba(0,0,0,.25);font-weight:900;font-size:25px;font-style:italic}
-            #extensionPaymentModal h2{text-align:center;font-size:34px;margin:0 0 10px;font-weight:800}
-            #extensionPaymentModal .extension-payment-subtitle{text-align:center;color:#7b8190;font-size:17px;margin:0 0 30px}
-            #extensionPaymentModal .extension-payment-selected{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid #ddd7ff;background:#f7f5ff;border-radius:16px;padding:20px}
-            #extensionPaymentModal .extension-payment-selected strong{display:block;font-size:19px;margin:4px 0}
-            #extensionPaymentModal .extension-payment-selected span{display:block;color:#7b8190;font-size:13px}
-            #extensionPaymentModal .extension-payment-selected b{font-size:22px;color:#5b4fe8;white-space:nowrap}
-            #extensionPaymentModal .extension-payment-kicker{color:#6959ff!important;font-size:11px!important;font-weight:800;letter-spacing:.08em}
-            #extensionPaymentModal .extension-payment-divider{height:1px;background:#e5e7ec;margin:30px -42px}
-            #extensionPaymentModal .extension-payment-label{display:block;font-weight:700;font-size:16px;margin-bottom:10px}
-            #extensionPaymentModal .extension-payment-email{width:100%;height:56px;border:1px solid #d8dce4;border-radius:13px;padding:0 18px;font-size:18px;color:#4c5260;background:#fafbfc;margin-bottom:26px}
-            #extensionPaymentModal .extension-secure-box{display:flex;gap:18px;align-items:center;border:1px solid #ddd8ff;background:#faf9ff;border-radius:16px;padding:20px}
-            #extensionPaymentModal .extension-secure-icon{width:64px;height:64px;border-radius:14px;background:#eeeaff;display:grid;place-items:center;color:#705eff;font-size:26px}
-            #extensionPaymentModal .extension-secure-box strong{display:block;font-size:18px;margin-bottom:6px}
-            #extensionPaymentModal .extension-secure-box span{display:block;color:#7d8391;font-size:14px}
-            #extensionPaymentModal .extension-payment-note{color:#7d8391;font-size:15px;line-height:1.55;margin:28px 4px 24px}
-            #extensionPaymentModal .extension-payment-continue{width:100%;height:62px;border:0;border-radius:15px;background:linear-gradient(135deg,#6959ff,#765dff);color:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 12px 30px rgba(105,89,255,.24)}
-            #extensionPaymentModal .extension-payment-foot{display:block;text-align:center;color:#9a9fac;margin-top:24px;font-size:13px}
-            @media(max-width:600px){#extensionPaymentModal .extension-payment-card{padding:28px 20px;border-radius:16px}#extensionPaymentModal .extension-payment-logo{margin:-64px auto 22px}#extensionPaymentModal h2{font-size:27px}#extensionPaymentModal .extension-payment-divider{margin:25px -20px}#extensionPaymentModal .extension-payment-selected{align-items:flex-start;flex-direction:column}#extensionPaymentModal .extension-payment-selected b{font-size:20px}}
-        `;
-        document.head.appendChild(style);
-        document.body.appendChild(modalEl);
-
-        const email = modalEl.querySelector(".extension-payment-email");
-        email.value = window.currentUserEmail || window.userEmail || window.accountEmail || "";
-
-        const close = () => modalEl.remove();
-        modalEl.querySelectorAll("[data-payment-close]").forEach(button => button.addEventListener("click", close));
-        modalEl.querySelector(".extension-payment-continue").addEventListener("click", () => {
-            // IMPORTANT: this local UI is only the payment screen.
-            // Opening/continuing it must NOT unlock or install the extension.
-            // The real payment provider must call the onSuccess callback passed
-            // through openExtensionPayment() after a verified successful charge.
-            showToast("Payment is not completed yet. Extension remains locked.");
-        });
+        showToast("J-SYRO payment system is not loaded on this page.", "!");
     }
 
     function uninstallExtension(id) {
         const extension = extensions.find(item => item.id === id);
         if (!extension) return;
 
-        state.installed.delete(id);
-        saveState();
-        renderAll();
-        showToast(`${extension.name} uninstalled`);
-
-        if (currentModalId === id) {
-            openDetails(id);
+        try {
+            manager.uninstall(id);
+            renderAll();
+            showToast(`${extension.name} uninstalled`);
+            if (currentModalId === id) openDetails(id);
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || "Could not uninstall extension", "!");
         }
     }
 
-    function saveState() {
-        try {
-            localStorage.setItem("jsyro-installed-extensions-v3", JSON.stringify([...state.installed]));
-            localStorage.setItem("jsyro-unlocked-extensions-v3", JSON.stringify([...state.unlocked]));
-        } catch (_) {}
-    }
-
     function loadInstalled() {
-        try {
-            const savedInstalled = JSON.parse(localStorage.getItem("jsyro-installed-extensions-v3") || "[]");
-            const savedUnlocked = JSON.parse(localStorage.getItem("jsyro-unlocked-extensions-v3") || "[]");
-
-            if (Array.isArray(savedUnlocked)) {
-                savedUnlocked.forEach(id => {
-                    const extension = extensions.find(item => item.id === id);
-                    if (extension && isPaid(extension)) state.unlocked.add(id);
-                });
-            }
-
-            if (Array.isArray(savedInstalled)) {
-                savedInstalled.forEach(id => {
-                    const extension = extensions.find(item => item.id === id);
-                    if (!extension) return;
-                    // A paid extension can NEVER remain installed without a recorded unlock.
-                    if (isPaid(extension) && !state.unlocked.has(id)) return;
-                    state.installed.add(id);
-                });
-            }
-
-            // Clean stale/broken paid installs from previous versions.
-            saveState();
-        } catch (_) {}
+        // Persistent state is loaded by extension-manager.js.
     }
 
     function bindEvents() {
@@ -873,6 +791,18 @@
             if (action === "unlock") unlockExtension(id);
             if (action === "install") installExtension(id);
             if (action === "uninstall") uninstallExtension(id);
+            if (action === "enable") {
+                try { manager.enable(id); renderAll(); showToast(`${store.getById(id)?.name || "Extension"} enabled`); }
+                catch (error) { showToast(error.message || "Could not enable extension", "!"); }
+            }
+            if (action === "disable") {
+                try { manager.disable(id); renderAll(); showToast(`${store.getById(id)?.name || "Extension"} disabled`); }
+                catch (error) { showToast(error.message || "Could not disable extension", "!"); }
+            }
+            if (action === "update") {
+                try { manager.update(id); renderAll(); showToast(`${store.getById(id)?.name || "Extension"} updated`); }
+                catch (error) { showToast(error.message || "Could not update extension", "!"); }
+            }
         });
 
         $("#closeExtensionDetails")?.addEventListener("click", closeDetails);
@@ -886,8 +816,26 @@
             const currentExtension = extensions.find(item => item.id === currentModalId);
             if (!currentExtension) return;
 
-            if (state.installed.has(currentModalId)) {
-                uninstallExtension(currentModalId);
+            if (manager.isInstalled(currentModalId)) {
+                if (manager.isEnabled(currentModalId)) {
+                    try {
+                        manager.disable(currentModalId);
+                        showToast(`${currentExtension.name} disabled`);
+                        renderAll();
+                        openDetails(currentModalId);
+                    } catch (error) {
+                        showToast(error.message || "Could not disable extension", "!");
+                    }
+                } else {
+                    try {
+                        manager.enable(currentModalId);
+                        showToast(`${currentExtension.name} enabled`);
+                        renderAll();
+                        openDetails(currentModalId);
+                    } catch (error) {
+                        showToast(error.message || "Could not enable extension", "!");
+                    }
+                }
             } else if (isPaid(currentExtension) && !isUnlocked(currentModalId)) {
                 unlockExtension(currentModalId);
             } else {
@@ -938,6 +886,11 @@
     }
 
     function init() {
+        if (!store || !manager) {
+            console.error("J-SYRO extension system is not loaded.");
+            showToast("Extension system failed to load", "!");
+            return;
+        }
         loadInstalled();
         bindEvents();
         renderAll();
