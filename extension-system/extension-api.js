@@ -1,456 +1,58 @@
-/* =========================================================
+/* =========================================
    J-SYRO EXTENSION API
-   ---------------------------------------------------------
-   Public API exposed to extensions.
-
-   Future-compatible architecture for:
-
-   commands
-   panels
-   languages
-   themes
-   snippets
-   formatters
-   linters
-   git
-   AI
-========================================================= */
-
-(function () {
-
+   Safe bridge exposed to extensions.
+========================================= */
+(() => {
     "use strict";
 
+    const security = window.jSyroExtensionSecurity;
 
-    const security =
-        window.jSyroExtensionSecurity;
-
-
-    if (!security) {
-
-        console.error(
-            "J-SYRO Extension Security must load before Extension API."
-        );
-
-        return;
-
-    }
-
-
-    const registry = {
-
-        commands:
-            new Map(),
-
-        panels:
-            new Map(),
-
-        languages:
-            new Map(),
-
-        themes:
-            new Map(),
-
-        snippets:
-            new Map()
-
-    };
-
-
-    let activeExtension =
-        null;
-
-
-    function setActiveExtension(
-        extension
-    ) {
-
-        activeExtension =
-            extension || null;
-
-    }
-
-
-    function requireExtension() {
-
-        if (!activeExtension) {
-
-            throw new Error(
-                "No active J-SYRO extension context."
-            );
-
+    function requirePermission(extensionId, permission) {
+        if (!security) throw new Error("J-SYRO extension security is unavailable.");
+        if (!security.has(extensionId, permission)) {
+            throw new Error(`Permission required: ${permission}`);
         }
-
-        return activeExtension;
-
     }
 
-
-    function requirePermission(
-        permission
-    ) {
-
-        const extension =
-            requireExtension();
-
-        security.assertPermission(
-            extension,
-            permission
-        );
-
-    }
-
-
-    function register(
-        type,
-        item,
-        permission
-    ) {
-
-        requirePermission(
-            permission
-        );
-
-
-        if (
-            !item ||
-            typeof item !== "object"
-        ) {
-
-            throw new Error(
-                `Invalid ${type} registration.`
-            );
-
-        }
-
-
-        if (!item.id) {
-
-            throw new Error(
-                `${type} requires an id.`
-            );
-
-        }
-
-
-        const collection =
-            registry[type];
-
-
-        if (!collection) {
-
-            throw new Error(
-                `Unsupported registry: ${type}`
-            );
-
-        }
-
-
-        collection.set(
-            `${activeExtension.id}:${item.id}`,
-            {
-                ...item,
-
-                extensionId:
-                    activeExtension.id
-
-            }
-        );
-
-
-        return item.id;
-
-    }
-
-
-    function unregisterExtensionItems(
-        extensionId
-    ) {
-
-        Object.values(
-            registry
-        ).forEach(
-            collection => {
-
-                for (
-                    const [
-                        key,
-                        value
-                    ]
-                    of collection
-                ) {
-
-                    if (
-                        value.extensionId ===
-                        extensionId
-                    ) {
-
-                        collection.delete(
-                            key
-                        );
-
-                    }
-
-                }
-
-            }
-        );
-
-    }
-
-
-    function getActiveFile() {
-
-        requirePermission(
-            "workspace.read"
-        );
-
-
-        if (
-            typeof window.jSyroWorkspace ===
-            "object" &&
-            typeof window
-                .jSyroWorkspace
-                .getActiveFile ===
-                "function"
-        ) {
-
-            return window
-                .jSyroWorkspace
-                .getActiveFile();
-
-        }
-
-
-        const file =
-            document.getElementById(
-                "breadcrumbFile"
-            );
-
-
-        return (
-            file?.textContent
-                ?.trim() ||
-            null
-        );
-
-    }
-
-
-    function getProjectFiles() {
-
-        requirePermission(
-            "workspace.read"
-        );
-
-
-        if (
-            typeof window.jSyroWorkspace ===
-            "object" &&
-            typeof window
-                .jSyroWorkspace
-                .getProjectFiles ===
-                "function"
-        ) {
-
-            return window
-                .jSyroWorkspace
-                .getProjectFiles();
-
-        }
-
-
-        return {};
-
-    }
-
-
-    function getActiveEditor() {
-
-        requirePermission(
-            "editor"
-        );
-
-
-        if (
-            typeof window.jSyroWorkspace ===
-            "object" &&
-            typeof window
-                .jSyroWorkspace
-                .getEditor ===
-                "function"
-        ) {
-
-            return window
-                .jSyroWorkspace
-                .getEditor();
-
-        }
-
-
-        return null;
-
-    }
-
-
-    function registerCommand(
-        command
-    ) {
-
-        return register(
-            "commands",
-            command,
-            "commands"
-        );
-
-    }
-
-
-    function registerPanel(
-        panel
-    ) {
-
-        return register(
-            "panels",
-            panel,
-            "panels"
-        );
-
-    }
-
-
-    function registerLanguage(
-        language
-    ) {
-
-        return register(
-            "languages",
-            language,
-            "languages"
-        );
-
-    }
-
-
-    function registerTheme(
-        theme
-    ) {
-
-        return register(
-            "themes",
-            theme,
-            "themes"
-        );
-
-    }
-
-
-    function registerSnippet(
-        snippet
-    ) {
-
-        return register(
-            "snippets",
-            snippet,
-            "snippets"
-        );
-
-    }
-
-
-    function executeCommand(
-        commandId,
-        ...args
-    ) {
-
-        requirePermission(
-            "commands"
-        );
-
-
-        for (
-            const command
-            of registry.commands.values()
-        ) {
-
-            if (
-                command.id ===
-                commandId
-            ) {
-
-                if (
-                    typeof command.execute !==
-                    "function"
-                ) {
-
-                    throw new Error(
-                        `Command "${commandId}" has no execute function.`
-                    );
-
-                }
-
-
-                return command.execute(
-                    ...args
-                );
-
-            }
-
-        }
-
-
-        throw new Error(
-            `Command "${commandId}" was not found.`
-        );
-
-    }
-
-
-    const extensionAPI = {
-
+    const api = {
         version: "1.0.0",
 
-        extensions: {
+        getContext(extensionId) {
+            return {
+                extensionId,
+                page: location.pathname,
+                timestamp: Date.now()
+            };
+        },
 
-            registerCommand,
+        permissions: {
+            request(extensionId, permissions) {
+                return security.request(extensionId, permissions);
+            },
+            has(extensionId, permission) {
+                return security.has(extensionId, permission);
+            },
+            require: requirePermission
+        },
 
-            registerPanel,
+        editor: {
+            getActiveFile(extensionId) {
+                requirePermission(extensionId, "Editor access");
+                return window.jSyroWorkspace?.getActiveFile?.() ?? null;
+            },
+            getSelection(extensionId) {
+                requirePermission(extensionId, "Editor access");
+                return window.jSyroWorkspace?.getSelection?.() ?? "";
+            }
+        },
 
-            registerLanguage,
-
-            registerTheme,
-
-            registerSnippet,
-
-            getActiveFile,
-
-            getProjectFiles,
-
-            getActiveEditor,
-
-            executeCommand
-
+        workspace: {
+            getState(extensionId) {
+                requirePermission(extensionId, "Workspace access");
+                return window.jSyroWorkspace?.getState?.() ?? null;
+            }
         }
-
     };
 
-
-    window.jSyroExtensionAPI =
-        extensionAPI;
-
-
-    window.jSyroExtensionRuntime = {
-
-        setActiveExtension,
-
-        unregisterExtensionItems,
-
-        getRegistry() {
-
-            return registry;
-
-        }
-
-    };
-
-
+    window.jSyroExtensionAPI = api;
 })();
