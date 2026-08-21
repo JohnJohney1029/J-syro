@@ -234,7 +234,7 @@
         });
 
         if (!diagnostics.length) {
-            showToast(`JS Lint Lite: ${activeName()} passed`);
+            showLintSuccess(`JS Lint Lite: ${activeName()} passed`);
             return;
         }
 
@@ -503,6 +503,8 @@ init();`;
 .jsyro-result-modal{position:fixed;inset:0;z-index:2147483100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(4,7,12,.72);backdrop-filter:blur(8px)}
 .jsyro-result-modal.open{display:flex}
 .jsyro-result-card{width:min(620px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#151821;color:#edf0f7;border:1px solid #2b3140;border-radius:16px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.5)}
+.jsyro-lint-success-notice{position:fixed;top:92px;left:50%;z-index:2147483200;transform:translate(-50%,-12px);opacity:0;pointer-events:none;min-width:min(420px,calc(100vw - 32px));max-width:calc(100vw - 32px);padding:11px 18px;border:1px solid rgba(99,91,255,.55);border-radius:10px;background:rgba(21,24,33,.96);color:#edf0f7;box-shadow:0 14px 40px rgba(0,0,0,.42);backdrop-filter:blur(10px);text-align:center;font-size:12px;font-weight:700;transition:opacity .18s ease,transform .18s ease}
+.jsyro-lint-success-notice.show{opacity:1;transform:translate(-50%,0)}
 .jsyro-result-card h3{margin:0 0 14px;font-size:18px}
 .jsyro-result-card p,.jsyro-result-card li{color:#aeb5c4;font-size:11px;line-height:1.65}
 .jsyro-result-card ul{padding-left:20px;margin:10px 0}
@@ -653,6 +655,27 @@ init();`;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         showToast(`${EXTENSIONS[id] || "Extension"} ${state.installed[id].enabled ? "enabled" : "disabled"}`);
         openUseModal();
+    }
+
+    function showLintSuccess(message) {
+        ensureHostStyle();
+
+        let notice = document.getElementById("jsyroLintSuccessNotice");
+        if (!notice) {
+            notice = document.createElement("div");
+            notice.id = "jsyroLintSuccessNotice";
+            notice.className = "jsyro-lint-success-notice";
+            notice.setAttribute("role", "status");
+            document.body.appendChild(notice);
+        }
+
+        notice.textContent = message;
+        notice.classList.add("show");
+
+        clearTimeout(notice._hideTimer);
+        notice._hideTimer = setTimeout(() => {
+            notice.classList.remove("show");
+        }, 4000);
     }
 
     function showResultModal(title, body) {
