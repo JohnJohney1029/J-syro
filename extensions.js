@@ -325,15 +325,6 @@
         const paid = isPaid(extension);
         const unlocked = isUnlocked(extension.id);
 
-        if (options.update) {
-            return `
-                <div class="extension-actions">
-                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
-                    <button class="extension-button primary" data-action="update" data-id="${extension.id}" type="button">Update</button>
-                </div>
-            `;
-        }
-
         if (installed) {
             const enabled = manager.isEnabled(extension.id);
             return `
@@ -573,15 +564,6 @@
         const installed = !!manager && manager.isInstalled(extension.id);
         const paid = isPaid(extension);
         const unlocked = isUnlocked(extension.id);
-
-        if (options.update) {
-            return `
-                <div class="extension-actions">
-                    <button class="extension-button secondary" data-action="details" data-id="${extension.id}" type="button">Details</button>
-                    <button class="extension-button primary" data-action="update" data-id="${extension.id}" type="button">Update</button>
-                </div>
-            `;
-        }
 
         if (installed) {
             const enabled = manager.isEnabled(extension.id);
