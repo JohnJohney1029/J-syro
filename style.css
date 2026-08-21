@@ -2593,30 +2593,24 @@ body.auth-modal-open {
 }
 
 /* =========================================
-   PRICING — ALL ACCESS SECOND ROW
+   PRICING — ALL FIVE PLANS IN ONE ROW
 ========================================= */
 
 @media (min-width: 1101px) {
 
     .plans-grid {
         grid-template-columns:
-            repeat(4, minmax(0, 1fr)) !important;
+            repeat(5, minmax(0, 1fr)) !important;
     }
 
     .plans-grid .free-plan,
     .plans-grid .pro-plan,
     .plans-grid .workapps-plan,
-    .plans-grid .business-plan {
-        grid-column: auto !important;
-    }
-
+    .plans-grid .business-plan,
     .plans-grid .all-access-plan {
-        grid-column: 1 / -1 !important;
-
-        width:
-            calc((100% - 48px) / 4) !important;
-
-        justify-self: center !important;
+        grid-column: auto !important;
+        width: auto !important;
+        justify-self: stretch !important;
     }
 }
 
