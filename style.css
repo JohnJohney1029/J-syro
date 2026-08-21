@@ -80,6 +80,40 @@ nav a:hover { color: #fff; }
 .feature-card h3 { margin-bottom: 10px; font-size: 21px; }
 .feature-card p { color: var(--muted); font-size: 15px; }
 
+.feature-extensions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 18px;
+}
+
+.feature-extensions span {
+    width: 100%;
+    margin-bottom: 2px;
+    color: var(--accent-light);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.feature-extensions strong {
+    padding: 5px 8px;
+    border: 1px solid rgba(149,141,255,.22);
+    border-radius: 7px;
+    background: rgba(108,99,255,.08);
+    color: #dfe1ff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.extension-feature-heading {
+    margin-top: 5px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    color: var(--accent-light) !important;
+    font-weight: 800 !important;
+}
+
 .workflow { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(50px, 9vw, 150px); align-items: center; padding: 120px clamp(24px, 9vw, 145px); background: var(--surface); border-block: 1px solid var(--line); }
 .workflow-copy { max-width: 520px; }
 .steps { list-style: none; }
@@ -198,7 +232,7 @@ footer .brand-logo img { width: 165px; }
 
     display: grid;
 
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
 
     gap: 22px;
 
@@ -212,7 +246,7 @@ footer .brand-logo img { width: 165px; }
 
     min-height: 620px;
 
-    padding: 45px 40px;
+    padding: 34px 22px;
 
     display: flex;
     flex-direction: column;
@@ -299,7 +333,7 @@ footer .brand-logo img { width: 165px; }
 
     color: var(--text);
 
-    font-size: 28px;
+    font-size: 22px;
 
     line-height: 1.1;
 
@@ -321,7 +355,7 @@ footer .brand-logo img { width: 165px; }
 .plan-price strong {
     color: #ffffff;
 
-    font-size: 65px;
+    font-size: 48px;
 
     line-height: 0.9;
 
@@ -345,7 +379,7 @@ footer .brand-logo img { width: 165px; }
 
     color: var(--muted);
 
-    font-size: 15px;
+    font-size: 12px;
 
     line-height: 1.65;
 }
@@ -359,9 +393,9 @@ footer .brand-logo img { width: 165px; }
 
     flex-direction: column;
 
-    gap: 16px;
+    gap: 11px;
 
-    margin-bottom: 38px;
+    margin-bottom: 30px;
 }
 
 .plan-features li {
@@ -462,6 +496,12 @@ footer .brand-logo img { width: 165px; }
 /* =========================
    MOBILE
 ========================= */
+
+@media (max-width: 1250px) {
+    .plans-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
 
 @media (max-width: 800px) {
 
@@ -2593,24 +2633,30 @@ body.auth-modal-open {
 }
 
 /* =========================================
-   PRICING — ALL FIVE PLANS IN ONE ROW
+   PRICING — ALL ACCESS SECOND ROW
 ========================================= */
 
 @media (min-width: 1101px) {
 
     .plans-grid {
         grid-template-columns:
-            repeat(5, minmax(0, 1fr)) !important;
+            repeat(4, minmax(0, 1fr)) !important;
     }
 
     .plans-grid .free-plan,
     .plans-grid .pro-plan,
     .plans-grid .workapps-plan,
-    .plans-grid .business-plan,
-    .plans-grid .all-access-plan {
+    .plans-grid .business-plan {
         grid-column: auto !important;
-        width: auto !important;
-        justify-self: stretch !important;
+    }
+
+    .plans-grid .all-access-plan {
+        grid-column: 1 / -1 !important;
+
+        width:
+            calc((100% - 48px) / 4) !important;
+
+        justify-self: center !important;
     }
 }
 
