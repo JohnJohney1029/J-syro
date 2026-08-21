@@ -17,9 +17,38 @@
     function read() {
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-            if (saved && typeof saved === "object") {
+            if (saved && typeof saved === "object" &&
+                (saved.installed || saved.unlocked)) {
                 state.installed = saved.installed && typeof saved.installed === "object" ? saved.installed : {};
                 state.unlocked = saved.unlocked && typeof saved.unlocked === "object" ? saved.unlocked : {};
+                return;
+            }
+
+            // Migrate the older marketplace arrays used by v3.
+            const oldInstalled = JSON.parse(localStorage.getItem("jsyro-installed-extensions-v3") || "[]");
+            const oldUnlocked = JSON.parse(localStorage.getItem("jsyro-unlocked-extensions-v3") || "[]");
+
+            if (Array.isArray(oldInstalled)) {
+                oldInstalled.forEach(id => {
+                    state.installed[id] = {
+                        version: "legacy",
+                        enabled: true,
+                        installedAt: Date.now()
+                    };
+                });
+            }
+
+            if (Array.isArray(oldUnlocked)) {
+                oldUnlocked.forEach(id => {
+                    state.unlocked[id] = {
+                        unlockedAt: Date.now(),
+                        version: "legacy"
+                    };
+                });
+            }
+
+            if (Object.keys(state.installed).length || Object.keys(state.unlocked).length) {
+                write();
             }
         } catch (error) {
             console.warn("Could not load J-SYRO extension state", error);
