@@ -3343,20 +3343,80 @@ input:checked
 }
 
 /* =========================================
-   J-SYRO PRICING — ALL 5 CARDS ONE ROW
+   J-SYRO PRICING — 5 CARDS IN ONE ROW
 ========================================= */
 
-@media (min-width: 1101px) {
+.plans-grid {
+    width: min(100%, 1500px) !important;
+    margin: 0 auto !important;
+
+    display: grid !important;
+
+    /* EXACTLY 5 COLUMNS */
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr)) !important;
+
+    gap: 16px !important;
+    align-items: stretch !important;
+}
+
+/* =========================================
+   ALL 5 CARDS — FORCE FIRST ROW
+========================================= */
+
+.plans-grid .free-plan {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    justify-self: stretch !important;
+}
+
+.plans-grid .pro-plan {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    justify-self: stretch !important;
+}
+
+.plans-grid .workapps-plan {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    justify-self: stretch !important;
+}
+
+.plans-grid .business-plan {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    justify-self: stretch !important;
+}
+
+.plans-grid .all-access-plan {
+    grid-column: 5 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    justify-self: stretch !important;
+}
+
+/* =========================================
+   CARD SIZING
+========================================= */
+
+.plans-grid .plan-card {
+    min-width: 0 !important;
+    width: auto !important;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 1100px) {
+
     .plans-grid {
-        width: min(100%, 1500px) !important;
-        margin: 0 auto !important;
-
-        display: grid !important;
         grid-template-columns:
-            repeat(5, minmax(0, 1fr)) !important;
-
-        gap: 16px !important;
-        align-items: stretch !important;
+            repeat(2, minmax(0, 1fr)) !important;
     }
 
     .plans-grid .free-plan,
@@ -3365,59 +3425,28 @@ input:checked
     .plans-grid .business-plan,
     .plans-grid .all-access-plan {
         grid-column: auto !important;
+        grid-row: auto !important;
         width: auto !important;
-        justify-self: stretch !important;
     }
 }
+
 /* =========================================
-   KEEP ALL ACCESS IN THE FIRST ROW
+   MOBILE
 ========================================= */
 
-@media (min-width: 1101px) {
+@media (max-width: 700px) {
+
+    .plans-grid {
+        grid-template-columns: 1fr !important;
+        max-width: 560px !important;
+    }
+
+    .plans-grid .free-plan,
+    .plans-grid .pro-plan,
+    .plans-grid .workapps-plan,
+    .plans-grid .business-plan,
     .plans-grid .all-access-plan {
         grid-column: auto !important;
-        grid-row: 1 !important;
-        width: auto !important;
-        justify-self: stretch !important;
-    }
-}
-
-/* =========================================
-   FINAL FIX — ALL 5 PRICING CARDS IN ONE ROW
-========================================= */
-
-@media (min-width: 1101px) {
-    .plans-grid {
-        display: grid !important;
-        grid-template-columns:
-            repeat(5, minmax(0, 1fr)) !important;
-        gap: 16px !important;
-    }
-
-    .plans-grid .free-plan {
-        grid-column: 1 !important;
-        grid-row: 1 !important;
-    }
-
-    .plans-grid .pro-plan {
-        grid-column: 2 !important;
-        grid-row: 1 !important;
-    }
-
-    .plans-grid .workapps-plan {
-        grid-column: 3 !important;
-        grid-row: 1 !important;
-    }
-
-    .plans-grid .business-plan {
-        grid-column: 4 !important;
-        grid-row: 1 !important;
-    }
-
-    .plans-grid .all-access-plan {
-        grid-column: 5 !important;
-        grid-row: 1 !important;
-        width: auto !important;
-        justify-self: stretch !important;
+        grid-row: auto !important;
     }
 }
