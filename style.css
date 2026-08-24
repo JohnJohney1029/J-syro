@@ -3369,3 +3369,15 @@ input:checked
         justify-self: stretch !important;
     }
 }
+/* =========================================
+   KEEP ALL ACCESS IN THE FIRST ROW
+========================================= */
+
+@media (min-width: 1101px) {
+    .plans-grid .all-access-plan {
+        grid-column: auto !important;
+        grid-row: 1 !important;
+        width: auto !important;
+        justify-self: stretch !important;
+    }
+}
