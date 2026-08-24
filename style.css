@@ -3341,3 +3341,74 @@ input:checked
 
     transform: none !important;
 }
+
+/* =========================================================
+   PLAN + FEATURE EXTENSIONS
+   ========================================================= */
+
+.feature-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.feature-access-label,
+.plan-extension-section strong {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #8f86ff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.feature-extension-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.feature-extension-list span {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1px solid rgba(99, 91, 255, .25);
+    border-radius: 7px;
+    background: rgba(99, 91, 255, .06);
+    color: #d9d6ff;
+    font-size: 11px;
+}
+
+.plan-extension-section {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.plan-extension-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.plan-extension-section li {
+    margin: 8px 0;
+}
+
+.plans-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 1200px) {
+    .feature-grid,
+    .plans-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .feature-grid,
+    .plans-grid {
+        grid-template-columns: 1fr;
+    }
+}
