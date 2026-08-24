@@ -3381,3 +3381,43 @@ input:checked
         justify-self: stretch !important;
     }
 }
+
+/* =========================================
+   FINAL FIX — ALL 5 PRICING CARDS IN ONE ROW
+========================================= */
+
+@media (min-width: 1101px) {
+    .plans-grid {
+        display: grid !important;
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr)) !important;
+        gap: 16px !important;
+    }
+
+    .plans-grid .free-plan {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+    }
+
+    .plans-grid .pro-plan {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+
+    .plans-grid .workapps-plan {
+        grid-column: 3 !important;
+        grid-row: 1 !important;
+    }
+
+    .plans-grid .business-plan {
+        grid-column: 4 !important;
+        grid-row: 1 !important;
+    }
+
+    .plans-grid .all-access-plan {
+        grid-column: 5 !important;
+        grid-row: 1 !important;
+        width: auto !important;
+        justify-self: stretch !important;
+    }
+}
