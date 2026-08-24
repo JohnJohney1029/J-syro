@@ -3273,3 +3273,25 @@ input:checked
 
     transform: none !important;
 }
+/* =========================================
+   FEATURES — ALL 5 CARDS IN ONE ROW
+========================================= */
+
+@media (min-width: 1101px) {
+
+    .feature-grid {
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        gap: 18px !important;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .feature-grid .feature-card {
+        grid-column: auto !important;
+        grid-row: 1 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+}
