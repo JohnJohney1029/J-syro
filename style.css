@@ -3343,21 +3343,31 @@ input:checked
 }
 
 /* =========================================
-   J-SYRO PRICING — 5 CARDS IN ONE ROW
+   PRICING — ALL ACCESS SECOND ROW
 ========================================= */
 
-.plans-grid {
-    width: min(100%, 1500px) !important;
-    margin: 0 auto !important;
+@media (min-width: 1101px) {
 
-    display: grid !important;
+    .plans-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr)) !important;
+    }
 
-    /* EXACTLY 5 COLUMNS */
-    grid-template-columns:
-        repeat(5, minmax(0, 1fr)) !important;
+    .plans-grid .free-plan,
+    .plans-grid .pro-plan,
+    .plans-grid .workapps-plan,
+    .plans-grid .business-plan {
+        grid-column: auto !important;
+    }
 
-    gap: 16px !important;
-    align-items: stretch !important;
+    .plans-grid .all-access-plan {
+        grid-column: 1 / -1 !important;
+
+        width:
+            calc((100% - 48px) / 4) !important;
+
+        justify-self: center !important;
+    }
 }
 
 /* =========================================
