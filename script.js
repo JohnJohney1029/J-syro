@@ -1733,3 +1733,147 @@ if (supabaseClient) {
 /* Run check when welcome page loads */
 
 checkHomeAccount();
+
+/* =========================================
+   J-SYRO WEBSITE TRAFFIC TRACKING
+========================================= */
+
+async function recordJSyroWebsiteVisit() {
+
+    if (!supabaseClient) {
+        console.warn("Traffic tracking skipped: Supabase not connected.");
+        return;
+    }
+
+    try {
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        const storageKey = "jsyro_traffic_recorded_" + today;
+
+        /*
+         * Same browser ko same din mein
+         * baar baar visitor count nahi karenge.
+         */
+        if (localStorage.getItem(storageKey)) {
+            return;
+        }
+
+        /*
+         * Create / get anonymous visitor ID.
+         */
+        let visitorId =
+            localStorage.getItem("jsyro_visitor_id");
+
+        if (!visitorId) {
+
+            visitorId =
+                "visitor_" +
+                Date.now().toString(36) +
+                "_" +
+                Math.random()
+                    .toString(36)
+                    .substring(2, 10);
+
+            localStorage.setItem(
+                "jsyro_visitor_id",
+                visitorId
+            );
+        }
+
+
+        /*
+         * Get logged-in user if available.
+         */
+        let userId = null;
+
+        try {
+
+            const {
+                data
+            } = await supabaseClient.auth.getUser();
+
+            userId =
+                data?.user?.id || null;
+
+        } catch (error) {
+
+            console.warn(
+                "Could not read visitor account:",
+                error
+            );
+
+        }
+
+
+        /*
+         * Save visit.
+         */
+        const {
+            error
+        } = await supabaseClient
+            .from("website_traffic")
+            .insert({
+
+                user_id: userId,
+
+                page_path:
+                    window.location.pathname,
+
+                visitor_id:
+                    visitorId
+
+            });
+
+
+        if (error) {
+
+            console.error(
+                "Traffic tracking error:",
+                error
+            );
+
+            return;
+        }
+
+
+        /*
+         * Mark this browser as recorded today.
+         */
+        localStorage.setItem(
+            storageKey,
+            "1"
+        );
+
+        console.log(
+            "J-SYRO visitor recorded."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Website traffic tracking failed:",
+            error
+        );
+
+    }
+}
+
+
+/*
+ * Record visitor after page loads.
+ */
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        recordJSyroWebsiteVisit
+    );
+
+} else {
+
+    recordJSyroWebsiteVisit();
+
+}
