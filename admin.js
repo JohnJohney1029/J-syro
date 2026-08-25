@@ -416,8 +416,12 @@ function initializeAdminNavigation() {
 
 async function loadAdminStats() {
     const { data, error } = await adminSupabase.rpc("admin_dashboard_stats");
+
     if (error) throw error;
-    const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
+
+    const stats = Array.isArray(data)
+        ? (data[0] || {})
+        : (data || {});
 
     const values = {
         totalUsersStat: stats.total_users ?? 0,
@@ -432,10 +436,12 @@ async function loadAdminStats() {
 
     Object.entries(values).forEach(([id, value]) => {
         const el = $("#" + id);
-        if (el) el.textContent = value;
+
+        if (el) {
+            el.textContent = value;
+        }
     });
 }
-
 /* =========================================
    WEBSITE TRAFFIC
 ========================================= */
