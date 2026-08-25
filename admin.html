@@ -19,17 +19,18 @@
         Admin Dashboard — J-SYRO
     </title>
 
-        <link
-    rel="icon"
-    type="image/png"
-    href="./js-logo.png"
->
 
-<link
-    rel="shortcut icon"
-    type="image/png"
-    href="./js-logo.png"
->
+    <link
+        rel="icon"
+        type="image/png"
+        href="./js-logo.png"
+    >
+
+    <link
+        rel="shortcut icon"
+        type="image/png"
+        href="./js-logo.png"
+    >
 
 
     <link
@@ -39,7 +40,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -71,7 +72,9 @@
     <div class="admin-app">
 
 
-        <!-- SIDEBAR -->
+        <!-- =========================================
+             SIDEBAR
+        ========================================== -->
 
         <aside class="admin-sidebar">
 
@@ -81,10 +84,12 @@
                     href="index.html"
                     aria-label="J-SYRO home"
                 >
+
                     <img
                         src="logo.png"
                         alt="J-SYRO"
                     >
+
                 </a>
 
                 <span>
@@ -96,50 +101,64 @@
 
             <nav class="admin-navigation">
 
+
+                <!-- DASHBOARD -->
+
                 <button
                     class="admin-nav-button active"
                     type="button"
                     data-admin-section="dashboardSection"
                 >
+
                     <span>⌂</span>
+
                     Dashboard
+
                 </button>
 
+
+                <!-- TRAFFIC -->
 
                 <button
                     class="admin-nav-button"
                     type="button"
-                    data-admin-section="requestsSection"
+                    data-admin-section="trafficSection"
                 >
-                    <span>◆</span>
-                    Business Requests
 
-                    <strong
-                        class="admin-nav-count"
-                        id="pendingRequestsCount"
-                    >
-                        0
-                    </strong>
+                    <span>◉</span>
+
+                    Traffic
+
                 </button>
 
+
+                <!-- USERS -->
 
                 <button
                     class="admin-nav-button"
                     type="button"
                     data-admin-section="usersSection"
                 >
+
                     <span>◎</span>
+
                     Users
+
                 </button>
 
+
+                <!-- PROJECTS -->
 
                 <button
                     class="admin-nav-button"
                     type="button"
                     data-admin-section="projectsSection"
                 >
+
                     <span>▦</span>
+
                     Projects
+
                 </button>
 
             </nav>
@@ -151,8 +170,11 @@
                     class="admin-workspace-link"
                     href="workspace.html"
                 >
+
                     <span>←</span>
+
                     Back to Workspace
+
                 </a>
 
 
@@ -161,7 +183,9 @@
                     id="adminLogoutBtn"
                     type="button"
                 >
+
                     Logout
+
                 </button>
 
             </div>
@@ -169,12 +193,17 @@
         </aside>
 
 
-        <!-- MAIN CONTENT -->
+
+        <!-- =========================================
+             MAIN CONTENT
+        ========================================== -->
 
         <main class="admin-main">
 
 
-            <!-- TOP HEADER -->
+            <!-- =====================================
+                 HEADER
+            ====================================== -->
 
             <header class="admin-header">
 
@@ -215,7 +244,10 @@
             </header>
 
 
-            <!-- DASHBOARD SECTION -->
+
+            <!-- =========================================
+                 DASHBOARD
+            ========================================== -->
 
             <section
                 class="admin-section active"
@@ -242,15 +274,21 @@
                         id="refreshAdminDashboard"
                         type="button"
                     >
+
                         ↻ Refresh
+
                     </button>
 
                 </div>
 
 
+
                 <!-- STATISTICS -->
 
                 <div class="admin-stats-grid">
+
+
+                    <!-- TOTAL USERS -->
 
                     <article class="admin-stat-card">
 
@@ -277,6 +315,9 @@
                     </article>
 
 
+
+                    <!-- TOTAL PROJECTS -->
+
                     <article class="admin-stat-card">
 
                         <span class="admin-stat-icon">
@@ -302,24 +343,27 @@
                     </article>
 
 
+
+                    <!-- TODAY TRAFFIC -->
+
                     <article class="admin-stat-card">
 
                         <span class="admin-stat-icon">
-                            ◆
+                            ◉
                         </span>
 
                         <div>
 
                             <small>
-                                Business Requests
+                                Today Traffic
                             </small>
 
-                            <strong id="totalRequestsStat">
+                            <strong id="todayTrafficStat">
                                 0
                             </strong>
 
                             <p>
-                                All submitted requests
+                                Visitors today
                             </p>
 
                         </div>
@@ -327,24 +371,27 @@
                     </article>
 
 
-                    <article class="admin-stat-card warning">
+
+                    <!-- MONTH TRAFFIC -->
+
+                    <article class="admin-stat-card">
 
                         <span class="admin-stat-icon">
-                            !
+                            ↗
                         </span>
 
                         <div>
 
                             <small>
-                                Pending Requests
+                                This Month
                             </small>
 
-                            <strong id="pendingRequestsStat">
+                            <strong id="monthTrafficStat">
                                 0
                             </strong>
 
                             <p>
-                                Require admin review
+                                Visitors this month
                             </p>
 
                         </div>
@@ -354,9 +401,13 @@
                 </div>
 
 
-                <!-- PLAN OVERVIEW -->
+
+                <!-- =====================================
+                     PLAN OVERVIEW
+                ====================================== -->
 
                 <div class="admin-dashboard-grid">
+
 
                     <article class="admin-dashboard-card">
 
@@ -378,6 +429,7 @@
 
 
                         <div class="admin-plan-list">
+
 
                             <div class="admin-plan-row">
 
@@ -435,6 +487,9 @@
                     </article>
 
 
+
+                    <!-- QUICK TRAFFIC -->
+
                     <article class="admin-dashboard-card">
 
                         <div class="admin-card-heading">
@@ -442,11 +497,11 @@
                             <div>
 
                                 <h3>
-                                    Recent Requests
+                                    Website Traffic
                                 </h3>
 
                                 <p>
-                                    Latest website requests.
+                                    J-SYRO visitor activity.
                                 </p>
 
                             </div>
@@ -454,23 +509,55 @@
 
                             <button
                                 class="admin-text-button"
-                                id="viewAllRequestsBtn"
+                                id="viewTrafficBtn"
                                 type="button"
                             >
-                                View all
+                                View traffic
                             </button>
 
                         </div>
 
 
-                        <div
-                            class="admin-recent-list"
-                            id="recentBusinessRequests"
-                        >
+                        <div class="admin-plan-list">
 
-                            <p class="admin-empty-message">
-                                Loading requests...
-                            </p>
+
+                            <div class="admin-plan-row">
+
+                                <span>
+                                    Today
+                                </span>
+
+                                <strong id="dashboardTodayTraffic">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="admin-plan-row">
+
+                                <span>
+                                    This Week
+                                </span>
+
+                                <strong id="dashboardWeekTraffic">
+                                    0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="admin-plan-row">
+
+                                <span>
+                                    This Month
+                                </span>
+
+                                <strong id="dashboardMonthTraffic">
+                                    0
+                                </strong>
+
+                            </div>
 
                         </div>
 
@@ -481,11 +568,14 @@
             </section>
 
 
-            <!-- BUSINESS REQUESTS SECTION -->
+
+            <!-- =========================================
+                 TRAFFIC SECTION
+            ========================================== -->
 
             <section
                 class="admin-section"
-                id="requestsSection"
+                id="trafficSection"
             >
 
                 <div class="admin-section-heading">
@@ -493,80 +583,217 @@
                     <div>
 
                         <h2>
-                            Business Requests
+                            Website Traffic
                         </h2>
 
                         <p>
-                            Review and manage customer website requests.
+                            Monitor J-SYRO visitors and account activity.
                         </p>
 
                     </div>
 
-                </div>
 
+                    <button
+                        class="admin-refresh-button"
+                        id="refreshTrafficBtn"
+                        type="button"
+                    >
 
-                <div class="admin-table-toolbar">
+                        ↻ Refresh
 
-                    <label class="admin-search-box">
-
-                        <span>⌕</span>
-
-                        <input
-                            id="adminRequestSearch"
-                            type="search"
-                            placeholder="Search requests..."
-                            autocomplete="off"
-                        >
-
-                    </label>
-
-
-                    <select id="adminRequestStatusFilter">
-
-                        <option value="all">
-                            All statuses
-                        </option>
-
-                        <option value="pending">
-                            Pending
-                        </option>
-
-                        <option value="reviewing">
-                            Reviewing
-                        </option>
-
-                        <option value="in_progress">
-                            In Progress
-                        </option>
-
-                        <option value="completed">
-                            Completed
-                        </option>
-
-                        <option value="cancelled">
-                            Cancelled
-                        </option>
-
-                    </select>
+                    </button>
 
                 </div>
 
 
-                <div
-                    class="admin-requests-container"
-                    id="adminRequestsList"
-                >
 
-                    <p class="admin-empty-message">
-                        Loading business requests...
-                    </p>
+                <div class="admin-stats-grid">
+
+
+                    <!-- TODAY -->
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            ◉
+                        </span>
+
+                        <div>
+
+                            <small>
+                                Today
+                            </small>
+
+                            <strong id="trafficToday">
+                                0
+                            </strong>
+
+                            <p>
+                                Visitors today
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- WEEK -->
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            7
+                        </span>
+
+                        <div>
+
+                            <small>
+                                This Week
+                            </small>
+
+                            <strong id="trafficWeek">
+                                0
+                            </strong>
+
+                            <p>
+                                Visitors this week
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- MONTH -->
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            30
+                        </span>
+
+                        <div>
+
+                            <small>
+                                This Month
+                            </small>
+
+                            <strong id="trafficMonth">
+                                0
+                            </strong>
+
+                            <p>
+                                Visitors this month
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- ALL TIME -->
+
+                    <article class="admin-stat-card">
+
+                        <span class="admin-stat-icon">
+                            ∞
+                        </span>
+
+                        <div>
+
+                            <small>
+                                All Time
+                            </small>
+
+                            <strong id="trafficAllTime">
+                                0
+                            </strong>
+
+                            <p>
+                                Total recorded visits
+                            </p>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+
+                <div class="admin-dashboard-card">
+
+                    <div class="admin-card-heading">
+
+                        <div>
+
+                            <h3>
+                                Traffic Summary
+                            </h3>
+
+                            <p>
+                                Visitor statistics for the J-SYRO website.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-plan-list">
+
+                        <div class="admin-plan-row">
+
+                            <span>
+                                Today
+                            </span>
+
+                            <strong id="trafficTodaySummary">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="admin-plan-row">
+
+                            <span>
+                                Last 7 Days
+                            </span>
+
+                            <strong id="trafficWeekSummary">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="admin-plan-row">
+
+                            <span>
+                                Last 30 Days
+                            </span>
+
+                            <strong id="trafficMonthSummary">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             </section>
 
 
-            <!-- USERS SECTION -->
+
+            <!-- =========================================
+                 USERS SECTION
+            ========================================== -->
 
             <section
                 class="admin-section"
@@ -582,12 +809,13 @@
                         </h2>
 
                         <p>
-                            View registered accounts and plan access.
+                            Manage accounts, plans and administrator access.
                         </p>
 
                     </div>
 
                 </div>
+
 
 
                 <div class="admin-table-toolbar">
@@ -624,9 +852,18 @@
                             Business
                         </option>
 
+                        <option value="all_access">
+                            All Access
+                        </option>
+
+                        <option value="admin">
+                            Admin
+                        </option>
+
                     </select>
 
                 </div>
+
 
 
                 <div class="admin-table-wrapper">
@@ -688,7 +925,10 @@
             </section>
 
 
-            <!-- PROJECTS SECTION -->
+
+            <!-- =========================================
+                 PROJECTS SECTION
+            ========================================== -->
 
             <section
                 class="admin-section"
@@ -789,11 +1029,14 @@
     </div>
 
 
-    <!-- REQUEST DETAILS MODAL -->
+
+    <!-- =========================================
+         USER MANAGEMENT MODAL
+    ========================================== -->
 
     <div
         class="admin-modal"
-        id="adminRequestModal"
+        id="adminUserModal"
         aria-hidden="true"
     >
 
@@ -804,20 +1047,20 @@
                 <div>
 
                     <span>
-                        BUSINESS REQUEST
+                        USER MANAGEMENT
                     </span>
 
-                    <h2 id="adminRequestModalTitle">
-                        Request Details
+                    <h2 id="adminUserModalTitle">
+                        Manage User
                     </h2>
 
                 </div>
 
 
                 <button
-                    id="closeAdminRequestModal"
+                    id="closeAdminUserModal"
                     type="button"
-                    aria-label="Close request"
+                    aria-label="Close user"
                 >
                     ×
                 </button>
@@ -827,39 +1070,42 @@
 
             <div
                 class="admin-request-details"
-                id="adminRequestDetails"
+                id="adminUserDetails"
             >
             </div>
 
 
             <div class="admin-request-management">
 
+
+                <!-- PLAN -->
+
                 <label>
 
                     <span>
-                        Request Status
+                        User Plan
                     </span>
 
-                    <select id="adminRequestStatus">
+                    <select id="adminManageUserPlan">
 
-                        <option value="pending">
-                            Pending
+                        <option value="free">
+                            Free
                         </option>
 
-                        <option value="reviewing">
-                            Reviewing
+                        <option value="pro">
+                            Pro
                         </option>
 
-                        <option value="in_progress">
-                            In Progress
+                        <option value="workapps">
+                            Work Apps
                         </option>
 
-                        <option value="completed">
-                            Completed
+                        <option value="business">
+                            Business
                         </option>
 
-                        <option value="cancelled">
-                            Cancelled
+                        <option value="all_access">
+                            All Access
                         </option>
 
                     </select>
@@ -867,27 +1113,37 @@
                 </label>
 
 
+
+                <!-- ROLE -->
+
                 <label>
 
                     <span>
-                        Customer Update
+                        User Role
                     </span>
 
-                    <textarea
-                        id="adminRequestNote"
-                        rows="4"
-                        placeholder="Write an update for the customer..."
-                    ></textarea>
+                    <select id="adminManageUserRole">
+
+                        <option value="user">
+                            User
+                        </option>
+
+                        <option value="admin">
+                            Admin
+                        </option>
+
+                    </select>
 
                 </label>
 
 
+
                 <button
                     class="admin-save-request-button"
-                    id="saveAdminRequestBtn"
+                    id="saveAdminUserBtn"
                     type="button"
                 >
-                    Save Request Update
+                    Save User Changes
                 </button>
 
             </div>
@@ -897,7 +1153,10 @@
     </div>
 
 
-    <!-- TOAST -->
+
+    <!-- =========================================
+         TOAST
+    ========================================== -->
 
     <div
         class="admin-toast"
@@ -906,6 +1165,9 @@
     >
     </div>
 
+
+
+    <!-- SUPABASE -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
