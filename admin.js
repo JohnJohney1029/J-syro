@@ -414,13 +414,13 @@ function initializeAdminNavigation() {
 }
 
 
-# Updated Admin Stats Code
-
-```javascript
 async function loadAdminStats() {
     const { data, error } = await adminSupabase.rpc("admin_dashboard_stats");
 
-    if (error) throw error;
+    if (error) {
+        console.error("Admin stats error:", error);
+        return;
+    }
 
     const stats = Array.isArray(data)
         ? (data[0] || {})
@@ -445,7 +445,6 @@ async function loadAdminStats() {
         }
     });
 }
-
 
 async function loadAdminTraffic() {
     const { data, error } = await adminSupabase.rpc("admin_traffic_stats");
@@ -473,7 +472,9 @@ async function loadAdminTraffic() {
         }
     });
 }
-```
+
+loadAdminStats();
+loadAdminTraffic();
 
 /* =========================================
    WEBSITE TRAFFIC
