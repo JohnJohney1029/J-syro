@@ -348,51 +348,148 @@ async function editAdminUserAccess(userId){
 /* PROJECTS */
 
 async function loadAdminProjects(){
-    const{data,error}=await adminSupabase.rpc("admin_list_projects");
-    if(error)throw error;
 
-    allAdminProjects=Array.isArray(data)?data:[];
-    renderAdminProjects();
+    const tableBody=$("#adminProjectsTableBody");
+
+    try{
+
+        const{data,error}=await adminSupabase.rpc(
+            "admin_list_projects"
+        );
+
+        if(error)throw error;
+
+        allAdminProjects=
+            Array.isArray(data)
+                ? data
+                : [];
+
+        renderAdminProjects();
+
+        console.log(
+            "J-SYRO projects loaded:",
+            allAdminProjects
+        );
+
+    }catch(error){
+
+        console.error(
+            "Admin projects error:",
+            error
+        );
+
+        allAdminProjects=[];
+
+        if(tableBody){
+
+            tableBody.innerHTML=`
+                <tr>
+                    <td
+                        colspan="5"
+                        class="admin-table-message"
+                    >
+                        Projects could not be loaded.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
 }
 
 function renderAdminProjects(){
+
     const tableBody=$("#adminProjectsTableBody");
+
     if(!tableBody)return;
 
-    const search=$("#adminProjectSearch")?.value.trim().toLowerCase()||"";
+    const search=
+        $("#adminProjectSearch")
+            ?.value
+            .trim()
+            .toLowerCase()||"";
 
-    const projects=allAdminProjects.filter(project=>{
-        const searchText=[
-            project.project_name,
-            project.project_key,
-            project.owner_email,
-            project.owner_id
-        ].filter(Boolean).join(" ").toLowerCase();
+    const projects=
+        allAdminProjects.filter(project=>{
 
-        return !search||searchText.includes(search);
-    });
+            const searchText=[
+                project.project_name,
+                project.project_key,
+                project.owner_email,
+                project.owner_id
+            ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+            return(
+                !search||
+                searchText.includes(search)
+            );
+
+        });
 
     if(projects.length===0){
+
         tableBody.innerHTML=`
             <tr>
-                <td colspan="5" class="admin-table-message">
+                <td
+                    colspan="5"
+                    class="admin-table-message"
+                >
                     No matching projects found.
                 </td>
-            </tr>`;
+            </tr>
+        `;
+
         return;
     }
 
-    tableBody.innerHTML=projects.map(project=>`
-        <tr>
-            <td><strong>${escapeAdminHtml(project.project_name||"untitled-project")}</strong></td>
-            <td>${escapeAdminHtml(project.project_key)}</td>
-            <td>${escapeAdminHtml(project.owner_email||project.owner_id)}</td>
-            <td>${escapeAdminHtml(project.file_count??0)}</td>
-            <td>${escapeAdminHtml(formatAdminDateTime(project.updated_at))}</td>
-        </tr>
-    `).join("");
-}
+    tableBody.innerHTML=
+        projects.map(project=>`
+            <tr>
 
+                <td>
+                    <strong>
+                        ${escapeAdminHtml(
+                            project.project_name||
+                            "untitled-project"
+                        )}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeAdminHtml(
+                        project.project_key||""
+                    )}
+                </td>
+
+                <td>
+                    ${escapeAdminHtml(
+                        project.owner_email||
+                        project.owner_id||
+                        ""
+                    )}
+                </td>
+
+                <td>
+                    ${escapeAdminHtml(
+                        project.file_count??0
+                    )}
+                </td>
+
+                <td>
+                    ${escapeAdminHtml(
+                        formatAdminDateTime(
+                            project.updated_at
+                        )
+                    )}
+                </td>
+
+            </tr>
+        `).join("");
+}
 /* REFRESH DASHBOARD */
 
 async function refreshAdminDashboard(){
