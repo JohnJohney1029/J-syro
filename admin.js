@@ -150,9 +150,7 @@ async function loadAdminStats(){
     });
 }
 
-/* WEBSITE TRAFFIC
-   IMPORTANT: only ONE loadAdminTraffic function is kept.
-*/
+/* WEBSITE TRAFFIC */
 
 async function loadAdminTraffic(){
     const status=$("#trafficStatusMessage");
@@ -176,17 +174,16 @@ async function loadAdminTraffic(){
         });
 
         if(status)status.textContent="Live traffic statistics loaded.";
+        console.log("Admin traffic stats:",stats);
     }catch(error){
-        console.warn("Traffic statistics are not available:",error);
+        console.error("Admin traffic statistics error:",error);
 
         ["trafficTodayStat","trafficWeekStat","trafficMonthStat","trafficTotalStat"].forEach(id=>{
             const el=$("#"+id);
-            if(el)el.textContent="—";
+            if(el)el.textContent="0";
         });
 
-        if(status){
-            status.textContent="Traffic source is not connected yet. Add the admin_traffic_stats RPC to enable live visitor counts.";
-        }
+        if(status)status.textContent="Traffic statistics could not be loaded.";
     }
 }
 
@@ -195,7 +192,6 @@ async function loadAdminTraffic(){
 async function loadAdminUsers(){
     const{data,error}=await adminSupabase.rpc("admin_list_users");
     if(error)throw error;
-
     allAdminUsers=Array.isArray(data)?data:[];
     renderAdminUsers();
 }
@@ -205,29 +201,18 @@ function getFilteredAdminUsers(){
     const plan=$("#adminUserPlanFilter")?.value||"all";
 
     return allAdminUsers.filter(user=>{
-        const searchText=[user.display_name,user.email,user.user_id]
-            .filter(Boolean).join(" ").toLowerCase();
-
-        return(
-            (!search||searchText.includes(search))&&
-            (plan==="all"||user.plan===plan)
-        );
+        const searchText=[user.display_name,user.email,user.user_id].filter(Boolean).join(" ").toLowerCase();
+        return((!search||searchText.includes(search))&&(plan==="all"||user.plan===plan));
     });
 }
 
 function renderAdminUsers(){
     const tableBody=$("#adminUsersTableBody");
     if(!tableBody)return;
-
     const users=getFilteredAdminUsers();
 
     if(users.length===0){
-        tableBody.innerHTML=`
-            <tr>
-                <td colspan="6" class="admin-table-message">
-                    No matching users found.
-                </td>
-            </tr>`;
+        tableBody.innerHTML=`<tr><td colspan="6" class="admin-table-message">No matching users found.</td></tr>`;
         return;
     }
 
@@ -236,39 +221,20 @@ function renderAdminUsers(){
             <td class="admin-user-cell">
                 <strong>
                     ${escapeAdminHtml(user.display_name||"J-SYRO User")}
-                    ${String(user.user_role||"user").toLowerCase()==="admin"
-                        ?'<span class="admin-user-admin-badge">ADMIN</span>':""}
+                    ${String(user.user_role||"user").toLowerCase()==="admin"?'<span class="admin-user-admin-badge">ADMIN</span>':""}
                 </strong>
-                <span>
-                    ${escapeAdminHtml(user.email||user.user_id)}
-                </span>
+                <span>${escapeAdminHtml(user.email||user.user_id)}</span>
             </td>
-
-            <td>
-                <span class="admin-plan-name ${escapeAdminHtml(user.plan)}">
-                    ${escapeAdminHtml(String(user.plan||"free").toUpperCase())}
-                </span>
-            </td>
-
+            <td><span class="admin-plan-name ${escapeAdminHtml(user.plan)}">${escapeAdminHtml(String(user.plan||"free").toUpperCase())}</span></td>
             <td>${escapeAdminHtml(user.plan_status||"active")}</td>
             <td>${escapeAdminHtml(user.user_role||"user")}</td>
             <td>${escapeAdminHtml(formatAdminDate(user.created_at))}</td>
-
-            <td>
-                <button
-                    class="admin-action-button"
-                    type="button"
-                    data-edit-user="${escapeAdminHtml(user.user_id)}">
-                    Edit Access
-                </button>
-            </td>
+            <td><button class="admin-action-button" type="button" data-edit-user="${escapeAdminHtml(user.user_id)}">Edit Access</button></td>
         </tr>
     `).join("");
 
     tableBody.querySelectorAll("[data-edit-user]").forEach(button=>{
-        button.addEventListener("click",()=>{
-            editAdminUserAccess(button.dataset.editUser);
-        });
+        button.addEventListener("click",()=>editAdminUserAccess(button.dataset.editUser));
     });
 }
 
@@ -276,68 +242,45 @@ async function editAdminUserAccess(userId){
     const user=allAdminUsers.find(item=>item.user_id===userId);
     if(!user)return;
 
-    const newPlan=window.prompt(
-        "Enter plan: free, pro, workapps, business or all_access",
-        user.plan||"free"
-    );
+    const newPlan=window.prompt("Enter plan: free, pro, workapps, business or all_access",user.plan||"free");
     if(newPlan===null)return;
-
     const cleanPlan=newPlan.trim().toLowerCase();
-
     if(!["free","pro","business","workapps","all_access"].includes(cleanPlan)){
         showAdminToast("Invalid plan");
         return;
     }
 
-    const newStatus=window.prompt(
-        "Enter status: active, cancelled or past_due",
-        user.plan_status||"active"
-    );
+    const newStatus=window.prompt("Enter status: active, cancelled or past_due",user.plan_status||"active");
     if(newStatus===null)return;
-
     const cleanStatus=newStatus.trim().toLowerCase();
-
     if(!["active","cancelled","past_due"].includes(cleanStatus)){
         showAdminToast("Invalid status");
         return;
     }
 
-    const newRole=window.prompt(
-        "Enter role: user or admin",
-        user.user_role||"user"
-    );
+    const newRole=window.prompt("Enter role: user or admin",user.user_role||"user");
     if(newRole===null)return;
-
     const cleanRole=newRole.trim().toLowerCase();
-
     if(!["user","admin"].includes(cleanRole)){
         showAdminToast("Invalid role");
         return;
     }
 
     const expiryDefault=user.expires_at?String(user.expires_at).slice(0,10):"";
-
-    const expiryInput=window.prompt(
-        "Expiry date YYYY-MM-DD, or leave blank for no expiry",
-        expiryDefault
-    );
+    const expiryInput=window.prompt("Expiry date YYYY-MM-DD, or leave blank for no expiry",expiryDefault);
     if(expiryInput===null)return;
 
     let expiresAt=null;
-
     if(expiryInput.trim()){
         const expiryDate=new Date(`${expiryInput.trim()}T23:59:59.999Z`);
-
         if(Number.isNaN(expiryDate.getTime())){
             showAdminToast("Invalid expiry date");
             return;
         }
-
         expiresAt=expiryDate.toISOString();
     }
 
-    const confirmed=window.confirm(`Update access for ${user.email}?`);
-    if(!confirmed)return;
+    if(!window.confirm(`Update access for ${user.email}?`))return;
 
     try{
         const{error}=await adminSupabase.rpc("admin_update_user_access",{
@@ -347,15 +290,10 @@ async function editAdminUserAccess(userId){
             new_role:cleanRole,
             new_expires_at:expiresAt
         });
-
         if(error)throw error;
 
         showAdminToast("User access updated");
-
-        await Promise.all([
-            loadAdminUsers(),
-            loadAdminStats()
-        ]);
+        await Promise.all([loadAdminUsers(),loadAdminStats()]);
     }catch(error){
         console.error("User access update error:",error);
         showAdminToast(error.message||"User access could not be updated");
@@ -367,7 +305,6 @@ async function editAdminUserAccess(userId){
 async function loadAdminProjects(){
     const{data,error}=await adminSupabase.rpc("admin_list_projects");
     if(error)throw error;
-
     allAdminProjects=Array.isArray(data)?data:[];
     renderAdminProjects();
 }
@@ -375,37 +312,21 @@ async function loadAdminProjects(){
 function renderAdminProjects(){
     const tableBody=$("#adminProjectsTableBody");
     if(!tableBody)return;
-
     const search=$("#adminProjectSearch")?.value.trim().toLowerCase()||"";
 
     const projects=allAdminProjects.filter(project=>{
-        const searchText=[
-            project.project_name,
-            project.project_key,
-            project.owner_email,
-            project.owner_id
-        ].filter(Boolean).join(" ").toLowerCase();
-
+        const searchText=[project.project_name,project.project_key,project.owner_email,project.owner_id].filter(Boolean).join(" ").toLowerCase();
         return !search||searchText.includes(search);
     });
 
     if(projects.length===0){
-        tableBody.innerHTML=`
-            <tr>
-                <td colspan="5" class="admin-table-message">
-                    No matching projects found.
-                </td>
-            </tr>`;
+        tableBody.innerHTML=`<tr><td colspan="5" class="admin-table-message">No matching projects found.</td></tr>`;
         return;
     }
 
     tableBody.innerHTML=projects.map(project=>`
         <tr>
-            <td>
-                <strong>
-                    ${escapeAdminHtml(project.project_name||"untitled-project")}
-                </strong>
-            </td>
+            <td><strong>${escapeAdminHtml(project.project_name||"untitled-project")}</strong></td>
             <td>${escapeAdminHtml(project.project_key)}</td>
             <td>${escapeAdminHtml(project.owner_email||project.owner_id)}</td>
             <td>${escapeAdminHtml(project.file_count??0)}</td>
@@ -436,10 +357,7 @@ async function refreshAdminDashboard(){
 
     if(failedResult){
         console.error("Admin dashboard load error:",failedResult.reason);
-        showAdminToast(
-            failedResult.reason?.message||
-            "Some admin data could not be loaded"
-        );
+        showAdminToast(failedResult.reason?.message||"Some admin data could not be loaded");
     }else{
         showAdminToast("Dashboard refreshed");
     }
@@ -467,7 +385,6 @@ async function adminLogout(){
     }catch(error){
         console.error("Admin logout error:",error);
         showAdminToast("Logout failed");
-
         if(button){
             button.disabled=false;
             button.textContent=originalText;
@@ -480,48 +397,24 @@ async function adminLogout(){
 function initializeAdminEvents(){
     initializeAdminNavigation();
 
-    $("#refreshAdminDashboard")?.addEventListener(
-        "click",
-        refreshAdminDashboard
-    );
-
-    $("#adminLogoutBtn")?.addEventListener(
-        "click",
-        adminLogout
-    );
-
-    $("#adminUserSearch")?.addEventListener(
-        "input",
-        renderAdminUsers
-    );
-
-    $("#adminUserPlanFilter")?.addEventListener(
-        "change",
-        renderAdminUsers
-    );
-
-    $("#adminProjectSearch")?.addEventListener(
-        "input",
-        renderAdminProjects
-    );
+    $("#refreshAdminDashboard")?.addEventListener("click",refreshAdminDashboard);
+    $("#adminLogoutBtn")?.addEventListener("click",adminLogout);
+    $("#adminUserSearch")?.addEventListener("input",renderAdminUsers);
+    $("#adminUserPlanFilter")?.addEventListener("change",renderAdminUsers);
+    $("#adminProjectSearch")?.addEventListener("input",renderAdminProjects);
 }
 
 /* START ADMIN DASHBOARD */
 
 async function startAdminDashboard(){
     const hasAdminAccess=await initializeAdminAccess();
-
     if(!hasAdminAccess)return;
-
     initializeAdminEvents();
     await refreshAdminDashboard();
 }
 
 if(document.readyState==="loading"){
-    document.addEventListener(
-        "DOMContentLoaded",
-        startAdminDashboard
-    );
+    document.addEventListener("DOMContentLoaded",startAdminDashboard);
 }else{
     startAdminDashboard();
 }
