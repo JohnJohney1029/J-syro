@@ -414,6 +414,9 @@ function initializeAdminNavigation() {
 }
 
 
+# Updated Admin Stats Code
+
+```javascript
 async function loadAdminStats() {
     const { data, error } = await adminSupabase.rpc("admin_dashboard_stats");
 
@@ -442,6 +445,36 @@ async function loadAdminStats() {
         }
     });
 }
+
+
+async function loadAdminTraffic() {
+    const { data, error } = await adminSupabase.rpc("admin_traffic_stats");
+
+    if (error) {
+        console.error("Traffic stats error:", error);
+        return;
+    }
+
+    const stats = Array.isArray(data)
+        ? (data[0] || {})
+        : (data || {});
+
+    const values = {
+        todayTrafficStat: stats.today ?? 0,
+        weekTrafficStat: stats.this_week ?? 0,
+        monthTrafficStat: stats.this_month ?? 0
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        const el = $("#" + id);
+
+        if (el) {
+            el.textContent = value;
+        }
+    });
+}
+```
+
 /* =========================================
    WEBSITE TRAFFIC
 ========================================= */
