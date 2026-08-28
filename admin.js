@@ -351,52 +351,62 @@ async function loadAdminProjects(){
 
     const tableBody=$("#adminProjectsTableBody");
 
+    if(!tableBody)return;
+
+    tableBody.innerHTML=`
+        <tr>
+            <td colspan="5" class="admin-table-message">
+                Loading projects...
+            </td>
+        </tr>
+    `;
+
     try{
 
-        const{data,error}=await adminSupabase.rpc(
+        const {data,error}=await adminSupabase.rpc(
             "admin_list_projects"
         );
 
-        if(error)throw error;
-
-        allAdminProjects=
-            Array.isArray(data)
-                ? data
-                : [];
-
-        renderAdminProjects();
-
-        console.log(
-            "J-SYRO projects loaded:",
-            allAdminProjects
-        );
-
-    }catch(error){
-
-        console.error(
-            "Admin projects error:",
-            error
-        );
-
-        allAdminProjects=[];
-
-        if(tableBody){
+        if(error){
+            console.error(
+                "admin_list_projects error:",
+                error
+            );
 
             tableBody.innerHTML=`
                 <tr>
-                    <td
-                        colspan="5"
-                        class="admin-table-message"
-                    >
-                        Projects could not be loaded.
+                    <td colspan="5" class="admin-table-message">
+                        Could not load projects.
                     </td>
                 </tr>
             `;
 
+            return;
         }
 
+        allAdminProjects=Array.isArray(data)
+            ? data
+            : [];
+
+        renderAdminProjects();
+
+    }catch(error){
+
+        console.error(
+            "Projects loading failed:",
+            error
+        );
+
+        tableBody.innerHTML=`
+            <tr>
+                <td colspan="5" class="admin-table-message">
+                    Could not load projects.
+                </td>
+            </tr>
+        `;
     }
 }
+
 
 function renderAdminProjects(){
 
@@ -405,40 +415,35 @@ function renderAdminProjects(){
     if(!tableBody)return;
 
     const search=
-        $("#adminProjectSearch")
-            ?.value
+        $("#adminProjectSearch")?.value
             .trim()
-            .toLowerCase()||"";
+            .toLowerCase() || "";
 
-    const projects=
-        allAdminProjects.filter(project=>{
+    const projects=allAdminProjects.filter(project=>{
 
-            const searchText=[
-                project.project_name,
-                project.project_key,
-                project.owner_email,
-                project.owner_id
-            ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase();
+        const searchText=[
+            project.project_name,
+            project.project_key,
+            project.owner_email,
+            project.owner_id
+        ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-            return(
-                !search||
-                searchText.includes(search)
-            );
+        return(
+            !search ||
+            searchText.includes(search)
+        );
+    });
 
-        });
 
     if(projects.length===0){
 
         tableBody.innerHTML=`
             <tr>
-                <td
-                    colspan="5"
-                    class="admin-table-message"
-                >
-                    No matching projects found.
+                <td colspan="5" class="admin-table-message">
+                    No projects found.
                 </td>
             </tr>
         `;
@@ -446,49 +451,51 @@ function renderAdminProjects(){
         return;
     }
 
-    tableBody.innerHTML=
-        projects.map(project=>`
-            <tr>
 
-                <td>
-                    <strong>
-                        ${escapeAdminHtml(
-                            project.project_name||
-                            "untitled-project"
-                        )}
-                    </strong>
-                </td>
+    tableBody.innerHTML=projects.map(project=>`
 
-                <td>
+        <tr>
+
+            <td>
+                <strong>
                     ${escapeAdminHtml(
-                        project.project_key||""
+                        project.project_name ||
+                        "untitled-project"
                     )}
-                </td>
+                </strong>
+            </td>
 
-                <td>
-                    ${escapeAdminHtml(
-                        project.owner_email||
-                        project.owner_id||
-                        ""
-                    )}
-                </td>
+            <td>
+                ${escapeAdminHtml(
+                    project.project_key || ""
+                )}
+            </td>
 
-                <td>
-                    ${escapeAdminHtml(
-                        project.file_count??0
-                    )}
-                </td>
+            <td>
+                ${escapeAdminHtml(
+                    project.owner_email ||
+                    project.owner_id ||
+                    ""
+                )}
+            </td>
 
-                <td>
-                    ${escapeAdminHtml(
-                        formatAdminDateTime(
-                            project.updated_at
-                        )
-                    )}
-                </td>
+            <td>
+                ${escapeAdminHtml(
+                    project.file_count ?? 0
+                )}
+            </td>
 
-            </tr>
-        `).join("");
+            <td>
+                ${escapeAdminHtml(
+                    formatAdminDateTime(
+                        project.updated_at
+                    )
+                )}
+            </td>
+
+        </tr>
+
+    `).join("");
 }
 /* REFRESH DASHBOARD */
 
