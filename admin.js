@@ -1,1351 +1,527 @@
-/* =========================================
-   J-SYRO ADMIN DASHBOARD
-========================================= */
+/* J-SYRO ADMIN DASHBOARD */
 
-const ADMIN_SUPABASE_URL =
-    "https://sajlcmcotxssyvovykkm.supabase.co";
+const ADMIN_SUPABASE_URL="https://sajlcmcotxssyvovykkm.supabase.co";
+const ADMIN_SUPABASE_KEY="sb_publishable_6_oc0OAP5GXLJatcYM8Osw__8TVvBuX";
+const adminSupabase=window.supabase.createClient(ADMIN_SUPABASE_URL,ADMIN_SUPABASE_KEY);
+const $=selector=>document.querySelector(selector);
+const $$=selector=>Array.from(document.querySelectorAll(selector));
 
-const ADMIN_SUPABASE_KEY =
-    "sb_publishable_6_oc0OAP5GXLJatcYM8Osw__8TVvBuX";
+let currentAdminUser=null;
+let allAdminUsers=[];
+let allAdminProjects=[];
+let adminToastTimer=null;
 
-
-const adminSupabase =
-    window.supabase.createClient(
-        ADMIN_SUPABASE_URL,
-        ADMIN_SUPABASE_KEY
-    );
-
-
-const $ = selector =>
-    document.querySelector(selector);
-
-const $$ = selector =>
-    Array.from(
-        document.querySelectorAll(selector)
-    );
-
-
-let currentAdminUser = null;
-
-let allAdminUsers = [];
-let allAdminProjects = [];
-
-let adminToastTimer = null;
-
-
-/* =========================================
-   HELPERS
-========================================= */
-
-function escapeAdminHtml(value) {
-
-    return String(value ?? "")
-        .replace(
-            /[&<>"']/g,
-            character => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;"
-            })[character]
-        );
+function escapeAdminHtml(value){
+    return String(value??"").replace(/[&<>"']/g,character=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    })[character]);
 }
 
-
-function formatAdminDate(value) {
-
-    if (!value) {
-        return "Not available";
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-        return "Not available";
-    }
-
-
-    return date.toLocaleDateString(
-        undefined,
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-        }
-    );
+function formatAdminDate(value){
+    if(!value)return"Not available";
+    const date=new Date(value);
+    if(Number.isNaN(date.getTime()))return"Not available";
+    return date.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
 }
 
-
-function formatAdminDateTime(value) {
-
-    if (!value) {
-        return "Not available";
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-        return "Not available";
-    }
-
-
-    return date.toLocaleString(
-        undefined,
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
+function formatAdminDateTime(value){
+    if(!value)return"Not available";
+    const date=new Date(value);
+    if(Number.isNaN(date.getTime()))return"Not available";
+    return date.toLocaleString(undefined,{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
 }
 
-
-function showAdminToast(message) {
-
-    const toast =
-        $("#adminToast");
-
-
-    if (!toast) {
-        return;
-    }
-
-
-    toast.textContent =
-        message;
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    clearTimeout(
-        adminToastTimer
-    );
-
-
-    adminToastTimer =
-        setTimeout(
-            function () {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            2600
-        );
+function showAdminToast(message){
+    const toast=$("#adminToast");
+    if(!toast)return;
+    toast.textContent=message;
+    toast.classList.add("show");
+    clearTimeout(adminToastTimer);
+    adminToastTimer=setTimeout(()=>toast.classList.remove("show"),2600);
 }
 
-
-function getRequestStatusName(status) {
-
-    const names = {
-        pending: "Pending",
-        reviewing: "Reviewing",
-        in_progress: "In Progress",
-        completed: "Completed",
-        cancelled: "Cancelled"
-    };
-
-
-    return names[status] ||
-        status ||
-        "Pending";
+function getRequestStatusName(status){
+    const names={pending:"Pending",reviewing:"Reviewing",in_progress:"In Progress",completed:"Completed",cancelled:"Cancelled"};
+    return names[status]||status||"Pending";
 }
 
-
-function getRequestStatusClass(status) {
-
-    return String(
-        status || "pending"
-    ).replace(
-        /_/g,
-        "-"
-    );
+function getRequestStatusClass(status){
+    return String(status||"pending").replace(/_/g,"-");
 }
 
-
-function getWebsiteTypeName(type) {
-
-    const names = {
-        business: "Business Website",
-        portfolio: "Portfolio Website",
-        restaurant: "Restaurant Website",
-        ecommerce: "E-commerce Website",
-        saas: "SaaS Website",
-        agency: "Agency Website",
-        booking: "Booking Website",
-        other: "Other Website"
-    };
-
-
-    return names[type] ||
-        type ||
-        "Website";
+function getWebsiteTypeName(type){
+    const names={business:"Business Website",portfolio:"Portfolio Website",restaurant:"Restaurant Website",ecommerce:"E-commerce Website",saas:"SaaS Website",agency:"Agency Website",booking:"Booking Website",other:"Other Website"};
+    return names[type]||type||"Website";
 }
 
-
-function getDisplayName(user) {
-
-    return (
-        user.user_metadata?.full_name ||
-        user.user_metadata?.name ||
-        user.email?.split("@")[0] ||
-        "Administrator"
-    );
+function getDisplayName(user){
+    return user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split("@")[0]||"Administrator";
 }
 
+/* ADMIN ACCESS CHECK */
 
-/* =========================================
-   ADMIN ACCESS CHECK
-========================================= */
+async function initializeAdminAccess(){
+    try{
+        const{data:sessionData,error:sessionError}=await adminSupabase.auth.getSession();
 
-async function initializeAdminAccess() {
-
-    try {
-
-        const {
-            data: sessionData,
-            error: sessionError
-        } =
-            await adminSupabase
-                .auth
-                .getSession();
-
-
-        if (
-            sessionError ||
-            !sessionData.session
-        ) {
-            window.location.replace(
-                "index.html"
-            );
-
+        if(sessionError||!sessionData.session){
+            window.location.replace("index.html");
             return false;
         }
 
+        const user=sessionData.session.user;
+        const{data:planData,error:planError}=await adminSupabase
+            .from("user_plans")
+            .select("plan,status,role")
+            .eq("user_id",user.id)
+            .maybeSingle();
 
-        const user =
-            sessionData.session.user;
+        if(planError)throw planError;
 
-
-        const {
-            data: planData,
-            error: planError
-        } =
-            await adminSupabase
-                .from("user_plans")
-                .select(
-                    "plan,status,role"
-                )
-                .eq(
-                    "user_id",
-                    user.id
-                )
-                .maybeSingle();
-
-
-        if (planError) {
-            throw planError;
-        }
-
-
-        if (
-            !planData ||
-            planData.role !== "admin" ||
-            planData.status !== "active"
-        ) {
-
-            window.alert(
-                "Admin access is required."
-            );
-
-
-            window.location.replace(
-                "workspace.html"
-            );
-
+        if(!planData||planData.role!=="admin"||planData.status!=="active"){
+            window.alert("Admin access is required.");
+            window.location.replace("workspace.html");
             return false;
         }
 
+        currentAdminUser=user;
 
-        currentAdminUser =
-            user;
+        const adminName=$("#adminUserName");
+        const adminEmail=$("#adminUserEmail");
 
+        if(adminName)adminName.textContent=getDisplayName(user);
+        if(adminEmail)adminEmail.textContent=user.email||"";
 
-        const adminName =
-            $("#adminUserName");
-
-        const adminEmail =
-            $("#adminUserEmail");
-
-
-        if (adminName) {
-            adminName.textContent =
-                getDisplayName(user);
-        }
-
-
-        if (adminEmail) {
-            adminEmail.textContent =
-                user.email || "";
-        }
-
-
-        document.body.classList.remove(
-            "admin-checking"
-        );
-
-
+        document.body.classList.remove("admin-checking");
         return true;
-
-    } catch (error) {
-
-        console.error(
-            "Admin access error:",
-            error
-        );
-
-
-        window.alert(
-            error.message ||
-            "Admin access could not be verified."
-        );
-
-
-        window.location.replace(
-            "workspace.html"
-        );
-
-
+    }catch(error){
+        console.error("Admin access error:",error);
+        window.alert(error.message||"Admin access could not be verified.");
+        window.location.replace("workspace.html");
         return false;
     }
 }
 
+/* NAVIGATION */
 
-/* =========================================
-   NAVIGATION
-========================================= */
+function initializeAdminNavigation(){
+    const titles={dashboardSection:"Dashboard",usersSection:"Users",projectsSection:"Projects"};
 
-function initializeAdminNavigation() {
+    $$(".admin-nav-button").forEach(button=>{
+        button.addEventListener("click",()=>{
+            const sectionId=button.dataset.adminSection;
 
-    const titles = {
-        dashboardSection:
-            "Dashboard",
-
-
-        usersSection:
-            "Users",
-
-        projectsSection:
-            "Projects"
-    };
-
-
-    $$(".admin-nav-button")
-        .forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const sectionId =
-                            button.dataset
-                                .adminSection;
-
-
-                        $$(".admin-nav-button")
-                            .forEach(
-                                item =>
-                                    item.classList
-                                        .toggle(
-                                            "active",
-                                            item === button
-                                        )
-                            );
-
-
-                        $$(".admin-section")
-                            .forEach(
-                                section =>
-                                    section.classList
-                                        .toggle(
-                                            "active",
-                                            section.id ===
-                                            sectionId
-                                        )
-                            );
-
-
-                        const pageTitle =
-                            $("#adminPageTitle");
-
-
-                        if (pageTitle) {
-                            pageTitle.textContent =
-                                titles[sectionId] ||
-                                "Dashboard";
-                        }
-                    }
-                );
-            }
-        );
-
-
-}
-
-
-async function loadAdminStats() {
-    const { data, error } = await adminSupabase.rpc("admin_dashboard_stats");
-
-    if (error) {
-        console.error("Admin stats error:", error);
-        return;
-    }
-
-    const stats = Array.isArray(data)
-        ? (data[0] || {})
-        : (data || {});
-
-    const values = {
-        totalUsersStat: stats.total_users ?? 0,
-        totalProjectsStat: stats.total_projects ?? 0,
-        freeUsersStat: stats.free_users ?? 0,
-        proUsersStat: stats.pro_users ?? 0,
-        businessUsersStat: stats.business_users ?? 0,
-        workappsUsersStat: stats.workapps_users ?? 0,
-        allAccessUsersStat: stats.all_access_users ?? 0,
-        adminUsersStat: stats.admin_users ?? 0
-    };
-
-    Object.entries(values).forEach(([id, value]) => {
-        const el = $("#" + id);
-
-        if (el) {
-            el.textContent = value;
-        }
-    });
-}
-
-async function loadAdminTraffic() {
-    const { data, error } = await adminSupabase.rpc("admin_traffic_stats");
-
-    if (error) {
-        console.error("Traffic stats error:", error);
-        return;
-    }
-
-    const stats = Array.isArray(data)
-        ? (data[0] || {})
-        : (data || {});
-
-    const values = {
-        todayTrafficStat: stats.today ?? 0,
-        weekTrafficStat: stats.this_week ?? 0,
-        monthTrafficStat: stats.this_month ?? 0
-    };
-
-    Object.entries(values).forEach(([id, value]) => {
-        const el = $("#" + id);
-
-        if (el) {
-            el.textContent = value;
-        }
-    });
-}
-
-loadAdminStats();
-loadAdminTraffic();
-
-/* =========================================
-   WEBSITE TRAFFIC
-========================================= */
-
-async function loadAdminTraffic() {
-    const status = $("#trafficStatusMessage");
-    try {
-        const { data, error } = await adminSupabase.rpc("admin_traffic_stats");
-        if (error) throw error;
-
-        const stats = Array.isArray(data) ? (data[0] || {}) : (data || {});
-        const values = {
-            trafficTodayStat: stats.today ?? 0,
-            trafficWeekStat: stats.week ?? 0,
-            trafficMonthStat: stats.month ?? 0,
-            trafficTotalStat: stats.total ?? 0
-        };
-
-        Object.entries(values).forEach(([id, value]) => {
-            const el = $("#" + id);
-            if (el) el.textContent = value;
-        });
-
-        if (status) status.textContent = "Live traffic statistics loaded.";
-    } catch (error) {
-        console.warn("Traffic statistics are not available:", error);
-        ["trafficTodayStat", "trafficWeekStat", "trafficMonthStat", "trafficTotalStat"].forEach(id => {
-            const el = $("#" + id);
-            if (el) el.textContent = "—";
-        });
-        if (status) {
-            status.textContent = "Traffic source is not connected yet. Add the admin_traffic_stats RPC to enable live visitor counts.";
-        }
-    }
-}
-
-
-/* =========================================
-   USERS
-========================================= */
-
-async function loadAdminUsers() {
-
-    const {
-        data,
-        error
-    } =
-        await adminSupabase
-            .rpc(
-                "admin_list_users"
+            $$(".admin-nav-button").forEach(item=>
+                item.classList.toggle("active",item===button)
             );
 
+            $$(".admin-section").forEach(section=>
+                section.classList.toggle("active",section.id===sectionId)
+            );
 
-    if (error) {
-        throw error;
+            const pageTitle=$("#adminPageTitle");
+            if(pageTitle)pageTitle.textContent=titles[sectionId]||"Dashboard";
+        });
+    });
+}
+
+/* DASHBOARD STATS */
+
+async function loadAdminStats(){
+    const{data,error}=await adminSupabase.rpc("admin_dashboard_stats");
+    if(error)throw error;
+
+    const stats=Array.isArray(data)?(data[0]||{}):(data||{});
+
+    const values={
+        totalUsersStat:stats.total_users??0,
+        totalProjectsStat:stats.total_projects??0,
+        freeUsersStat:stats.free_users??0,
+        proUsersStat:stats.pro_users??0,
+        businessUsersStat:stats.business_users??0,
+        workappsUsersStat:stats.workapps_users??0,
+        allAccessUsersStat:stats.all_access_users??0,
+        adminUsersStat:stats.admin_users??0
+    };
+
+    Object.entries(values).forEach(([id,value])=>{
+        const el=$("#"+id);
+        if(el)el.textContent=value;
+    });
+}
+
+/* WEBSITE TRAFFIC
+   IMPORTANT: only ONE loadAdminTraffic function is kept.
+*/
+
+async function loadAdminTraffic(){
+    const status=$("#trafficStatusMessage");
+
+    try{
+        const{data,error}=await adminSupabase.rpc("admin_traffic_stats");
+        if(error)throw error;
+
+        const stats=Array.isArray(data)?(data[0]||{}):(data||{});
+
+        const values={
+            trafficTodayStat:stats.today??0,
+            trafficWeekStat:stats.this_week??stats.week??0,
+            trafficMonthStat:stats.this_month??stats.month??0,
+            trafficTotalStat:stats.total??0
+        };
+
+        Object.entries(values).forEach(([id,value])=>{
+            const el=$("#"+id);
+            if(el)el.textContent=value;
+        });
+
+        if(status)status.textContent="Live traffic statistics loaded.";
+    }catch(error){
+        console.warn("Traffic statistics are not available:",error);
+
+        ["trafficTodayStat","trafficWeekStat","trafficMonthStat","trafficTotalStat"].forEach(id=>{
+            const el=$("#"+id);
+            if(el)el.textContent="—";
+        });
+
+        if(status){
+            status.textContent="Traffic source is not connected yet. Add the admin_traffic_stats RPC to enable live visitor counts.";
+        }
     }
+}
 
+/* USERS */
 
-    allAdminUsers =
-        Array.isArray(data)
-            ? data
-            : [];
+async function loadAdminUsers(){
+    const{data,error}=await adminSupabase.rpc("admin_list_users");
+    if(error)throw error;
 
-
+    allAdminUsers=Array.isArray(data)?data:[];
     renderAdminUsers();
 }
 
+function getFilteredAdminUsers(){
+    const search=$("#adminUserSearch")?.value.trim().toLowerCase()||"";
+    const plan=$("#adminUserPlanFilter")?.value||"all";
 
-function getFilteredAdminUsers() {
+    return allAdminUsers.filter(user=>{
+        const searchText=[user.display_name,user.email,user.user_id]
+            .filter(Boolean).join(" ").toLowerCase();
 
-    const search =
-        $("#adminUserSearch")
-            ?.value
-            .trim()
-            .toLowerCase() || "";
-
-
-    const plan =
-        $("#adminUserPlanFilter")
-            ?.value || "all";
-
-
-    return allAdminUsers.filter(
-        function (user) {
-
-            const searchText = [
-                user.display_name,
-                user.email,
-                user.user_id
-            ]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase();
-
-
-            const matchesSearch =
-                !search ||
-                searchText.includes(
-                    search
-                );
-
-
-            const matchesPlan =
-                plan === "all" ||
-                user.plan === plan;
-
-
-            return (
-                matchesSearch &&
-                matchesPlan
-            );
-        }
-    );
+        return(
+            (!search||searchText.includes(search))&&
+            (plan==="all"||user.plan===plan)
+        );
+    });
 }
 
+function renderAdminUsers(){
+    const tableBody=$("#adminUsersTableBody");
+    if(!tableBody)return;
 
-function renderAdminUsers() {
+    const users=getFilteredAdminUsers();
 
-    const tableBody =
-        $("#adminUsersTableBody");
-
-
-    if (!tableBody) {
-        return;
-    }
-
-
-    const users =
-        getFilteredAdminUsers();
-
-
-    if (
-        users.length === 0
-    ) {
-
-        tableBody.innerHTML = `
+    if(users.length===0){
+        tableBody.innerHTML=`
             <tr>
-                <td
-                    colspan="6"
-                    class="admin-table-message"
-                >
+                <td colspan="6" class="admin-table-message">
                     No matching users found.
                 </td>
-            </tr>
-        `;
-
+            </tr>`;
         return;
     }
 
+    tableBody.innerHTML=users.map(user=>`
+        <tr>
+            <td class="admin-user-cell">
+                <strong>
+                    ${escapeAdminHtml(user.display_name||"J-SYRO User")}
+                    ${String(user.user_role||"user").toLowerCase()==="admin"
+                        ?'<span class="admin-user-admin-badge">ADMIN</span>':""}
+                </strong>
+                <span>
+                    ${escapeAdminHtml(user.email||user.user_id)}
+                </span>
+            </td>
 
-    tableBody.innerHTML =
-        users.map(
-            function (user) {
+            <td>
+                <span class="admin-plan-name ${escapeAdminHtml(user.plan)}">
+                    ${escapeAdminHtml(String(user.plan||"free").toUpperCase())}
+                </span>
+            </td>
 
-                return `
-                    <tr>
+            <td>${escapeAdminHtml(user.plan_status||"active")}</td>
+            <td>${escapeAdminHtml(user.user_role||"user")}</td>
+            <td>${escapeAdminHtml(formatAdminDate(user.created_at))}</td>
 
-                        <td class="admin-user-cell">
+            <td>
+                <button
+                    class="admin-action-button"
+                    type="button"
+                    data-edit-user="${escapeAdminHtml(user.user_id)}">
+                    Edit Access
+                </button>
+            </td>
+        </tr>
+    `).join("");
 
-                            <strong>
-                                ${escapeAdminHtml(
-                                    user.display_name ||
-                                    "J-SYRO User"
-                                )}
-                                ${String(user.user_role || "user").toLowerCase() === "admin"
-                                    ? '<span class="admin-user-admin-badge">ADMIN</span>'
-                                    : ""}
-                            </strong>
-
-                            <span>
-                                ${escapeAdminHtml(
-                                    user.email ||
-                                    user.user_id
-                                )}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="admin-plan-name ${escapeAdminHtml(
-                                    user.plan
-                                )}"
-                            >
-                                ${escapeAdminHtml(
-                                    String(
-                                        user.plan ||
-                                        "free"
-                                    ).toUpperCase()
-                                )}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            ${escapeAdminHtml(
-                                user.plan_status ||
-                                "active"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeAdminHtml(
-                                user.user_role ||
-                                "user"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeAdminHtml(
-                                formatAdminDate(
-                                    user.created_at
-                                )
-                            )}
-                        </td>
-
-
-                        <td>
-
-                            <button
-                                class="admin-action-button"
-                                type="button"
-                                data-edit-user="${escapeAdminHtml(
-                                    user.user_id
-                                )}"
-                            >
-                                Edit Access
-                            </button>
-
-                        </td>
-
-                    </tr>
-                `;
-            }
-        ).join("");
-
-
-    tableBody
-        .querySelectorAll(
-            "[data-edit-user]"
-        )
-        .forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        editAdminUserAccess(
-                            button.dataset
-                                .editUser
-                        );
-                    }
-                );
-            }
-        );
+    tableBody.querySelectorAll("[data-edit-user]").forEach(button=>{
+        button.addEventListener("click",()=>{
+            editAdminUserAccess(button.dataset.editUser);
+        });
+    });
 }
 
+async function editAdminUserAccess(userId){
+    const user=allAdminUsers.find(item=>item.user_id===userId);
+    if(!user)return;
 
-async function editAdminUserAccess(
-    userId
-) {
+    const newPlan=window.prompt(
+        "Enter plan: free, pro, workapps, business or all_access",
+        user.plan||"free"
+    );
+    if(newPlan===null)return;
 
-    const user =
-        allAdminUsers.find(
-            item =>
-                item.user_id === userId
-        );
+    const cleanPlan=newPlan.trim().toLowerCase();
 
-
-    if (!user) {
+    if(!["free","pro","business","workapps","all_access"].includes(cleanPlan)){
+        showAdminToast("Invalid plan");
         return;
     }
 
+    const newStatus=window.prompt(
+        "Enter status: active, cancelled or past_due",
+        user.plan_status||"active"
+    );
+    if(newStatus===null)return;
 
-    const newPlan =
-        window.prompt(
-            "Enter plan: free, pro, workapps, business or all_access",
-            user.plan || "free"
-        );
+    const cleanStatus=newStatus.trim().toLowerCase();
 
-
-    if (newPlan === null) {
+    if(!["active","cancelled","past_due"].includes(cleanStatus)){
+        showAdminToast("Invalid status");
         return;
     }
 
+    const newRole=window.prompt(
+        "Enter role: user or admin",
+        user.user_role||"user"
+    );
+    if(newRole===null)return;
 
-    const cleanPlan =
-        newPlan
-            .trim()
-            .toLowerCase();
+    const cleanRole=newRole.trim().toLowerCase();
 
-
-    if (
-        ![
-            "free",
-            "pro",
-            "business",
-            "workapps",
-            "all_access"
-        ].includes(cleanPlan)
-    ) {
-
-        showAdminToast(
-            "Invalid plan"
-        );
-
+    if(!["user","admin"].includes(cleanRole)){
+        showAdminToast("Invalid role");
         return;
     }
 
+    const expiryDefault=user.expires_at?String(user.expires_at).slice(0,10):"";
 
-    const newStatus =
-        window.prompt(
-            "Enter status: active, cancelled or past_due",
-            user.plan_status ||
-            "active"
-        );
+    const expiryInput=window.prompt(
+        "Expiry date YYYY-MM-DD, or leave blank for no expiry",
+        expiryDefault
+    );
+    if(expiryInput===null)return;
 
+    let expiresAt=null;
 
-    if (newStatus === null) {
-        return;
-    }
+    if(expiryInput.trim()){
+        const expiryDate=new Date(`${expiryInput.trim()}T23:59:59.999Z`);
 
-
-    const cleanStatus =
-        newStatus
-            .trim()
-            .toLowerCase();
-
-
-    if (
-        ![
-            "active",
-            "cancelled",
-            "past_due"
-        ].includes(cleanStatus)
-    ) {
-
-        showAdminToast(
-            "Invalid status"
-        );
-
-        return;
-    }
-
-
-    const newRole =
-        window.prompt(
-            "Enter role: user or admin",
-            user.user_role ||
-            "user"
-        );
-
-
-    if (newRole === null) {
-        return;
-    }
-
-
-    const cleanRole =
-        newRole
-            .trim()
-            .toLowerCase();
-
-
-    if (
-        ![
-            "user",
-            "admin"
-        ].includes(cleanRole)
-    ) {
-
-        showAdminToast(
-            "Invalid role"
-        );
-
-        return;
-    }
-
-
-    const expiryDefault =
-        user.expires_at
-            ? String(
-                user.expires_at
-            ).slice(0, 10)
-            : "";
-
-
-    const expiryInput =
-        window.prompt(
-            "Expiry date YYYY-MM-DD, or leave blank for no expiry",
-            expiryDefault
-        );
-
-
-    if (expiryInput === null) {
-        return;
-    }
-
-
-    let expiresAt =
-        null;
-
-
-    if (
-        expiryInput.trim()
-    ) {
-
-        const expiryDate =
-            new Date(
-                `${expiryInput.trim()}T23:59:59.999Z`
-            );
-
-
-        if (
-            Number.isNaN(
-                expiryDate.getTime()
-            )
-        ) {
-
-            showAdminToast(
-                "Invalid expiry date"
-            );
-
+        if(Number.isNaN(expiryDate.getTime())){
+            showAdminToast("Invalid expiry date");
             return;
         }
 
-
-        expiresAt =
-            expiryDate.toISOString();
+        expiresAt=expiryDate.toISOString();
     }
 
+    const confirmed=window.confirm(`Update access for ${user.email}?`);
+    if(!confirmed)return;
 
-    const confirmed =
-        window.confirm(
-            `Update access for ${user.email}?`
-        );
+    try{
+        const{error}=await adminSupabase.rpc("admin_update_user_access",{
+            target_user_id:user.user_id,
+            new_plan:cleanPlan,
+            new_status:cleanStatus,
+            new_role:cleanRole,
+            new_expires_at:expiresAt
+        });
 
+        if(error)throw error;
 
-    if (!confirmed) {
-        return;
-    }
-
-
-    try {
-
-        const {
-            error
-        } =
-            await adminSupabase
-                .rpc(
-                    "admin_update_user_access",
-                    {
-                        target_user_id:
-                            user.user_id,
-
-                        new_plan:
-                            cleanPlan,
-
-                        new_status:
-                            cleanStatus,
-
-                        new_role:
-                            cleanRole,
-
-                        new_expires_at:
-                            expiresAt
-                    }
-                );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        showAdminToast(
-            "User access updated"
-        );
-
+        showAdminToast("User access updated");
 
         await Promise.all([
             loadAdminUsers(),
             loadAdminStats()
         ]);
-
-    } catch (error) {
-
-        console.error(
-            "User access update error:",
-            error
-        );
-
-
-        showAdminToast(
-            error.message ||
-            "User access could not be updated"
-        );
+    }catch(error){
+        console.error("User access update error:",error);
+        showAdminToast(error.message||"User access could not be updated");
     }
 }
 
+/* PROJECTS */
 
-/* =========================================
-   PROJECTS
-========================================= */
+async function loadAdminProjects(){
+    const{data,error}=await adminSupabase.rpc("admin_list_projects");
+    if(error)throw error;
 
-async function loadAdminProjects() {
-
-    const {
-        data,
-        error
-    } =
-        await adminSupabase
-            .rpc(
-                "admin_list_projects"
-            );
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    allAdminProjects =
-        Array.isArray(data)
-            ? data
-            : [];
-
-
+    allAdminProjects=Array.isArray(data)?data:[];
     renderAdminProjects();
 }
 
+function renderAdminProjects(){
+    const tableBody=$("#adminProjectsTableBody");
+    if(!tableBody)return;
 
-function renderAdminProjects() {
+    const search=$("#adminProjectSearch")?.value.trim().toLowerCase()||"";
 
-    const tableBody =
-        $("#adminProjectsTableBody");
+    const projects=allAdminProjects.filter(project=>{
+        const searchText=[
+            project.project_name,
+            project.project_key,
+            project.owner_email,
+            project.owner_id
+        ].filter(Boolean).join(" ").toLowerCase();
 
+        return !search||searchText.includes(search);
+    });
 
-    if (!tableBody) {
-        return;
-    }
-
-
-    const search =
-        $("#adminProjectSearch")
-            ?.value
-            .trim()
-            .toLowerCase() || "";
-
-
-    const projects =
-        allAdminProjects.filter(
-            function (project) {
-
-                const searchText = [
-                    project.project_name,
-                    project.project_key,
-                    project.owner_email,
-                    project.owner_id
-                ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase();
-
-
-                return (
-                    !search ||
-                    searchText.includes(
-                        search
-                    )
-                );
-            }
-        );
-
-
-    if (
-        projects.length === 0
-    ) {
-
-        tableBody.innerHTML = `
+    if(projects.length===0){
+        tableBody.innerHTML=`
             <tr>
-                <td
-                    colspan="5"
-                    class="admin-table-message"
-                >
+                <td colspan="5" class="admin-table-message">
                     No matching projects found.
                 </td>
-            </tr>
-        `;
-
+            </tr>`;
         return;
     }
 
-
-    tableBody.innerHTML =
-        projects.map(
-            function (project) {
-
-                return `
-                    <tr>
-
-                        <td>
-                            <strong>
-                                ${escapeAdminHtml(
-                                    project.project_name ||
-                                    "untitled-project"
-                                )}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${escapeAdminHtml(
-                                project.project_key
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeAdminHtml(
-                                project.owner_email ||
-                                project.owner_id
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeAdminHtml(
-                                project.file_count ?? 0
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeAdminHtml(
-                                formatAdminDateTime(
-                                    project.updated_at
-                                )
-                            )}
-                        </td>
-
-                    </tr>
-                `;
-            }
-        ).join("");
+    tableBody.innerHTML=projects.map(project=>`
+        <tr>
+            <td>
+                <strong>
+                    ${escapeAdminHtml(project.project_name||"untitled-project")}
+                </strong>
+            </td>
+            <td>${escapeAdminHtml(project.project_key)}</td>
+            <td>${escapeAdminHtml(project.owner_email||project.owner_id)}</td>
+            <td>${escapeAdminHtml(project.file_count??0)}</td>
+            <td>${escapeAdminHtml(formatAdminDateTime(project.updated_at))}</td>
+        </tr>
+    `).join("");
 }
 
+/* REFRESH DASHBOARD */
 
-/* =========================================
-   REFRESH DASHBOARD
-========================================= */
+async function refreshAdminDashboard(){
+    const refreshButton=$("#refreshAdminDashboard");
+    const originalText=refreshButton?.textContent||"↻ Refresh";
 
-async function refreshAdminDashboard() {
-
-    const refreshButton =
-        $("#refreshAdminDashboard");
-
-
-    const originalText =
-        refreshButton?.textContent ||
-        "↻ Refresh";
-
-
-    if (refreshButton) {
-
-        refreshButton.disabled =
-            true;
-
-        refreshButton.textContent =
-            "Refreshing...";
+    if(refreshButton){
+        refreshButton.disabled=true;
+        refreshButton.textContent="Refreshing...";
     }
 
+    const results=await Promise.allSettled([
+        loadAdminStats(),
+        loadAdminTraffic(),
+        loadAdminUsers(),
+        loadAdminProjects()
+    ]);
 
-    const results =
-        await Promise.allSettled([
-            loadAdminStats(),
-            loadAdminTraffic(),
-            loadAdminUsers(),
-            loadAdminProjects()
-        ]);
+    const failedResult=results.find(result=>result.status==="rejected");
 
-
-    const failedResult =
-        results.find(
-            result =>
-                result.status ===
-                "rejected"
-        );
-
-
-    if (failedResult) {
-
-        console.error(
-            "Admin dashboard load error:",
-            failedResult.reason
-        );
-
-
+    if(failedResult){
+        console.error("Admin dashboard load error:",failedResult.reason);
         showAdminToast(
-            failedResult.reason
-                ?.message ||
+            failedResult.reason?.message||
             "Some admin data could not be loaded"
         );
-
-    } else {
-
-        showAdminToast(
-            "Dashboard refreshed"
-        );
+    }else{
+        showAdminToast("Dashboard refreshed");
     }
 
-
-    if (refreshButton) {
-
-        refreshButton.disabled =
-            false;
-
-        refreshButton.textContent =
-            originalText;
+    if(refreshButton){
+        refreshButton.disabled=false;
+        refreshButton.textContent=originalText;
     }
 }
 
+/* LOGOUT */
 
-/* =========================================
-   LOGOUT
-========================================= */
+async function adminLogout(){
+    const button=$("#adminLogoutBtn");
+    const originalText=button?.textContent||"Logout";
 
-async function adminLogout() {
-
-    const button =
-        $("#adminLogoutBtn");
-
-
-    const originalText =
-        button?.textContent ||
-        "Logout";
-
-
-    if (button) {
-
-        button.disabled =
-            true;
-
-        button.textContent =
-            "Logging out...";
+    if(button){
+        button.disabled=true;
+        button.textContent="Logging out...";
     }
 
+    try{
+        await adminSupabase.auth.signOut();
+        window.location.replace("index.html");
+    }catch(error){
+        console.error("Admin logout error:",error);
+        showAdminToast("Logout failed");
 
-    try {
-
-        await adminSupabase
-            .auth
-            .signOut();
-
-
-        window.location.replace(
-            "index.html"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Admin logout error:",
-            error
-        );
-
-
-        showAdminToast(
-            "Logout failed"
-        );
-
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                originalText;
+        if(button){
+            button.disabled=false;
+            button.textContent=originalText;
         }
     }
 }
 
+/* EVENT LISTENERS */
 
-/* =========================================
-   EVENT LISTENERS
-========================================= */
-
-function initializeAdminEvents() {
-
+function initializeAdminEvents(){
     initializeAdminNavigation();
 
+    $("#refreshAdminDashboard")?.addEventListener(
+        "click",
+        refreshAdminDashboard
+    );
 
-    $("#refreshAdminDashboard")
-        ?.addEventListener(
-            "click",
-            refreshAdminDashboard
-        );
+    $("#adminLogoutBtn")?.addEventListener(
+        "click",
+        adminLogout
+    );
 
+    $("#adminUserSearch")?.addEventListener(
+        "input",
+        renderAdminUsers
+    );
 
-    $("#adminLogoutBtn")
-        ?.addEventListener(
-            "click",
-            adminLogout
-        );
+    $("#adminUserPlanFilter")?.addEventListener(
+        "change",
+        renderAdminUsers
+    );
 
-
-
-    $("#adminUserSearch")
-        ?.addEventListener(
-            "input",
-            renderAdminUsers
-        );
-
-
-    $("#adminUserPlanFilter")
-        ?.addEventListener(
-            "change",
-            renderAdminUsers
-        );
-
-
-    $("#adminProjectSearch")
-        ?.addEventListener(
-            "input",
-            renderAdminProjects
-        );
-
-
-
-
-
+    $("#adminProjectSearch")?.addEventListener(
+        "input",
+        renderAdminProjects
+    );
 }
 
+/* START ADMIN DASHBOARD */
 
-/* =========================================
-   START ADMIN DASHBOARD
-========================================= */
+async function startAdminDashboard(){
+    const hasAdminAccess=await initializeAdminAccess();
 
-async function startAdminDashboard() {
-
-    const hasAdminAccess =
-        await initializeAdminAccess();
-
-
-    if (!hasAdminAccess) {
-        return;
-    }
-
+    if(!hasAdminAccess)return;
 
     initializeAdminEvents();
-
-
     await refreshAdminDashboard();
 }
 
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
+if(document.readyState==="loading"){
     document.addEventListener(
         "DOMContentLoaded",
         startAdminDashboard
     );
-
-} else {
-
+}else{
     startAdminDashboard();
 }
