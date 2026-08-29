@@ -345,6 +345,7 @@ async function editAdminUserAccess(userId){
     }
 }
 
+
 /* PROJECTS */
 
 async function loadAdminProjects(){
@@ -363,11 +364,72 @@ async function loadAdminProjects(){
 
     try{
 
-        const {data,error}=await adminSupabase.rpc(
+        /* CHECK CURRENT SESSION */
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await adminSupabase.auth.getSession();
+
+        if(sessionError){
+            throw sessionError;
+        }
+
+        const sessionUser=sessionData?.session?.user;
+
+        console.log("PROJECTS SESSION USER:",sessionUser);
+
+        if(!sessionUser){
+
+            tableBody.innerHTML=`
+                <tr>
+                    <td colspan="5" class="admin-table-message">
+                        No active session found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        /* CHECK ADMIN RECORD */
+
+        const {
+            data: planData,
+            error: planError
+        } = await adminSupabase
+            .from("user_plans")
+            .select("user_id, plan, role, status")
+            .eq("user_id",sessionUser.id)
+            .maybeSingle();
+
+        console.log("PROJECTS ADMIN RECORD:",{
+            planData,
+            planError
+        });
+
+        if(planError){
+            throw planError;
+        }
+
+
+        /* LOAD PROJECTS */
+
+        const {
+            data,
+            error
+        } = await adminSupabase.rpc(
             "admin_list_projects"
         );
 
+        console.log("ADMIN PROJECT RPC:",{
+            data,
+            error
+        });
+
         if(error){
+
             console.error(
                 "admin_list_projects error:",
                 error
@@ -376,7 +438,10 @@ async function loadAdminProjects(){
             tableBody.innerHTML=`
                 <tr>
                     <td colspan="5" class="admin-table-message">
-                        Could not load projects.
+                        ${escapeAdminHtml(
+                            error.message ||
+                            "Could not load projects."
+                        )}
                     </td>
                 </tr>
             `;
@@ -384,9 +449,10 @@ async function loadAdminProjects(){
             return;
         }
 
+
         allAdminProjects=Array.isArray(data)
-            ? data
-            : [];
+            ?data
+            :[];
 
         renderAdminProjects();
 
@@ -400,7 +466,10 @@ async function loadAdminProjects(){
         tableBody.innerHTML=`
             <tr>
                 <td colspan="5" class="admin-table-message">
-                    Could not load projects.
+                    ${escapeAdminHtml(
+                        error?.message ||
+                        "Could not load projects."
+                    )}
                 </td>
             </tr>
         `;
