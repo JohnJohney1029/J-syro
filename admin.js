@@ -364,63 +364,53 @@ async function loadAdminProjects(){
 
     try{
 
-        /* ================================
-           1. CHECK CURRENT SESSION
-        ================================= */
+        /* SESSION */
 
         const {
             data: sessionData,
             error: sessionError
         } = await adminSupabase.auth.getSession();
 
-        if(sessionError){
-            throw sessionError;
-        }
+        console.log(
+            "PROJECTS SESSION:",
+            JSON.stringify(sessionData,null,2)
+        );
+
+        if(sessionError)throw sessionError;
 
         const sessionUser=sessionData?.session?.user;
 
-        console.log("PROJECTS SESSION USER:",sessionUser);
+        console.log(
+            "PROJECTS SESSION USER:",
+            sessionUser?.id,
+            sessionUser?.email
+        );
 
         if(!sessionUser){
-
-            tableBody.innerHTML=`
-                <tr>
-                    <td colspan="5" class="admin-table-message">
-                        No active session found.
-                    </td>
-                </tr>
-            `;
-
-            return;
+            throw new Error("No active Supabase session.");
         }
 
 
-        /* ================================
-           2. CHECK USER_PLANS RECORD
-        ================================= */
+        /* ADMIN RECORD */
 
         const {
             data: planData,
             error: planError
         } = await adminSupabase
             .from("user_plans")
-            .select("user_id, plan, role, status")
+            .select("user_id,plan,role,status")
             .eq("user_id",sessionUser.id)
             .maybeSingle();
 
-        console.log("PROJECTS ADMIN RECORD:",{
-            planData,
-            planError
-        });
+        console.log(
+            "PROJECTS ADMIN RECORD:",
+            JSON.stringify(planData,null,2)
+        );
 
-        if(planError){
-            throw planError;
-        }
+        if(planError)throw planError;
 
 
-        /* ================================
-           3. CHECK ADMIN ACCESS FROM RPC
-        ================================= */
+        /* ADMIN DEBUG */
 
         const {
             data: debugData,
@@ -429,24 +419,18 @@ async function loadAdminProjects(){
             "debug_admin_access"
         );
 
-        console.log("PROJECTS ADMIN DEBUG:",{
-            debugData,
-            debugError
-        });
+        console.log(
+            "PROJECTS ADMIN DEBUG DATA:",
+            JSON.stringify(debugData,null,2)
+        );
 
-        if(debugError){
-
-            console.warn(
-                "debug_admin_access failed:",
-                debugError
-            );
-
-        }
+        console.log(
+            "PROJECTS ADMIN DEBUG ERROR:",
+            JSON.stringify(debugError,null,2)
+        );
 
 
-        /* ================================
-           4. LOAD PROJECTS
-        ================================= */
+        /* PROJECT RPC */
 
         const {
             data,
@@ -455,37 +439,35 @@ async function loadAdminProjects(){
             "admin_list_projects"
         );
 
-        console.log("ADMIN PROJECT RPC:",{
-            data,
-            error
-        });
+        console.log(
+            "ADMIN PROJECT DATA:",
+            JSON.stringify(data,null,2)
+        );
 
+        console.log(
+            "ADMIN PROJECT ERROR:",
+            JSON.stringify(error,null,2)
+        );
 
-        /* ================================
-           5. HANDLE RPC ERROR
-        ================================= */
 
         if(error){
 
-            console.error(
-                "admin_list_projects error:",
-                error
-            );
+            const fullError=[
+                `code=${error.code||""}`,
+                `message=${error.message||""}`,
+                `details=${error.details||""}`,
+                `hint=${error.hint||""}`
+            ].join("\n");
 
-            const errorMessage=[
-                error.message,
-                error.details,
-                error.hint,
-                error.code
-            ]
-            .filter(Boolean)
-            .join(" | ");
+            console.error(
+                "ADMIN PROJECT RPC FULL ERROR:\n"+fullError
+            );
 
             tableBody.innerHTML=`
                 <tr>
                     <td colspan="5" class="admin-table-message">
                         ${escapeAdminHtml(
-                            errorMessage ||
+                            error.message ||
                             "Could not load projects."
                         )}
                     </td>
@@ -496,21 +478,11 @@ async function loadAdminProjects(){
         }
 
 
-        /* ================================
-           6. SAVE PROJECTS
-        ================================= */
-
         allAdminProjects=Array.isArray(data)
             ?data
             :[];
 
-
-        /* ================================
-           7. RENDER PROJECTS
-        ================================= */
-
         renderAdminProjects();
-
 
     }catch(error){
 
@@ -519,20 +491,11 @@ async function loadAdminProjects(){
             error
         );
 
-        const errorMessage=[
-            error?.message,
-            error?.details,
-            error?.hint,
-            error?.code
-        ]
-        .filter(Boolean)
-        .join(" | ");
-
         tableBody.innerHTML=`
             <tr>
                 <td colspan="5" class="admin-table-message">
                     ${escapeAdminHtml(
-                        errorMessage ||
+                        error?.message ||
                         "Could not load projects."
                     )}
                 </td>
