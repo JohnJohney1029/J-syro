@@ -1211,14 +1211,14 @@ async function handleLogin(event) {
             "Logging in..."
         );
     }
-}
-
+} 
 
 /* =========================
    SIGN UP FORM
 ========================= */
 
 async function handleSignup(event) {
+
     event.preventDefault();
 
     clearAuthMessage();
@@ -1226,25 +1226,21 @@ async function handleSignup(event) {
     const form = event.currentTarget;
 
     const nameInput =
-        document.getElementById(
-            "signupName"
-        );
+        document.getElementById("signupName");
 
     const emailInput =
-        document.getElementById(
-            "signupEmail"
-        );
+        document.getElementById("signupEmail");
 
     const passwordInput =
-        document.getElementById(
-            "signupPassword"
-        );
+        document.getElementById("signupPassword");
 
     const confirmPasswordInput =
-        document.getElementById(
-            "signupConfirmPassword"
-        );
+        document.getElementById("signupConfirmPassword");
 
+
+    /* =========================
+       CHECK FORM ELEMENTS
+    ========================= */
 
     if (
         !nameInput ||
@@ -1252,9 +1248,23 @@ async function handleSignup(event) {
         !passwordInput ||
         !confirmPasswordInput
     ) {
+
+        console.error(
+            "SIGNUP FORM ERROR: Required input missing."
+        );
+
+        showAuthMessage(
+            "Signup form is incomplete. Please refresh the page.",
+            "error"
+        );
+
         return;
     }
 
+
+    /* =========================
+       GET VALUES
+    ========================= */
 
     const fullName =
         nameInput.value.trim();
@@ -1271,9 +1281,22 @@ async function handleSignup(event) {
         confirmPasswordInput.value;
 
 
-    /* Validation */
+    console.log(
+        "SIGNUP ATTEMPT:",
+        {
+            name: fullName,
+            email: email,
+            passwordLength: password.length
+        }
+    );
+
+
+    /* =========================
+       VALIDATION
+    ========================= */
 
     if (fullName.length < 2) {
+
         showAuthMessage(
             "Please enter your full name.",
             "error"
@@ -1286,6 +1309,7 @@ async function handleSignup(event) {
 
 
     if (!isValidEmail(email)) {
+
         showAuthMessage(
             "Please enter a valid email address.",
             "error"
@@ -1298,6 +1322,7 @@ async function handleSignup(event) {
 
 
     if (password.length < 6) {
+
         showAuthMessage(
             "Password must contain at least 6 characters.",
             "error"
@@ -1310,6 +1335,7 @@ async function handleSignup(event) {
 
 
     if (password !== confirmPassword) {
+
         showAuthMessage(
             "Passwords do not match.",
             "error"
@@ -1321,7 +1347,16 @@ async function handleSignup(event) {
     }
 
 
+    /* =========================
+       SUPABASE CHECK
+    ========================= */
+
     if (!supabaseClient) {
+
+        console.error(
+            "SIGNUP ERROR: supabaseClient is null."
+        );
+
         showAuthMessage(
             "Supabase connection failed. Please refresh the page.",
             "error"
@@ -1330,6 +1365,10 @@ async function handleSignup(event) {
         return;
     }
 
+
+    /* =========================
+       LOADING
+    ========================= */
 
     setFormLoading(
         form,
@@ -1340,36 +1379,105 @@ async function handleSignup(event) {
 
     try {
 
+        console.log(
+            "SIGNUP: Sending request to Supabase..."
+        );
+
+
+        /* =========================
+           CREATE ACCOUNT
+        ========================= */
+
         const {
             data,
             error
         } =
-            await supabaseClient.auth
-                .signUp({
-                    email: email,
+            await supabaseClient.auth.signUp({
 
-                    password: password,
+                email: email,
 
-                    options: {
-                        data: {
-                            full_name:
-                                fullName
-                        }
+                password: password,
+
+                options: {
+
+                    data: {
+
+                        full_name:
+                            fullName
+
                     }
-                });
 
+                }
+
+            });
+
+
+        /* =========================
+           FULL DEBUG RESULT
+        ========================= */
+
+        console.log(
+            "SIGNUP SUPABASE RESULT:",
+            {
+                data: data,
+                error: error,
+                user: data?.user || null,
+                session: data?.session || null
+            }
+        );
+
+
+        /* =========================
+           SUPABASE ERROR
+        ========================= */
 
         if (error) {
+
+            console.error(
+                "SIGNUP SUPABASE ERROR:",
+                {
+                    message: error.message,
+                    name: error.name,
+                    status: error.status,
+                    code: error.code
+                }
+            );
+
             throw error;
         }
 
 
-        /*
-        If email confirmation is disabled,
-        Supabase returns a session immediately.
-        */
+        /* =========================
+           NO USER RETURNED
+        ========================= */
+
+        if (!data?.user) {
+
+            console.error(
+                "SIGNUP ERROR: Supabase returned no user.",
+                data
+            );
+
+            showAuthMessage(
+                "Account could not be created. Please try again.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        /* =========================
+           SESSION CREATED
+        ========================= */
 
         if (data.session) {
+
+            console.log(
+                "SIGNUP SUCCESS: Session created.",
+                data.user
+            );
+
 
             showAuthMessage(
                 "Account created successfully. Opening your workspace...",
@@ -1377,22 +1485,36 @@ async function handleSignup(event) {
             );
 
 
-            setTimeout(function () {
-                window.location.href =
-                    "workspace.html";
-            }, 900);
+            form.reset();
+
+
+            setTimeout(
+                function () {
+
+                    window.location.href =
+                        "workspace.html";
+
+                },
+                900
+            );
+
 
             return;
         }
 
 
-        /*
-        If email confirmation is enabled,
-        the user must confirm their email first.
-        */
+        /* =========================
+           EMAIL CONFIRMATION REQUIRED
+        ========================= */
+
+        console.log(
+            "SIGNUP SUCCESS: Email confirmation required.",
+            data.user
+        );
+
 
         showAuthMessage(
-            "Account created. Please check your email and confirm your account before logging in.",
+            "Account created successfully. Please check your email and confirm your account before logging in.",
             "success"
         );
 
@@ -1403,14 +1525,27 @@ async function handleSignup(event) {
     } catch (error) {
 
         console.error(
-            "Sign Up error:",
+            "SIGNUP FAILED:",
             error
         );
+
+
+        const message =
+            error?.message ||
+            "Something went wrong while creating your account.";
+
+
+        console.error(
+            "SIGNUP FAILED MESSAGE:",
+            message
+        );
+
 
         showAuthMessage(
             getFriendlyAuthError(error),
             "error"
         );
+
 
     } finally {
 
@@ -1419,9 +1554,9 @@ async function handleSignup(event) {
             false,
             "Creating account..."
         );
+
     }
 }
-
 
 /* =========================
    FRIENDLY SUPABASE ERRORS
