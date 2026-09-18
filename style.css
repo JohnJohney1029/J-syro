@@ -3296,3 +3296,319 @@ input:checked
     }
 }
 
+/* =========================================================
+   J-SYRO 3 SECOND CINEMATIC OPENING
+   ========================================================= */
+
+body.jsyro-intro-lock {
+    overflow: hidden !important;
+}
+
+.jsyro-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 9999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(30, 90, 255, 0.16),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at center,
+            rgba(120, 40, 255, 0.10),
+            transparent 55%
+        ),
+        #02050d;
+
+    opacity: 1;
+
+    transition:
+        opacity 0.45s ease,
+        transform 0.65s cubic-bezier(.16,1,.3,1);
+}
+
+.jsyro-intro.is-done {
+    opacity: 0;
+    transform: scale(1.12);
+    pointer-events: none;
+}
+
+/* BLUE / PURPLE GLOW */
+
+.jsyro-intro-glow {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 120, 255, 0.30),
+            rgba(90, 40, 255, 0.12) 40%,
+            transparent 70%
+        );
+
+    filter: blur(35px);
+
+    animation:
+        introGlowPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes introGlowPulse {
+
+    from {
+        transform: scale(0.85);
+        opacity: 0.45;
+    }
+
+    to {
+        transform: scale(1.15);
+        opacity: 0.85;
+    }
+}
+
+/* CENTER */
+
+.jsyro-intro-center {
+    position: relative;
+    z-index: 5;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    animation:
+        introCenterIn 0.55s
+        cubic-bezier(.16,1,.3,1)
+        forwards;
+}
+
+@keyframes introCenterIn {
+
+    from {
+        opacity: 0;
+        transform: scale(0.88) translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* LOGO */
+
+.jsyro-intro-logo {
+    width: 82px;
+    height: 82px;
+
+    object-fit: contain;
+
+    margin-bottom: 18px;
+
+    filter:
+        drop-shadow(0 0 12px rgba(0,130,255,.9))
+        drop-shadow(0 0 35px rgba(80,60,255,.65));
+
+    animation:
+        introLogoPulse 1.2s
+        ease-in-out infinite alternate;
+}
+
+@keyframes introLogoPulse {
+
+    from {
+        transform: scale(0.96);
+
+        filter:
+            drop-shadow(0 0 10px rgba(0,130,255,.75))
+            drop-shadow(0 0 25px rgba(80,60,255,.45));
+    }
+
+    to {
+        transform: scale(1.06);
+
+        filter:
+            drop-shadow(0 0 18px rgba(0,160,255,1))
+            drop-shadow(0 0 45px rgba(90,60,255,.8));
+    }
+}
+
+/* J-SYRO TEXT */
+
+.jsyro-intro-name {
+
+    min-height: 58px;
+
+    color: #ffffff;
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+    font-size:
+        clamp(38px, 6vw, 64px);
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+
+    text-shadow:
+        0 0 10px rgba(80,160,255,.9),
+        0 0 30px rgba(40,100,255,.55),
+        0 0 60px rgba(100,60,255,.3);
+
+    white-space: nowrap;
+}
+
+/* TAGLINE */
+
+.jsyro-intro-tagline {
+
+    min-height: 28px;
+
+    margin-top: 8px;
+
+    color:
+        rgba(225,235,255,.82);
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+    font-size:
+        clamp(10px, 1.4vw, 15px);
+
+    font-weight: 600;
+
+    letter-spacing: 0.35em;
+
+    text-transform: uppercase;
+
+    text-shadow:
+        0 0 14px rgba(70,130,255,.55);
+
+    white-space: nowrap;
+}
+
+/* TYPING CURSOR */
+
+.intro-cursor {
+
+    display: inline-block;
+
+    width: 2px;
+    height: 1em;
+
+    margin-left: 5px;
+
+    vertical-align: -0.12em;
+
+    background: #62adff;
+
+    box-shadow:
+        0 0 7px #278cff,
+        0 0 16px rgba(70,130,255,.9);
+
+    animation:
+        introCursorBlink
+        0.55s
+        steps(1)
+        infinite;
+}
+
+@keyframes introCursorBlink {
+
+    0%,
+    45% {
+        opacity: 1;
+    }
+
+    46%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* FINAL FLASH */
+
+.jsyro-intro-flash {
+
+    position: absolute;
+    inset: -20%;
+
+    z-index: 20;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255,255,255,1),
+            rgba(80,160,255,.75) 18%,
+            rgba(40,80,255,.25) 42%,
+            transparent 68%
+        );
+
+    opacity: 0;
+}
+
+.jsyro-intro.is-flashing .jsyro-intro-flash {
+
+    animation:
+        introFinalFlash
+        0.6s
+        ease-out
+        forwards;
+}
+
+@keyframes introFinalFlash {
+
+    0% {
+        opacity: 0;
+        transform: scale(.65);
+    }
+
+    35% {
+        opacity: .95;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.35);
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .jsyro-intro-logo {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 15px;
+    }
+
+    .jsyro-intro-name {
+        font-size: 34px;
+        letter-spacing: .12em;
+    }
+
+    .jsyro-intro-tagline {
+        font-size: 9px;
+        letter-spacing: .22em;
+    }
+
+}
