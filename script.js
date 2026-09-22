@@ -2016,70 +2016,87 @@ if (
 
 /* =========================================================
    J-SYRO PASSWORD SHOW / HIDE
+   LOGIN + SIGN UP
    ========================================================= */
 
 (function () {
 
-    const password =
-        document.getElementById(
-            "loginPassword"
-        );
+    function setupPasswordToggle(
+        passwordId,
+        toggleId
+    ) {
 
-    const toggle =
-        document.getElementById(
-            "loginPasswordToggle"
-        );
+        const password =
+            document.getElementById(passwordId);
 
-    if (!password || !toggle) {
-        return;
-    }
+        const toggle =
+            document.getElementById(toggleId);
 
-    toggle.addEventListener(
-        "click",
-        function () {
+        if (!password || !toggle) {
+            return;
+        }
 
-            const isHidden =
-                password.type === "password";
+        toggle.addEventListener(
+            "click",
+            function () {
 
-            if (isHidden) {
+                if (
+                    password.type === "password"
+                ) {
 
-                password.type = "text";
+                    password.type = "text";
 
-                toggle.classList.add(
-                    "is-visible"
-                );
+                    toggle.classList.add(
+                        "is-visible"
+                    );
 
-                toggle.setAttribute(
-                    "aria-label",
-                    "Hide password"
-                );
+                    toggle.setAttribute(
+                        "aria-label",
+                        "Hide password"
+                    );
 
-                toggle.setAttribute(
-                    "title",
-                    "Hide password"
-                );
+                    toggle.setAttribute(
+                        "title",
+                        "Hide password"
+                    );
 
-            } else {
+                } else {
 
-                password.type = "password";
+                    password.type = "password";
 
-                toggle.classList.remove(
-                    "is-visible"
-                );
+                    toggle.classList.remove(
+                        "is-visible"
+                    );
 
-                toggle.setAttribute(
-                    "aria-label",
-                    "Show password"
-                );
+                    toggle.setAttribute(
+                        "aria-label",
+                        "Show password"
+                    );
 
-                toggle.setAttribute(
-                    "title",
-                    "Show password"
-                );
+                    toggle.setAttribute(
+                        "title",
+                        "Show password"
+                    );
+                }
 
             }
+        );
+    }
 
-        }
+
+    /* LOGIN */
+
+    setupPasswordToggle(
+        "loginPassword",
+        "loginPasswordToggle"
+    );
+
+
+    /* SIGN UP */
+
+    setupPasswordToggle(
+        "signupPassword",
+        "signupPasswordToggle"
     );
 
 })();
