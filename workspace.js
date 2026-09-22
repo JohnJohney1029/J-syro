@@ -82998,3 +82998,181 @@ if (
 } else {
     initializeExplorerProjectName();
 }
+
+/* =========================================================
+   J-SYRO TEMPLATE MODAL SYSTEM
+   ========================================================= */
+
+let selectedTemplate = null;
+
+
+/* OPEN TEMPLATE MODAL */
+
+function openTemplateModal(template) {
+
+  selectedTemplate = template;
+
+  const modal = document.getElementById("templateCreateModal");
+
+  const title = document.getElementById("templateModalTitle");
+  const category = document.getElementById("templateModalCategory");
+  const description = document.getElementById("templateModalDescription");
+
+  const projectName = document.getElementById("templateProjectName");
+  const projectCategory = document.getElementById("templateProjectCategory");
+  const projectDescription = document.getElementById("templateProjectDescription");
+
+  title.textContent = template.name || "Website Template";
+
+  category.textContent =
+    (template.category || "WEBSITE").toUpperCase();
+
+  description.textContent =
+    template.description ||
+    "Professional website template ready to customize.";
+
+  projectName.value =
+    template.name || "";
+
+  projectCategory.value =
+    template.category || "Website";
+
+  projectDescription.value =
+    template.description || "";
+
+  modal.classList.add("active");
+
+  document.body.style.overflow = "hidden";
+
+  setTimeout(() => {
+    projectName.focus();
+    projectName.select();
+  }, 100);
+}
+
+
+/* CLOSE */
+
+function closeTemplateModal() {
+
+  const modal =
+    document.getElementById("templateCreateModal");
+
+  modal.classList.remove("active");
+
+  document.body.style.overflow = "";
+
+  selectedTemplate = null;
+}
+
+
+/* CREATE PROJECT */
+
+function createTemplateProject() {
+
+  if (!selectedTemplate) {
+    return;
+  }
+
+  const projectName =
+    document.getElementById("templateProjectName")
+      .value
+      .trim();
+
+  const description =
+    document.getElementById("templateProjectDescription")
+      .value
+      .trim();
+
+  if (!projectName) {
+
+    const input =
+      document.getElementById("templateProjectName");
+
+    input.focus();
+
+    input.style.borderColor = "#ff6680";
+
+    setTimeout(() => {
+      input.style.borderColor = "";
+    }, 1200);
+
+    return;
+  }
+
+
+  /*
+   * IMPORTANT:
+   * Yahan tumhara existing template/project creation
+   * function call hoga.
+   */
+
+  if (typeof window.createProjectFromTemplate === "function") {
+
+    window.createProjectFromTemplate(
+      selectedTemplate,
+      projectName,
+      description
+    );
+
+  } else {
+
+    console.log(
+      "Template selected:",
+      selectedTemplate
+    );
+
+    console.log(
+      "Project name:",
+      projectName
+    );
+
+    console.log(
+      "Description:",
+      description
+    );
+
+  }
+
+  closeTemplateModal();
+}
+
+
+/* CLICK OUTSIDE MODAL */
+
+document.addEventListener("click", function(event) {
+
+  const modal =
+    document.getElementById("templateCreateModal");
+
+  if (!modal) return;
+
+  if (
+    event.target === modal &&
+    modal.classList.contains("active")
+  ) {
+    closeTemplateModal();
+  }
+
+});
+
+
+/* ESC KEY */
+
+document.addEventListener("keydown", function(event) {
+
+  if (event.key === "Escape") {
+
+    const modal =
+      document.getElementById("templateCreateModal");
+
+    if (
+      modal &&
+      modal.classList.contains("active")
+    ) {
+      closeTemplateModal();
+    }
+
+  }
+
+});
