@@ -975,21 +975,35 @@
 
                 <div class="auth-field">
 
-                    <label for="loginPassword">
-                        Password
-                    </label>
+    <label for="loginPassword">
+        Password
+    </label>
 
-                    <input
-                        id="loginPassword"
-                        name="password"
-                        type="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        minlength="6"
-                        required
-                    >
+    <div class="password-input-wrap">
 
-                </div>
+        <input
+            id="loginPassword"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            minlength="6"
+            required
+        >
+
+        <button
+            type="button"
+            class="password-eye-btn"
+            id="loginPasswordToggle"
+            aria-label="Show password"
+            title="Show password"
+        >
+            👁
+        </button>
+
+    </div>
+
+</div>
 
 
                 <button
