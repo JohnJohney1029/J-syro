@@ -3297,9 +3297,7 @@ input:checked
 }
 
 
-/* =========================================================
-   PASSWORD SHOW / HIDE EYE
-   ========================================================= */
+/* PASSWORD EYE */
 
 .password-input-wrap {
     position: relative;
@@ -3309,74 +3307,51 @@ input:checked
 .password-input-wrap input {
     width: 100%;
     padding-right: 58px !important;
+    box-sizing: border-box;
 }
 
 .password-eye-btn {
-    position: absolute;
+    position: absolute !important;
+    top: 50% !important;
+    right: 10px !important;
 
-    top: 50%;
-    right: 12px;
+    transform: translateY(-50%) !important;
 
-    transform: translateY(-50%);
+    width: 42px !important;
+    height: 42px !important;
 
-    width: 42px;
-    height: 42px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0 !important;
+    margin: 0 !important;
 
-    border: 0;
-    border-radius: 12px;
+    border: 0 !important;
+    border-radius: 10px !important;
 
-    background: transparent;
+    background: transparent !important;
 
-    color: #64748b;
+    color: #64748b !important;
 
-    cursor: pointer;
+    cursor: pointer !important;
 
-    transition:
-        color 0.2s ease,
-        background 0.2s ease,
-        transform 0.2s ease;
+    font-size: 21px !important;
+    line-height: 1 !important;
 }
 
 .password-eye-btn:hover {
-    color: #635bff;
-
-    background: rgba(99, 91, 255, 0.10);
+    color: #635bff !important;
+    background: rgba(99, 91, 255, 0.10) !important;
 }
 
 .password-eye-btn:active {
     transform:
         translateY(-50%)
-        scale(0.94);
-}
-
-.password-eye-icon {
-    width: 23px;
-    height: 23px;
-
-    display: block;
-
-    transition:
-        filter 0.2s ease;
-}
-
-.password-eye-btn:hover .password-eye-icon {
-    filter:
-        drop-shadow(0 0 5px rgba(99, 91, 255, 0.7));
+        scale(0.94) !important;
 }
 
 .password-eye-btn.is-visible {
-    color: #635bff;
-
-    background:
-        rgba(99, 91, 255, 0.12);
-}
-
-.password-eye-btn.is-visible
-.password-eye-icon {
-    filter:
-        drop-shadow(0 0 7px rgba(99, 91, 255, 0.75));
+    color: #635bff !important;
+    background: rgba(99, 91, 255, 0.12) !important;
 }
