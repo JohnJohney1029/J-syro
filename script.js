@@ -2012,3 +2012,74 @@ if (
     recordJSyroWebsiteVisit();
 
 }
+
+
+/* =========================================================
+   J-SYRO PASSWORD SHOW / HIDE
+   ========================================================= */
+
+(function () {
+
+    const password =
+        document.getElementById(
+            "loginPassword"
+        );
+
+    const toggle =
+        document.getElementById(
+            "loginPasswordToggle"
+        );
+
+    if (!password || !toggle) {
+        return;
+    }
+
+    toggle.addEventListener(
+        "click",
+        function () {
+
+            const isHidden =
+                password.type === "password";
+
+            if (isHidden) {
+
+                password.type = "text";
+
+                toggle.classList.add(
+                    "is-visible"
+                );
+
+                toggle.setAttribute(
+                    "aria-label",
+                    "Hide password"
+                );
+
+                toggle.setAttribute(
+                    "title",
+                    "Hide password"
+                );
+
+            } else {
+
+                password.type = "password";
+
+                toggle.classList.remove(
+                    "is-visible"
+                );
+
+                toggle.setAttribute(
+                    "aria-label",
+                    "Show password"
+                );
+
+                toggle.setAttribute(
+                    "title",
+                    "Show password"
+                );
+
+            }
+
+        }
+    );
+
+})();
