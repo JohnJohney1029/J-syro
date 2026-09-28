@@ -8308,3 +8308,362 @@ border:
     width: 100%;
   }
 }
+
+
+/* =========================================================
+   J-SYRO CODE FIND / CTRL + F
+   ========================================================= */
+
+.editor-pane {
+    position: relative;
+}
+
+
+/* FIND BAR */
+
+.code-find-bar {
+    position: absolute;
+
+    top: 44px;
+    right: 18px;
+
+    z-index: 500;
+
+    width: min(430px, calc(100% - 36px));
+
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 5px 4px 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(31, 34, 43, 0.98),
+            rgba(20, 22, 30, 0.98)
+        );
+
+    border:
+        1px solid
+        rgba(120, 130, 160, 0.35);
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 12px 35px
+        rgba(0, 0, 0, 0.45),
+
+        0 0 0 1px
+        rgba(255, 255, 255, 0.025);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transform:
+        translateY(-8px)
+        scale(0.98);
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease,
+        visibility 0.16s ease;
+}
+
+
+.code-find-bar.open {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    transform:
+        translateY(0)
+        scale(1);
+
+    pointer-events: auto;
+}
+
+
+/* INPUT */
+
+.code-find-input-wrap {
+
+    min-width: 0;
+
+    flex: 1;
+
+    height: 32px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding:
+        0 9px;
+
+    background:
+        #11141b;
+
+    border:
+        1px solid
+        #343a49;
+
+    border-radius: 6px;
+}
+
+
+.code-find-input-wrap:focus-within {
+
+    border-color:
+        #635bff;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(99, 91, 255, 0.12);
+}
+
+
+.code-find-icon {
+
+    flex: 0 0 auto;
+
+    color:
+        #858da0;
+
+    font-size: 18px;
+
+    line-height: 1;
+}
+
+
+#codeFindInput {
+
+    width: 100%;
+
+    min-width: 0;
+
+    height: 100%;
+
+    padding: 0;
+
+    border: 0;
+
+    outline: 0;
+
+    background:
+        transparent;
+
+    color:
+        #e8ebf2;
+
+    font-size: 12px;
+
+    font-family:
+        "Inter",
+        Arial,
+        sans-serif;
+}
+
+
+#codeFindInput::placeholder {
+
+    color:
+        #697184;
+}
+
+
+/* MATCH COUNT */
+
+.code-find-count {
+
+    flex: 0 0 auto;
+
+    min-width: 42px;
+
+    padding:
+        0 4px;
+
+    color:
+        #8f97a9;
+
+    font-size: 10px;
+
+    text-align: center;
+
+    white-space: nowrap;
+}
+
+
+/* BUTTONS */
+
+.code-find-btn {
+
+    flex: 0 0 auto;
+
+    width: 30px;
+
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 5px;
+
+    background:
+        transparent;
+
+    color:
+        #aeb5c5;
+
+    cursor: pointer;
+
+    font-size: 17px;
+
+    line-height: 1;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+
+.code-find-btn:hover {
+
+    background:
+        rgba(99, 91, 255, 0.16);
+
+    color:
+        #ffffff;
+}
+
+
+.code-find-close {
+
+    font-size: 22px;
+
+    color:
+        #8c94a6;
+}
+
+
+.code-find-close:hover {
+
+    background:
+        rgba(255, 80, 100, 0.12);
+
+    color:
+        #ff8b9a;
+}
+
+
+/* LIGHT THEME */
+
+.editor-pane.editor-light-theme
+.code-find-bar {
+
+    background:
+        rgba(255, 255, 255, 0.98);
+
+    border-color:
+        #d5dae5;
+
+    box-shadow:
+        0 12px 35px
+        rgba(30, 40, 60, 0.18);
+}
+
+
+.editor-pane.editor-light-theme
+.code-find-input-wrap {
+
+    background:
+        #f7f8fb;
+
+    border-color:
+        #ccd3df;
+}
+
+
+.editor-pane.editor-light-theme
+#codeFindInput {
+
+    color:
+        #252c39;
+}
+
+
+.editor-pane.editor-light-theme
+.code-find-input-wrap:focus-within {
+
+    border-color:
+        #635bff;
+}
+
+
+.editor-pane.editor-light-theme
+.code-find-btn {
+
+    color:
+        #697386;
+}
+
+
+.editor-pane.editor-light-theme
+.code-find-btn:hover {
+
+    background:
+        rgba(99, 91, 255, 0.10);
+
+    color:
+        #332bc7;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .code-find-bar {
+
+        top: 38px;
+
+        right: 10px;
+
+        width:
+            calc(100% - 20px);
+    }
+
+    .code-find-count {
+
+        min-width: 38px;
+
+        font-size: 9px;
+    }
+
+    .code-find-btn {
+
+        width: 28px;
+
+        height: 28px;
+    }
+
+}
