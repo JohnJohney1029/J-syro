@@ -82998,3 +82998,468 @@ if (
 } else {
     initializeExplorerProjectName();
 }
+
+/* =========================================================
+   J-SYRO CODE FIND — CTRL + F
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+
+    const findBar =
+        document.getElementById(
+            "codeFindBar"
+        );
+
+    const findInput =
+        document.getElementById(
+            "codeFindInput"
+        );
+
+    const findCount =
+        document.getElementById(
+            "codeFindCount"
+        );
+
+    const findNext =
+        document.getElementById(
+            "codeFindNext"
+        );
+
+    const findPrev =
+        document.getElementById(
+            "codeFindPrev"
+        );
+
+    const findClose =
+        document.getElementById(
+            "codeFindClose"
+        );
+
+
+    if (
+        !findBar ||
+        !findInput ||
+        !findCount ||
+        !findNext ||
+        !findPrev ||
+        !findClose ||
+        !editor
+    ) {
+        return;
+    }
+
+
+    let matches = [];
+
+    let currentMatch = -1;
+
+
+    /* =========================================
+       OPEN FIND
+    ========================================= */
+
+    function openFind() {
+
+        findBar.classList.add(
+            "open"
+        );
+
+        findBar.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        findInput.focus();
+
+        findInput.select();
+
+        updateFindResults();
+
+    }
+
+
+    /* =========================================
+       CLOSE FIND
+    ========================================= */
+
+    function closeFind() {
+
+        findBar.classList.remove(
+            "open"
+        );
+
+        findBar.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        matches = [];
+
+        currentMatch = -1;
+
+        findCount.textContent =
+            "0/0";
+
+        editor.focus();
+
+    }
+
+
+    /* =========================================
+       FIND ALL MATCHES
+    ========================================= */
+
+    function updateFindResults() {
+
+        const query =
+            findInput.value;
+
+        const source =
+            editor.value || "";
+
+
+        matches = [];
+
+        currentMatch = -1;
+
+
+        if (!query) {
+
+            findCount.textContent =
+                "0/0";
+
+            return;
+        }
+
+
+        const lowerSource =
+            source.toLowerCase();
+
+        const lowerQuery =
+            query.toLowerCase();
+
+
+        let start = 0;
+
+
+        while (true) {
+
+            const index =
+                lowerSource.indexOf(
+                    lowerQuery,
+                    start
+                );
+
+
+            if (index === -1) {
+                break;
+            }
+
+
+            matches.push({
+                start: index,
+                end:
+                    index +
+                    query.length
+            });
+
+
+            start =
+                index +
+                Math.max(
+                    query.length,
+                    1
+                );
+        }
+
+
+        if (!matches.length) {
+
+            findCount.textContent =
+                "0/0";
+
+            return;
+        }
+
+
+        /* Find match nearest to cursor */
+
+        const cursor =
+            editor.selectionStart || 0;
+
+
+        currentMatch =
+            matches.findIndex(
+                function (match) {
+
+                    return (
+                        match.start >=
+                        cursor
+                    );
+
+                }
+            );
+
+
+        if (currentMatch === -1) {
+
+            currentMatch = 0;
+        }
+
+
+        selectCurrentMatch();
+
+    }
+
+
+    /* =========================================
+       SELECT CURRENT MATCH
+    ========================================= */
+
+    function selectCurrentMatch() {
+
+        if (
+            !matches.length ||
+            currentMatch < 0
+        ) {
+            return;
+        }
+
+
+        const match =
+            matches[currentMatch];
+
+
+        editor.focus();
+
+
+        editor.setSelectionRange(
+            match.start,
+            match.end
+        );
+
+
+        findCount.textContent =
+            `${currentMatch + 1}/${matches.length}`;
+    }
+
+
+    /* =========================================
+       NEXT
+    ========================================= */
+
+    function nextMatch() {
+
+        if (!matches.length) {
+            return;
+        }
+
+
+        currentMatch =
+            (currentMatch + 1) %
+            matches.length;
+
+
+        selectCurrentMatch();
+
+    }
+
+
+    /* =========================================
+       PREVIOUS
+    ========================================= */
+
+    function previousMatch() {
+
+        if (!matches.length) {
+            return;
+        }
+
+
+        currentMatch =
+            (
+                currentMatch - 1 +
+                matches.length
+            ) %
+            matches.length;
+
+
+        selectCurrentMatch();
+
+    }
+
+
+    /* =========================================
+       SEARCH INPUT
+    ========================================= */
+
+    findInput.addEventListener(
+        "input",
+        function () {
+
+            updateFindResults();
+
+        }
+    );
+
+
+    /* =========================================
+       ENTER / SHIFT + ENTER
+    ========================================= */
+
+    findInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key ===
+                "Enter"
+            ) {
+
+                event.preventDefault();
+
+
+                if (
+                    event.shiftKey
+                ) {
+
+                    previousMatch();
+
+                } else {
+
+                    nextMatch();
+
+                }
+
+            }
+
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                event.preventDefault();
+
+                closeFind();
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       BUTTONS
+    ========================================= */
+
+    findNext.addEventListener(
+        "click",
+        nextMatch
+    );
+
+
+    findPrev.addEventListener(
+        "click",
+        previousMatch
+    );
+
+
+    findClose.addEventListener(
+        "click",
+        closeFind
+    );
+
+
+    /* =========================================
+       CTRL + F
+    ========================================= */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                (event.ctrlKey ||
+                 event.metaKey) &&
+                event.key.toLowerCase() === "f"
+            ) {
+
+                event.preventDefault();
+
+                openFind();
+
+            }
+
+
+            if (
+                event.key ===
+                "Escape" &&
+                findBar.classList.contains(
+                    "open"
+                )
+            ) {
+
+                event.preventDefault();
+
+                closeFind();
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       UPDATE SEARCH WHEN CODE CHANGES
+    ========================================= */
+
+    editor.addEventListener(
+        "input",
+        function () {
+
+            if (
+                findBar.classList.contains(
+                    "open"
+                ) &&
+                findInput.value
+            ) {
+
+                updateFindResults();
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       UPDATE SEARCH WHEN FILE CHANGES
+    ========================================= */
+
+    document.addEventListener(
+        "click",
+        function () {
+
+            if (
+                findBar.classList.contains(
+                    "open"
+                ) &&
+                findInput.value
+            ) {
+
+                setTimeout(
+                    updateFindResults,
+                    50
+                );
+
+            }
+
+        }
+    );
+
+
+})();
