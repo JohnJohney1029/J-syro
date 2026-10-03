@@ -3355,3 +3355,271 @@ input:checked
     color: #635bff !important;
     background: rgba(99, 91, 255, 0.12) !important;
 }
+
+/* =========================================
+   J-SYRO HERO — NEW TOP DESIGN
+   ========================================= */
+
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 720px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #03040a;
+}
+
+/* Background image */
+.hero-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center center;
+}
+
+/* Dark cinematic overlay */
+.hero-shade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(3, 4, 10, 0.96) 0%,
+            rgba(3, 4, 10, 0.88) 28%,
+            rgba(3, 4, 10, 0.60) 55%,
+            rgba(3, 4, 10, 0.25) 100%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(3, 4, 10, 0.95) 0%,
+            transparent 35%
+        );
+}
+
+/* Main hero text area */
+.hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: min(720px, 90%);
+
+    margin-left: clamp(40px, 7.2vw, 95px);
+
+    padding-top: 70px;
+}
+
+/* Small purple heading */
+.hero .eyebrow {
+    display: inline-block;
+
+    color: #958dff;
+
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    margin-bottom: 20px;
+}
+
+/* Main heading */
+.hero h1 {
+    max-width: 680px;
+
+    margin: 0 0 26px;
+
+    color: #ffffff;
+
+    font-size: clamp(52px, 6vw, 86px);
+
+    line-height: 0.98;
+
+    letter-spacing: -0.055em;
+
+    font-weight: 800;
+}
+
+/* Description */
+.hero-content > p {
+    max-width: 610px;
+
+    margin: 0;
+
+    color: #c3c7d2;
+
+    font-size: clamp(17px, 1.55vw, 21px);
+
+    line-height: 1.65;
+}
+
+/* Button area */
+.hero-actions {
+    display: flex;
+    align-items: center;
+
+    margin-top: 36px;
+}
+
+/* Launch Workspace */
+.hero .button-secondary {
+    min-height: 56px;
+
+    padding: 0 27px;
+
+    color: #ffffff;
+
+    background: rgba(255, 255, 255, 0.055);
+
+    border: 1px solid rgba(255, 255, 255, 0.20);
+
+    border-radius: 9px;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    font-size: 16px;
+    font-weight: 600;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.hero .button-secondary:hover {
+    transform: translateY(-2px);
+
+    background: rgba(255, 255, 255, 0.10);
+
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+
+/* =========================================
+   DESKTOP
+   ========================================= */
+
+@media (min-width: 801px) {
+
+    .hero {
+        height: 100vh;
+        min-height: 720px;
+    }
+
+    .hero-content {
+        margin-left: clamp(55px, 7.2vw, 95px);
+        padding-top: 75px;
+    }
+
+    .hero h1 {
+        font-size: clamp(58px, 6.3vw, 88px);
+    }
+
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 800px) {
+
+    .hero {
+        min-height: 720px;
+        height: 100svh;
+    }
+
+    .hero-image {
+        object-position: 57% center;
+    }
+
+    .hero-shade {
+        background:
+            linear-gradient(
+                90deg,
+                rgba(3, 4, 10, 0.94),
+                rgba(3, 4, 10, 0.48)
+            ),
+            linear-gradient(
+                0deg,
+                rgba(3, 4, 10, 0.96),
+                transparent 45%
+            );
+    }
+
+    .hero-content {
+        width: calc(100% - 48px);
+
+        margin-left: 24px;
+
+        align-self: flex-end;
+
+        padding-top: 0;
+        padding-bottom: 95px;
+    }
+
+    .hero h1 {
+        font-size: clamp(46px, 8vw, 68px);
+    }
+
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 480px) {
+
+    .hero {
+        min-height: 680px;
+    }
+
+    .hero-content {
+        width: calc(100% - 36px);
+
+        margin-left: 18px;
+
+        padding-bottom: 70px;
+    }
+
+    .hero .eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+    }
+
+    .hero h1 {
+        font-size: 43px;
+
+        line-height: 0.99;
+
+        margin-bottom: 20px;
+    }
+
+    .hero-content > p {
+        font-size: 16px;
+
+        line-height: 1.55;
+    }
+
+    .hero-actions {
+        margin-top: 28px;
+    }
+
+    .hero .button-secondary {
+        width: auto;
+
+        min-height: 52px;
+
+        padding-inline: 22px;
+    }
+
+}
