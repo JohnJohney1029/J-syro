@@ -316,9 +316,45 @@
         return Number(extension.price) > 0;
     }
 
-    function isUnlocked(id) {
-        return !!manager && manager.isExtensionUnlocked(id);
+   function isUnlocked(id) {
+
+    /*
+     * Individual extension purchase
+     */
+    if (
+        manager &&
+        manager.isExtensionUnlocked(id)
+    ) {
+        return true;
     }
+
+
+    /*
+     * J-SYRO subscription/template access
+     *
+     * Admin = everything
+     * PRO = PRO extensions
+     * WORK APPS = PRO extensions
+     * BUSINESS = PRO extensions
+     * ALL ACCESS = everything
+     */
+
+    const access =
+        window.jSyroAccess || {};
+
+    if (
+        access.isAdmin === true ||
+        access.hasPro === true ||
+        access.hasWorkApps === true ||
+        access.hasBusiness === true ||
+        access.hasAllAccess === true
+    ) {
+        return true;
+    }
+
+
+    return false;
+}
 
     function buttonMarkup(extension, options = {}) {
         const installed = !!manager && manager.isInstalled(extension.id);
@@ -606,10 +642,13 @@
         const extension = store && store.getById(id);
         if (!extension || !manager) return;
 
-        if (isPaid(extension) && !manager.isExtensionUnlocked(id)) {
-            openExtensionPayment(extension);
-            return;
-        }
+       if (
+    isPaid(extension) &&
+    !isUnlocked(id)
+) {
+    openExtensionPayment(extension);
+    return;
+}
 
         try {
             manager.install(id);
@@ -622,15 +661,42 @@
         }
     }
 
-    function unlockExtension(id) {
-        const extension = store && store.getById(id);
-        if (!extension || !isPaid(extension)) return;
-        if (manager.isExtensionUnlocked(id)) {
-            installExtension(id);
-            return;
-        }
-        openExtensionPayment(extension);
+function unlockExtension(id) {
+
+    const extension =
+        store && store.getById(id);
+
+    if (
+        !extension ||
+        !isPaid(extension)
+    ) {
+        return;
     }
+
+
+    /*
+     * User already has access through:
+     * Admin / PRO / Work Apps /
+     * Business / All Access
+     */
+
+    if (isUnlocked(id)) {
+
+        installExtension(id);
+
+        return;
+    }
+
+
+    /*
+     * Otherwise open normal
+     * individual extension payment.
+     */
+
+    openExtensionPayment(
+        extension
+    );
+}
 
     function completeExtensionPayment(id) {
         const extension = store && store.getById(id);
